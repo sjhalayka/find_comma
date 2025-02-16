@@ -104,7 +104,10 @@ int main(void)
 		while (getline(infile, line))
 		{
 			if (line == "")
+			{
+				output << endl;
 				continue;
+			}
 
 			if (line[line.size() - 1] == '\\')
 			{
@@ -116,8 +119,8 @@ int main(void)
 				prev_lines = line;
 			}
 
-			trim_left_whitespace(prev_lines);
-			trim_right_whitespace(prev_lines);
+			//trim_left_whitespace(prev_lines);
+			//trim_right_whitespace(prev_lines);
 
 			bool finished_with_semi_colon = false;
 
@@ -125,7 +128,7 @@ int main(void)
 				finished_with_semi_colon = true;
 			else
 			{
-				cout << prev_lines << endl;
+				output << prev_lines << endl;
 				continue;
 			}
 
@@ -172,7 +175,7 @@ int main(void)
 
 					//output << endl;
 
-					cout << statements[s] << endl;
+					output << prev_lines << endl;
 
 					break;
 				}
@@ -195,7 +198,7 @@ int main(void)
 
 					//output << endl;
 
-					cout << statements[s] << endl;
+					output << prev_lines << endl;
 
 					break;
 				}
@@ -235,12 +238,13 @@ int main(void)
 
 					if (malloc_found != string::npos || free_found != string::npos)
 					{
-						cout << statements[s] << endl;
+						output << statements[s] << endl;
 					}
 					else
 					{
-						cout << statements[s] << endl;
+						output << statements[s] << endl;
 					}
+
 					continue;
 				}
 
@@ -425,16 +429,16 @@ int main(void)
 							type = "struct " + tokens[1];
 						}
 
-						cout << type << ' ';
+						output << type << ' ';
 						size_t first_index = 1;
 
 						if (is_struct || is_const)
 							first_index = 2;
 
 						for (size_t j = first_index; j < tokens.size(); j++)
-							cout << tokens[j] << ' ';
+							output << tokens[j] << ' ';
 
-						cout << endl;
+						output << endl;
 					}
 				}
 			}
@@ -442,11 +446,11 @@ int main(void)
 
 		infile.close();
 
-		//ofstream outfile(filenames[i]);
+		ofstream outfile(filenames[i] + ".new");
 
-		//outfile << output.str() << endl;
+		outfile << output.str() << endl;
 
-//		outfile.close();
+		outfile.close();
 	}
 
 	return 0;
