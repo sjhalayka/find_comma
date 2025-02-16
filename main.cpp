@@ -41,9 +41,19 @@ vector<string> std_strtok(const string& s, const string& regex_s)
 }
 
 
-int main(void)
+class variable_declaration
 {
-	std::string path = "Y:/home/sjhalayka/ldak_min";
+public:
+	string declaration;
+	string filename;
+	size_t line_number;
+	size_t scope_depth;
+};
+
+
+void enumerate_variables(string path, vector<variable_declaration> &declarations)
+{
+
 
 	vector<string> types;
 	types.push_back("static ");
@@ -87,6 +97,8 @@ int main(void)
 
 	for (size_t i = 0; i < filenames.size(); i++)
 	{
+		size_t scope_depth = 0;
+
 		ifstream infile(filenames[i]);
 
 		if (infile.fail())
@@ -95,18 +107,33 @@ int main(void)
 		string line;
 		string prev_lines;
 
-		cout << endl << endl << endl;
-		cout << filenames[i] << endl << endl;
+		//cout << endl << endl << endl;
+		//cout << filenames[i] << endl << endl;
 		string type = "";
 
 		ostringstream output;
 
+		size_t line_num = 0;
+
 		while (getline(infile, line))
 		{
+			line_num++;
+
 			if (line == "")
 			{
-				output << endl;
+				//output << endl;
 				continue;
+			}
+
+			for (size_t j = 0; j < line.size(); j++)
+			{
+				if (line[j] == '{')
+					scope_depth++;
+				else if (line[j] == '}')
+				{
+					if (scope_depth > 0)
+						scope_depth--;
+				}
 			}
 
 			if (line[line.size() - 1] == '\\')
@@ -128,7 +155,7 @@ int main(void)
 				finished_with_semi_colon = true;
 			else
 			{
-				output << prev_lines << endl;
+				//output << prev_lines << endl;
 				continue;
 			}
 
@@ -155,28 +182,7 @@ int main(void)
 				// Found a # or / as the first character
 				if (tokens[0][0] == '#' || tokens[0][0] == '/')
 				{
-					//cout << tokens[0] << endl;
-
-					////for(size_t x = 0; x < statements.size(); x++)
-					////for (size_t j = 0; j < statements[x].size(); j++)
-					////	if (statements[x][j] == '\\')
-					////		statements[x][j] = ' ';
-
-
-
-					//for (size_t x = 0; x < statements.size(); x++)
-					//{
-					//	for (size_t j = 0; j < statements[x].size() - 1; j++)
-					//		output << statements[x][j];
-
-					//	if (x < statements.size() - 1)
-					//		output << ';';
-					//}
-
-					//output << endl;
-
-					output << prev_lines << endl;
-
+					//output << prev_lines << endl;
 					break;
 				}
 
@@ -185,21 +191,7 @@ int main(void)
 					tokens[0][1] == 'o' &&
 					tokens[0][2] == 'r')
 				{
-					//cout << tokens[0] << endl;
-
-					//for (size_t x = 0; x < statements.size(); x++)
-					//{
-					//	for (size_t j = 0; j < statements[x].size() - 1; j++)
-					//		output << statements[x][j];
-
-					//	//if (x < statements.size() - 1)
-					//	output << ';';
-					//}
-
-					//output << endl;
-
-					output << prev_lines << endl;
-
+					//output << prev_lines << endl;
 					break;
 				}
 
@@ -236,14 +228,14 @@ int main(void)
 					size_t malloc_found = statements[s].find("malloc");
 					size_t free_found = statements[s].find("free");
 
-					if (malloc_found != string::npos || free_found != string::npos)
-					{
-						output << statements[s] << endl;
-					}
-					else
-					{
-						output << statements[s] << endl;
-					}
+					//if (malloc_found != string::npos || free_found != string::npos)
+					//{
+					//	output << statements[s] << endl;
+					//}
+					//else
+					//{
+					//	output << statements[s] << endl;
+					//}
 
 					continue;
 				}
@@ -429,16 +421,25 @@ int main(void)
 							type = "struct " + tokens[1];
 						}
 
-						output << type << ' ';
+						ostringstream type_oss;
+						type_oss << type << ' ';
 						size_t first_index = 1;
 
 						if (is_struct || is_const)
 							first_index = 2;
 
 						for (size_t j = first_index; j < tokens.size(); j++)
-							output << tokens[j] << ' ';
+							type_oss << tokens[j] << ' ';
 
-						output << endl;
+						//type_oss << endl;
+
+						variable_declaration v;
+						v.declaration = type_oss.str();
+						v.filename = filenames[i];
+						v.line_number = line_num;
+						v.scope_depth = scope_depth;
+
+						declarations.push_back(v);
 					}
 				}
 			}
@@ -446,11 +447,36 @@ int main(void)
 
 		infile.close();
 
-		ofstream outfile(filenames[i] + ".new");
+		//cout << output.str();
 
-		outfile << output.str() << endl;
+		//ofstream outfile(filenames[i] + ".new");
 
-		outfile.close();
+		//outfile << output.str();// << endl;
+
+		//outfile.close();
+	}
+
+
+}
+
+
+
+int main(void)
+{
+	std::string path = "Y:/home/sjhalayka/ldak_min";
+
+	vector<variable_declaration> declarations;
+
+	enumerate_variables(path, declarations);
+
+	for (size_t i = 0; i < declarations.size(); i++)
+	{
+		cout << declarations[i].declaration << endl;
+		cout << declarations[i].filename << endl;
+		cout << declarations[i].line_number << endl;
+		cout << declarations[i].scope_depth << endl;
+
+		cout << endl;
 	}
 
 	return 0;
