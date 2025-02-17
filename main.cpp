@@ -497,6 +497,30 @@ void enumerate_variables(string path, vector<variable_declaration> &declarations
 
 
 
+void get_type_and_name(const string& input, string& variable_type0, string& variable_name0)
+{
+	variable_type0 = variable_name0 = "";
+
+	vector<string> declaration_tokens0 = std_strtok(input, "[=;]\\s*");
+
+	if (declaration_tokens0.size() == 0)
+		return;
+
+	vector<string> declaration_tokens0_whitespace = std_strtok(declaration_tokens0[0], "[ \t]\\s*");
+
+	if (declaration_tokens0_whitespace.size() == 0)
+		return;
+
+	 variable_name0 = declaration_tokens0_whitespace[declaration_tokens0_whitespace.size() - 1];
+
+	 variable_type0 = "";
+
+	for (size_t j = 0; j < declaration_tokens0_whitespace.size() - 1; j++)
+		variable_type0 += declaration_tokens0_whitespace[j] + " ";
+}
+
+
+
 int main(void)
 {
 	std::string path = "Y:/home/sjhalayka/ldak_min";
@@ -505,70 +529,97 @@ int main(void)
 
 	enumerate_variables(path, declarations);
 
-	//for (size_t i = 0; i < declarations.size(); i++)
-	//{
-	//	cout << declarations[i].declaration << endl;
-	//	cout << declarations[i].filename << endl;
-	//	cout << declarations[i].line_number << endl;
-	//	cout << declarations[i].scope_depth << endl;
+	vector<variable_declaration> pointer_only_declarations;
 
-	//	cout << endl;
-	//}
-
-	//return 0;
-
-	sort(declarations.begin(), declarations.end());
-
-	// Search for collisions
-	for (size_t i = 0; i < declarations.size() - 1; i++)
+	for (size_t i = 0; i < declarations.size(); i++)
 	{
-		vector<string> declaration_tokens0 = std_strtok(declarations[i].declaration, "[=;]\\s*");
-		vector<string> declaration_tokens1 = std_strtok(declarations[i + 1].declaration, "[=;]\\s*");
+		string variable_type0 = "";
+		string variable_name0 = "";
 
-		if (declaration_tokens0.size() == 0 || declaration_tokens1.size() == 0)
+		get_type_and_name(declarations[i].declaration, variable_type0, variable_name0);
+
+		bool found_pointer_type = false;
+
+		// This should never happen after Microsoft style beautification of pointer types
+		if (string::npos != variable_type0.find("*"))
+			found_pointer_type = true;
+
+		// This should always happen after Microsoft style beautification of pointer types
+		if (string::npos != variable_name0.find("*"))
+			found_pointer_type = true;
+
+		// We're only interested in pointers
+		if (false == found_pointer_type)
 			continue;
 
-		vector<string> declaration_tokens0_whitespace = std_strtok(declaration_tokens0[0], "[ \t]\\s*");
-		vector<string> declaration_tokens1_whitespace = std_strtok(declaration_tokens1[0], "[ \t]\\s*");
+		pointer_only_declarations.push_back(declarations[i]);
 
-		if (declaration_tokens0_whitespace.size() == 0 || declaration_tokens1_whitespace.size() == 0)
-			continue;
+		cout << variable_type0 << endl;
+		cout << variable_name0 << endl;
+		//cout << declarations[i].declaration << endl;
+		cout << declarations[i].filename << endl;
+		cout << declarations[i].line_number << endl;
+		cout << declarations[i].scope_depth << endl;
 
-		string variable_name0 = declaration_tokens0_whitespace[declaration_tokens0_whitespace.size() - 1];
-		string variable_name1 = declaration_tokens1_whitespace[declaration_tokens1_whitespace.size() - 1];
-
-		if (declarations[i].filename == declarations[i + 1].filename)
-		{
-			if (variable_name0 == variable_name1)
-			{
-				if (declarations[i].scope_depth == declarations[i + 1].scope_depth)
-				{
-					cout << "Possible collision" << endl;
-					cout << variable_name0 << " " << variable_name1 << endl;
-					cout << declarations[i].scope_block_number << " " << declarations[i + 1].scope_block_number << endl;
-					cout << declarations[i].filename << endl;
-					cout << endl;
-
-					//if (declarations[i].scope_block_number == declarations[i + 1].scope_block_number)
-					//{
-
-					//}
-				}
-			}
-		}
-
-
-		//cout << "VARIABLE NAME " << variable_name0 << endl;
-
-		//cout << "DECLARATION TOKENS " << endl;
-
-		//for (size_t j = 0; j < declaration_tokens0.size(); j++)
-		//{
-		//	cout << declaration_tokens0[j] << ' ';
-		//}
-
-//		cout << endl;
+		cout << endl;
 	}
+
+	cout << declarations.size() << " " << pointer_only_declarations.size() << endl;
+
+	return 0;
+
+//	sort(declarations.begin(), declarations.end());
+//
+//	// Search for collisions
+//	for (size_t i = 0; i < declarations.size() - 1; i++)
+//	{
+//		vector<string> declaration_tokens0 = std_strtok(declarations[i].declaration, "[=;]\\s*");
+//		vector<string> declaration_tokens1 = std_strtok(declarations[i + 1].declaration, "[=;]\\s*");
+//
+//		if (declaration_tokens0.size() == 0 || declaration_tokens1.size() == 0)
+//			continue;
+//
+//		vector<string> declaration_tokens0_whitespace = std_strtok(declaration_tokens0[0], "[ \t]\\s*");
+//		vector<string> declaration_tokens1_whitespace = std_strtok(declaration_tokens1[0], "[ \t]\\s*");
+//
+//		if (declaration_tokens0_whitespace.size() == 0 || declaration_tokens1_whitespace.size() == 0)
+//			continue;
+//
+//		string variable_name0 = declaration_tokens0_whitespace[declaration_tokens0_whitespace.size() - 1];
+//		string variable_name1 = declaration_tokens1_whitespace[declaration_tokens1_whitespace.size() - 1];
+//
+//		if (declarations[i].filename == declarations[i + 1].filename)
+//		{
+//			if (variable_name0 == variable_name1)
+//			{
+//				if (declarations[i].scope_depth == declarations[i + 1].scope_depth)
+//				{
+//					cout << "Possible collision" << endl;
+//					cout << variable_name0 << " " << variable_name1 << endl;
+//					cout << declarations[i].scope_block_number << " " << declarations[i + 1].scope_block_number << endl;
+//					cout << declarations[i].filename << endl;
+//					cout << endl;
+//
+//					//if (declarations[i].scope_block_number == declarations[i + 1].scope_block_number)
+//					//{
+//
+//					//}
+//				}
+//			}
+//		}
+//
+//
+//		//cout << "VARIABLE NAME " << variable_name0 << endl;
+//
+//		//cout << "DECLARATION TOKENS " << endl;
+//
+//		//for (size_t j = 0; j < declaration_tokens0.size(); j++)
+//		//{
+//		//	cout << declaration_tokens0[j] << ' ';
+//		//}
+//
+////		cout << endl;
+//	}
 
 	return 0;
 }
