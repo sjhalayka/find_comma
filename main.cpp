@@ -48,6 +48,37 @@ public:
 	string filename;
 	size_t line_number;
 	size_t scope_depth;
+	size_t scope_block_number;
+
+	bool operator<(const variable_declaration& rhs)
+	{
+		if (filename < rhs.filename)
+			return true;
+		else if (filename > rhs.filename)
+			return false;
+
+		if (declaration < rhs.declaration)
+			return true;
+		else if (declaration > rhs.declaration)
+			return false;
+
+		if (line_number < rhs.line_number)
+			return true;
+		else if (line_number > rhs.line_number)
+			return false;
+
+		if (scope_depth < rhs.scope_depth)
+			return true;
+		else if (scope_depth > rhs.scope_depth)
+			return false;
+
+		if (scope_block_number < rhs.scope_block_number)
+			return true;
+		else if (scope_block_number > rhs.scope_block_number)
+			return false;
+
+		return false;
+	}
 };
 
 
@@ -98,6 +129,7 @@ void enumerate_variables(string path, vector<variable_declaration> &declarations
 	for (size_t i = 0; i < filenames.size(); i++)
 	{
 		size_t scope_depth = 0;
+		size_t scope_block_number = 0;
 
 		ifstream infile(filenames[i]);
 
@@ -128,7 +160,10 @@ void enumerate_variables(string path, vector<variable_declaration> &declarations
 			for (size_t j = 0; j < line.size(); j++)
 			{
 				if (line[j] == '{')
+				{
+					scope_block_number++;
 					scope_depth++;
+				}
 				else if (line[j] == '}')
 				{
 					if (scope_depth > 0)
@@ -438,6 +473,7 @@ void enumerate_variables(string path, vector<variable_declaration> &declarations
 						v.filename = filenames[i];
 						v.line_number = line_num;
 						v.scope_depth = scope_depth;
+						v.scope_block_number = scope_block_number;
 
 						declarations.push_back(v);
 					}
@@ -469,14 +505,69 @@ int main(void)
 
 	enumerate_variables(path, declarations);
 
-	for (size_t i = 0; i < declarations.size(); i++)
-	{
-		cout << declarations[i].declaration << endl;
-		cout << declarations[i].filename << endl;
-		cout << declarations[i].line_number << endl;
-		cout << declarations[i].scope_depth << endl;
+	//for (size_t i = 0; i < declarations.size(); i++)
+	//{
+	//	cout << declarations[i].declaration << endl;
+	//	cout << declarations[i].filename << endl;
+	//	cout << declarations[i].line_number << endl;
+	//	cout << declarations[i].scope_depth << endl;
 
-		cout << endl;
+	//	cout << endl;
+	//}
+
+	//return 0;
+
+	sort(declarations.begin(), declarations.end());
+
+	// Search for collisions
+	for (size_t i = 0; i < declarations.size() - 1; i++)
+	{
+		vector<string> declaration_tokens0 = std_strtok(declarations[i].declaration, "[=;]\\s*");
+		vector<string> declaration_tokens1 = std_strtok(declarations[i + 1].declaration, "[=;]\\s*");
+
+		if (declaration_tokens0.size() == 0 || declaration_tokens1.size() == 0)
+			continue;
+
+		vector<string> declaration_tokens0_whitespace = std_strtok(declaration_tokens0[0], "[ \t]\\s*");
+		vector<string> declaration_tokens1_whitespace = std_strtok(declaration_tokens1[0], "[ \t]\\s*");
+
+		if (declaration_tokens0_whitespace.size() == 0 || declaration_tokens1_whitespace.size() == 0)
+			continue;
+
+		string variable_name0 = declaration_tokens0_whitespace[declaration_tokens0_whitespace.size() - 1];
+		string variable_name1 = declaration_tokens1_whitespace[declaration_tokens1_whitespace.size() - 1];
+
+		if (declarations[i].filename == declarations[i + 1].filename)
+		{
+			if (variable_name0 == variable_name1)
+			{
+				if (declarations[i].scope_depth == declarations[i + 1].scope_depth)
+				{
+					cout << "Possible collision" << endl;
+					cout << variable_name0 << " " << variable_name1 << endl;
+					cout << declarations[i].scope_block_number << " " << declarations[i + 1].scope_block_number << endl;
+					cout << declarations[i].filename << endl;
+					cout << endl;
+
+					//if (declarations[i].scope_block_number == declarations[i + 1].scope_block_number)
+					//{
+
+					//}
+				}
+			}
+		}
+
+
+		//cout << "VARIABLE NAME " << variable_name0 << endl;
+
+		//cout << "DECLARATION TOKENS " << endl;
+
+		//for (size_t j = 0; j < declaration_tokens0.size(); j++)
+		//{
+		//	cout << declaration_tokens0[j] << ' ';
+		//}
+
+//		cout << endl;
 	}
 
 	return 0;
