@@ -84,7 +84,7 @@ public:
 
 void enumerate_variables(string path, vector<variable_declaration>& declarations)
 {
-
+	declarations.clear();
 
 	vector<string> types;
 	types.push_back("static ");
@@ -107,20 +107,25 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 	for (const auto& entry : filesystem::directory_iterator(path))
 	{
-		string s = entry.path().string();
+		//string s = entry.path().string();
 
-		vector<string> tokens = std_strtok(s, "[.]\\s*");
+		size_t str_pos = entry.path().string().find("getnums.c");
 
-		for (size_t i = 0; i < tokens.size(); i++)
-			for (size_t j = 0; j < tokens[i].size(); j++)
-				tokens[i][j] = tolower(tokens[i][j]);
+		if(str_pos != string::npos)
+		filenames.push_back(entry.path().string());
 
-		if (tokens.size() > 0 &&
-			(tokens[tokens.size() - 1] == "c" ||
-				tokens[tokens.size() - 1] == "cpp"))
-		{
-			filenames.push_back(s);
-		}
+		//vector<string> tokens = std_strtok(s, "[.]\\s*");
+
+		//for (size_t i = 0; i < tokens.size(); i++)
+		//	for (size_t j = 0; j < tokens[i].size(); j++)
+		//		tokens[i][j] = tolower(tokens[i][j]);
+
+		//if (tokens.size() > 0 &&
+		//	(tokens[tokens.size() - 1] == "c" ||
+		//		tokens[tokens.size() - 1] == "cpp"))
+		//{
+		//	filenames.push_back(s);
+		//}
 	}
 
 
@@ -151,7 +156,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 		while (getline(infile, line))
 		{
-			bool inside_double_slash_comment = false;
+
 			line_num++;
 
 			if (line == "")
@@ -160,376 +165,534 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 				continue;
 			}
 
-			if (line[line.size() - 1] == '\\')
+			//string temp_line = "";// = line;
+
+			bool inside_double_slash_comment = false;
+
+			//if (string::npos != line.find("/*") ||
+			//	string::npos != line.find("*/") ||
+			//	string::npos != line.find("//"))
+			//{
+			//	inside_double_slash_comment = false;
+
+			//	for (size_t l = 0; l < line.size() - 1; l++)
+			//	{
+			//		if (line[l] == '/' && line[l + 1] == '*')
+			//		{
+			//			inside_slashstar_comment = true;
+			//			l++;
+			//			continue;
+			//		}
+
+			//		else if (line[l] == '*' && line[l + 1] == '/')
+			//		{
+			//			inside_slashstar_comment = false;
+			//			l++;
+			//			continue;
+			//		}
+
+			//		else if (line[l] == '/' && line[l + 1] == '/')
+			//		{
+			//			inside_double_slash_comment = true;
+			//			l++;
+			//			continue;
+			//		}
+			//		else
+			//		{
+			//			if (inside_slashstar_comment || inside_double_slash_comment)
+			//				continue;
+			//			else
+			//				temp_line += line[l];
+			//		}
+			//	}
+			//}
+			//else
+			//{
+			//	temp_line = line;
+			//}
+
+
+
+
+
+
+
+
+			
+
+			//if(line.size() > 0)
+			//temp_line += line[line.size() - 1];
+
+
+			string final_string = line;
+
+			if(inside_double_slash_comment || inside_slashstar_comment)
+			cout << final_string << endl;
+
+
+			if (final_string == "")
 			{
-				prev_lines_vector.push_back(line);
+				//output << endl;
+				continue;
+			}
+
+			inside_double_slash_comment = false;
+
+
+
+			if (final_string[final_string.size() - 1] == '\\')
+			{
+				prev_lines_vector.push_back(final_string);
 				//prev_lines = prev_lines + line;
 				continue;
 			}
 			else
 			{
 				prev_lines_vector.clear();
-				prev_lines_vector.push_back(line);
+				prev_lines_vector.push_back(final_string);
 				//prev_lines = line;
 			}
 
-
-
+			
+			
+			
+			
+			
+			
 			string line_before_comment = "";
 			string line_inside_comment = "";
 			string line_after_comment = "";
 
 			for (size_t p = 0; p < prev_lines_vector.size(); p++)
 			{
-				const size_t double_slash_location = prev_lines_vector[p].find("//");
+				string prev_string = prev_lines_vector[p];
 
-				string final_string = prev_lines_vector[p];
+				bool found_starslash_on_same_line = false;
 
-				if (double_slash_location != string::npos)
+				const size_t slashstar_location = prev_string.find("/*");
+
+				if (slashstar_location != string::npos)
 				{
-					inside_double_slash_comment = true;
-					line_before_comment = prev_lines_vector[p].substr(0, double_slash_location);
-					line_inside_comment = prev_lines_vector[p].substr(double_slash_location + 2, prev_lines_vector[p].size() - double_slash_location + 2);
+					inside_slashstar_comment = true;
+					line_before_comment = prev_string.substr(0, slashstar_location);
+					line_inside_comment = prev_string.substr(slashstar_location + 2, prev_string.size() - slashstar_location + 2);
 					line_after_comment = "";
 
-					final_string = line_before_comment;
+					prev_string = line_before_comment + line_inside_comment;
 
-					//cout << "found double slash" << endl;
-					//cout << prev_lines_vector[p] << endl;
-					//cout << "\"" << line_before_comment << "\"" << endl;
-					//cout << "\"" << line_inside_comment << "\"" << endl;
-					//cout << "\"" << line_after_comment << "\"" << endl;
+					const size_t starslash_location = prev_string.find("*/");
+
+					if (starslash_location != string::npos)
+					{
+						inside_slashstar_comment = false;
+						found_starslash_on_same_line = true;
+						line_before_comment = "";// ;
+						line_inside_comment = prev_string.substr(0, starslash_location);
+						line_after_comment = prev_string.substr(slashstar_location + 2, prev_string.size() - slashstar_location + 2);
+
+						prev_string = line_after_comment;// +line_after_comment;
+
+						cout << "found star slash on same line" << endl;
+						cout << prev_lines_vector[p] << endl;
+						cout << "\"" << line_before_comment << "\"" << endl;
+						cout << "\"" << line_inside_comment << "\"" << endl;
+						cout << "\"" << line_after_comment << "\"" << endl;
+						cout << "\"" << prev_string << "\"" << endl;
+						cout << filenames[i] << endl;
+						cout << endl << endl;
+					}
 
 
 
+
+
+					cout << "found slash star" << endl;
+					cout << prev_lines_vector[p] << endl;
+					cout << "\"" << line_before_comment << "\"" << endl;
+					cout << "\"" << line_inside_comment << "\"" << endl;
+					cout << "\"" << line_after_comment << "\"" << endl;
+					cout << "\"" << prev_string << "\"" << endl;
+					cout << filenames[i] << endl;
+					cout << endl << endl;
+				}
+
+				const size_t starslash_location = prev_string.find("*/");
+
+				if (found_starslash_on_same_line == false && starslash_location != string::npos)
+				{
+					inside_slashstar_comment = false;
+
+					line_before_comment = "";// ;
+					line_inside_comment = prev_string.substr(0, starslash_location);
+					line_after_comment = prev_string.substr(slashstar_location + 2, prev_string.size() - slashstar_location + 2);
+
+					prev_string = line_after_comment;
+
+
+					cout << "found star slash" << endl;
+					cout << prev_lines_vector[p] << endl;
+					cout << "\"" << line_before_comment << "\"" << endl;
+					cout << "\"" << line_inside_comment << "\"" << endl;
+					cout << "\"" << line_after_comment << "\"" << endl;
+					cout << "\"" << prev_string << "\"" << endl;
+					cout << filenames[i] << endl;
+					cout << endl << endl;
+				}
+
+
+				if (false == inside_slashstar_comment)
+				{
+					const size_t double_slash_location = prev_string.find("//");
+
+					if (double_slash_location != string::npos)
+					{
+						inside_double_slash_comment = true;
+						line_before_comment = prev_string.substr(0, double_slash_location);
+						line_inside_comment = prev_string.substr(double_slash_location + 2, prev_string.size() - double_slash_location + 2);
+						line_after_comment = "";
+
+						prev_string = line_before_comment;// +line_after_comment;
+
+						cout << "found double slash" << endl;
+						cout << prev_lines_vector[p] << endl;
+						cout << "\"" << line_before_comment << "\"" << endl;
+						cout << "\"" << line_inside_comment << "\"" << endl;
+						cout << "\"" << line_after_comment << "\"" << endl;
+						cout << "\"" << prev_string << "\"" << endl;
+						cout << filenames[i] << endl;
+						cout << endl << endl;
+					}
 				}
 
 
 
-				//for (size_t j = 0; j < line.size(); j++)
-				//{
-				//	if (line[j] == '{')
-				//	{
-				//		scope_block_number++;
-				//		scope_depth++;
-				//	}
-				//	else if (line[j] == '}')
-				//	{
-				//		if (scope_depth > 0)
-				//			scope_depth--;
-				//	}
-				//}
 
 
 
-				//trim_left_whitespace(prev_lines);
-				//trim_right_whitespace(prev_lines);
+					//for (size_t j = 0; j < line.size(); j++)
+					//{
+					//	if (line[j] == '{')
+					//	{
+					//		scope_block_number++;
+					//		scope_depth++;
+					//	}
+					//	else if (line[j] == '}')
+					//	{
+					//		if (scope_depth > 0)
+					//			scope_depth--;
+					//	}
+					//}
 
-				bool finished_with_semi_colon = false;
 
-				if (final_string[final_string.size() - 1] == ';')
-					finished_with_semi_colon = true;
-				else
-				{
-					//output << prev_lines << endl;
-					continue;
-				}
 
-				vector<string> statements = std_strtok(final_string, "[;]\\s*");
+					//trim_left_whitespace(prev_lines);
+					//trim_right_whitespace(prev_lines);
 
-				for (size_t j = 0; j < statements.size(); j++)
-					statements[j] += ';';
+					bool finished_with_semi_colon = false;
 
-				for (size_t s = 0; s < statements.size(); s++)
-				{
-					vector<string> tokens = std_strtok(statements[s], "[ \t]\\s*");
-
-					if (tokens.size() == 0)
+					if (final_string[final_string.size() - 1] == ';')
+						finished_with_semi_colon = true;
+					else
+					{
+						//output << prev_lines << endl;
 						continue;
-
-					for (size_t j = 0; j < tokens.size(); j++)
-					{
-						trim_left_whitespace(tokens[j]);
-
-						if (j < tokens.size() - 1)
-							tokens[j] += ' ';
 					}
 
-					// Found a # or / as the first character
-					if (tokens[0][0] == '#' || tokens[0][0] == '/')
-					{
-						//output << prev_lines << endl;
-						break;
-					}
+					vector<string> statements = std_strtok(final_string, "[;]\\s*");
 
-					if (tokens[0].size() >= 3 &&
-						tokens[0][0] == 'f' &&
-						tokens[0][1] == 'o' &&
-						tokens[0][2] == 'r')
-					{
-						//output << prev_lines << endl;
-						break;
-					}
+					for (size_t j = 0; j < statements.size(); j++)
+						statements[j] += ';';
 
-					bool found_type = false;
-					bool is_struct = false;
-					bool is_const = false;
-					//bool is_static = false;
-
-					// Is known type?
-					if (types.end() != find(
-						types.begin(),
-						types.end(),
-						tokens[0]))
+					for (size_t s = 0; s < statements.size(); s++)
 					{
-						found_type = true;
-					}
+						vector<string> tokens = std_strtok(statements[s], "[ \t]\\s*");
 
-					// This is not a variable declaration statement
-					if (false == found_type)
-					{
-						//// Not a variable declaration
-						//if (finished_with_semi_colon)
+						if (tokens.size() == 0)
+							continue;
+
+						for (size_t j = 0; j < tokens.size(); j++)
+						{
+							trim_left_whitespace(tokens[j]);
+
+							if (j < tokens.size() - 1)
+								tokens[j] += ' ';
+						}
+
+						// Found a # or / as the first character
+						if (tokens[0][0] == '#' || tokens[0][0] == '/')
+						{
+							//output << prev_lines << endl;
+							break;
+						}
+
+						if (tokens[0].size() >= 3 &&
+							tokens[0][0] == 'f' &&
+							tokens[0][1] == 'o' &&
+							tokens[0][2] == 'r')
+						{
+							//output << prev_lines << endl;
+							break;
+						}
+
+						bool found_type = false;
+						bool is_struct = false;
+						bool is_const = false;
+						//bool is_static = false;
+
+						// Is known type?
+						if (types.end() != find(
+							types.begin(),
+							types.end(),
+							tokens[0]))
+						{
+							found_type = true;
+						}
+
+						// This is not a variable declaration statement
+						if (false == found_type)
+						{
+							//// Not a variable declaration
+							//if (finished_with_semi_colon)
+							//{
+							//	output << statements[s];
+							//}
+							//else
+							//{
+							//	statements[s].pop_back();
+							//	output << statements[s];
+							//}
+
+							//output << endl;
+
+							size_t malloc_found = statements[s].find("malloc");
+							size_t free_found = statements[s].find("free");
+
+							//if (malloc_found != string::npos || free_found != string::npos)
+							//{
+							//	output << statements[s] << endl;
+							//}
+							//else
+							//{
+							//	output << statements[s] << endl;
+							//}
+
+							continue;
+						}
+
+						//bool found_initializer = false;
+
+						//for (size_t j = 0; j < statements[s].size(); j++)
 						//{
-						//	output << statements[s];
+						//	if (statements[s][j] == '{' || statements[s][j] == '}')
+						//	{
+						//		found_initializer = true;
+						//	}
 						//}
-						//else
+
+						//if (found_initializer)
+						//{
+						//	if (finished_with_semi_colon)
+						//		output << statements[s] << endl;
+						//	else
+						//	{
+						//		statements[s].pop_back();
+						//		output << statements[s] << endl;
+						//	}
+
+						//	continue;
+						//}
+
+						//if (finished_with_comma)
 						//{
 						//	statements[s].pop_back();
-						//	output << statements[s];
-						//}
-
-						//output << endl;
-
-						size_t malloc_found = statements[s].find("malloc");
-						size_t free_found = statements[s].find("free");
-
-						//if (malloc_found != string::npos || free_found != string::npos)
-						//{
 						//	output << statements[s] << endl;
-						//}
-						//else
-						//{
-						//	output << statements[s] << endl;
+						//	cout << statements[s] << endl;
+						//	continue;
 						//}
 
-						continue;
-					}
-
-					//bool found_initializer = false;
-
-					//for (size_t j = 0; j < statements[s].size(); j++)
-					//{
-					//	if (statements[s][j] == '{' || statements[s][j] == '}')
-					//	{
-					//		found_initializer = true;
-					//	}
-					//}
-
-					//if (found_initializer)
-					//{
-					//	if (finished_with_semi_colon)
-					//		output << statements[s] << endl;
-					//	else
-					//	{
-					//		statements[s].pop_back();
-					//		output << statements[s] << endl;
-					//	}
-
-					//	continue;
-					//}
-
-					//if (finished_with_comma)
-					//{
-					//	statements[s].pop_back();
-					//	output << statements[s] << endl;
-					//	cout << statements[s] << endl;
-					//	continue;
-					//}
 
 
 
-
-					if (found_type)
-					{
-						if (1)//type == "" || s == 0)
+						if (found_type)
 						{
-							type = tokens[0];
-
-							if (tokens[0] == "static ")
+							if (1)//type == "" || s == 0)
 							{
-								//is_static = true;
+								type = tokens[0];
 
-								type = "static ";
-
-								for (size_t i = 1; i < tokens.size(); i++)
+								if (tokens[0] == "static ")
 								{
-									if (//tokens[i] == "static " ||
-										tokens[i] == "size_t " ||
-										tokens[i] == "FILE " ||
-										tokens[i] == "DIR " ||
-										tokens[i] == "gzFile " ||
-										tokens[i] == "double " ||
-										tokens[i] == "float " ||
-										tokens[i] == "unsigned " ||
-										tokens[i] == "signed " ||
-										tokens[i] == "short " ||
-										tokens[i] == "long " ||
-										tokens[i] == "int " ||
-										tokens[i] == "char ")
-									{
-										/*if (tokens[i] != "static ")*/
-										type += tokens[i] + " ";
+									//is_static = true;
 
-										tokens.erase(tokens.begin() + i);
-										i = 0;
-									}
-								}
-							}
-							else if (tokens.size() > 1 && tokens[0] == "const")
-							{
-								type = "const ";
+									type = "static ";
 
-								for (size_t i = 0; i < tokens.size(); i++)
-								{
-									if (tokens[i] == "size_t" ||
-										tokens[i] == "FILE" ||
-										tokens[i] == "DIR" ||
-										tokens[i] == "gzFile" ||
-										tokens[i] == "double" ||
-										tokens[i] == "float" ||
-										tokens[i] == "unsigned" ||
-										tokens[i] == "signed" ||
-										tokens[i] == "short" ||
-										tokens[i] == "long" ||
-										tokens[i] == "int" ||
-										tokens[i] == "char")
+									for (size_t i = 1; i < tokens.size(); i++)
 									{
-										if (tokens[i] != "const")
+										if (//tokens[i] == "static " ||
+											tokens[i] == "size_t " ||
+											tokens[i] == "FILE " ||
+											tokens[i] == "DIR " ||
+											tokens[i] == "gzFile " ||
+											tokens[i] == "double " ||
+											tokens[i] == "float " ||
+											tokens[i] == "unsigned " ||
+											tokens[i] == "signed " ||
+											tokens[i] == "short " ||
+											tokens[i] == "long " ||
+											tokens[i] == "int " ||
+											tokens[i] == "char ")
+										{
+											/*if (tokens[i] != "static ")*/
 											type += tokens[i] + " ";
 
-										tokens.erase(tokens.begin() + i);
-										i = 0;
+											tokens.erase(tokens.begin() + i);
+											i = 0;
+										}
 									}
 								}
-							}
-							else if (tokens.size() > 1 && tokens[0] == "unsigned")
-							{
-								type = "unsigned ";
-
-								for (size_t i = 0; i < tokens.size(); i++)
+								else if (tokens.size() > 1 && tokens[0] == "const")
 								{
-									if (tokens[i] == "short" ||
-										tokens[i] == "long" ||
-										tokens[i] == "int" ||
-										tokens[i] == "char")
-									{
-										if (tokens[i] != "unsigned")
-											type += tokens[i] + " ";
+									type = "const ";
 
-										tokens.erase(tokens.begin() + i);
-										i = 0;
+									for (size_t i = 0; i < tokens.size(); i++)
+									{
+										if (tokens[i] == "size_t" ||
+											tokens[i] == "FILE" ||
+											tokens[i] == "DIR" ||
+											tokens[i] == "gzFile" ||
+											tokens[i] == "double" ||
+											tokens[i] == "float" ||
+											tokens[i] == "unsigned" ||
+											tokens[i] == "signed" ||
+											tokens[i] == "short" ||
+											tokens[i] == "long" ||
+											tokens[i] == "int" ||
+											tokens[i] == "char")
+										{
+											if (tokens[i] != "const")
+												type += tokens[i] + " ";
+
+											tokens.erase(tokens.begin() + i);
+											i = 0;
+										}
 									}
 								}
-							}
-							else if (tokens.size() > 1 && tokens[0] == "signed")
-							{
-								type = "signed ";
-
-								for (size_t i = 1; i < tokens.size(); i++)
+								else if (tokens.size() > 1 && tokens[0] == "unsigned")
 								{
-									if (
-										tokens[i] == "short" ||
-										tokens[i] == "long" ||
-										tokens[i] == "int" ||
-										tokens[i] == "char")
-									{
-										if (tokens[i] != "signed")
-											type += tokens[i] + " ";
+									type = "unsigned ";
 
-										tokens.erase(tokens.begin() + i);
-										i = 0;
+									for (size_t i = 0; i < tokens.size(); i++)
+									{
+										if (tokens[i] == "short" ||
+											tokens[i] == "long" ||
+											tokens[i] == "int" ||
+											tokens[i] == "char")
+										{
+											if (tokens[i] != "unsigned")
+												type += tokens[i] + " ";
+
+											tokens.erase(tokens.begin() + i);
+											i = 0;
+										}
 									}
 								}
-							}
-							else if (tokens.size() > 1 && tokens[0] == "short")
-							{
-								type = "short ";
-
-								for (size_t i = 0; i < tokens.size(); i++)
+								else if (tokens.size() > 1 && tokens[0] == "signed")
 								{
-									if (
-										tokens[i] == "unsigned" ||
-										tokens[i] == "signed" ||
-										tokens[i] == "int")
-									{
-										if (tokens[i] != "short")
-											type += tokens[i] + " ";
+									type = "signed ";
 
-										tokens.erase(tokens.begin() + i);
-										i = 0;
+									for (size_t i = 1; i < tokens.size(); i++)
+									{
+										if (
+											tokens[i] == "short" ||
+											tokens[i] == "long" ||
+											tokens[i] == "int" ||
+											tokens[i] == "char")
+										{
+											if (tokens[i] != "signed")
+												type += tokens[i] + " ";
+
+											tokens.erase(tokens.begin() + i);
+											i = 0;
+										}
 									}
 								}
-							}
-							else if (tokens.size() > 1 && tokens[0] == "long ")
-							{
-
-								type = "long ";
-
-								for (size_t i = 0; i < tokens.size(); i++)
+								else if (tokens.size() > 1 && tokens[0] == "short")
 								{
-									if (
-										tokens[i] == "unsigned" ||
-										tokens[i] == "signed" ||
-										tokens[i] == "int")
-									{
-										if (tokens[i] != "long ")
-											type += tokens[i] + " ";
+									type = "short ";
 
-										tokens.erase(tokens.begin() + i);
-										i = 0;
+									for (size_t i = 0; i < tokens.size(); i++)
+									{
+										if (
+											tokens[i] == "unsigned" ||
+											tokens[i] == "signed" ||
+											tokens[i] == "int")
+										{
+											if (tokens[i] != "short")
+												type += tokens[i] + " ";
+
+											tokens.erase(tokens.begin() + i);
+											i = 0;
+										}
 									}
 								}
-							}
-							else if (tokens.size() > 1 && tokens[0] == "struct")
-							{
-								is_struct = true;
-								type = "struct " + tokens[1];
-							}
+								else if (tokens.size() > 1 && tokens[0] == "long ")
+								{
 
-							ostringstream type_oss;
-							type_oss << type << ' ';
-							size_t first_index = 1;
+									type = "long ";
 
-							if (is_struct || is_const)
-								first_index = 2;
+									for (size_t i = 0; i < tokens.size(); i++)
+									{
+										if (
+											tokens[i] == "unsigned" ||
+											tokens[i] == "signed" ||
+											tokens[i] == "int")
+										{
+											if (tokens[i] != "long ")
+												type += tokens[i] + " ";
 
-							for (size_t j = first_index; j < tokens.size(); j++)
-								type_oss << tokens[j] << ' ';
+											tokens.erase(tokens.begin() + i);
+											i = 0;
+										}
+									}
+								}
+								else if (tokens.size() > 1 && tokens[0] == "struct")
+								{
+									is_struct = true;
+									type = "struct " + tokens[1];
+								}
 
-							//type_oss << endl;
-							if (false == inside_slashstar_comment && false == inside_double_slash_comment)
-							{
-								variable_declaration v;
-								v.declaration = type_oss.str();
-								v.filename = filenames[i];
-								v.line_number = line_num;
-								//v.scope_depth = scope_depth;
-								//v.scope_block_number = scope_block_number;
+								ostringstream type_oss;
+								type_oss << type << ' ';
+								size_t first_index = 1;
 
-								declarations.push_back(v);
-							}
-							else
-							{
-								cout << "Skipping variable declaration in comment" << endl;
+								if (is_struct || is_const)
+									first_index = 2;
 
-								cout << type_oss.str() << endl;
-								cout << filenames[i] << endl;
-								cout << line_num;
+								for (size_t j = first_index; j < tokens.size(); j++)
+									type_oss << tokens[j] << ' ';
+
+								//type_oss << endl;
+								if (false == inside_slashstar_comment && false == inside_double_slash_comment)
+								{
+									variable_declaration v;
+									v.declaration = type_oss.str();
+									v.filename = filenames[i];
+									v.line_number = line_num;
+									//v.scope_depth = scope_depth;
+									//v.scope_block_number = scope_block_number;
+
+									declarations.push_back(v);
+								}
+								else
+								{
+									cout << "Skipping variable declaration in comment" << endl;
+
+									cout << type_oss.str() << endl;
+									cout << filenames[i] << endl;
+									cout << line_num << endl;
+								}
 							}
 						}
 					}
-				}
 			}
 		}
 
