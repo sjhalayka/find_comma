@@ -141,7 +141,9 @@ void enumerate_variables(string path, vector<variable_declaration> &declarations
 
 		//cout << endl << endl << endl;
 		//cout << filenames[i] << endl << endl;
+
 		string type = "";
+		bool inside_slashstar_comment = false;
 
 		ostringstream output;
 
@@ -156,6 +158,17 @@ void enumerate_variables(string path, vector<variable_declaration> &declarations
 				//output << endl;
 				continue;
 			}
+
+			bool inside_double_slash_comment = false;
+
+			string line_before_comment = "";
+			string line_inside_comment = "";
+			string line_after_comment = "";
+
+
+
+
+
 
 			for (size_t j = 0; j < line.size(); j++)
 			{
@@ -561,7 +574,7 @@ int main(void)
 		cout << declarations[i].line_number << endl;
 		cout << declarations[i].scope_depth << endl;
 
-		cout << endl;
+		//cout << endl;
 	}
 
 	cout << declarations.size() << " " << pointer_only_declarations.size() << endl;
