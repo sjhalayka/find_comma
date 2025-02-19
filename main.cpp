@@ -317,7 +317,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 								line_before_comment = "";// ;
 								line_inside_comment = prev_string.substr(0, starslash_location);
-								line_after_comment = prev_string.substr(slashstar_location, prev_string.size() - slashstar_location);
+								line_after_comment = prev_string.substr(0, prev_string.size() - slashstar_location - 4);
 
 								prev_string = line_after_comment;
 
@@ -342,7 +342,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 							line_before_comment = "";// ;
 							line_inside_comment = prev_string.substr(0, starslash_location);
-							line_after_comment = prev_string.substr(slashstar_location + 2, prev_string.size() - slashstar_location - 4);
+							line_after_comment = prev_string.substr(0, prev_string.size() - slashstar_location - 4);
 
 							prev_string = line_after_comment;
 
@@ -363,8 +363,8 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 							if (double_slash_location != string::npos)
 							{
 								inside_double_slash_comment = true;
-								//line_before_comment = prev_string.substr(0, double_slash_location);
-								//line_inside_comment = prev_string.substr(double_slash_location, prev_string.size() - double_slash_location - 2);
+								line_before_comment = prev_string.substr(0, double_slash_location);
+								line_inside_comment = prev_string.substr(double_slash_location, prev_string.size() - double_slash_location - 2);
 								line_after_comment = "";
 
 								prev_string = line_before_comment;// +line_after_comment;
