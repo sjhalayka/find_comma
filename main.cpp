@@ -364,6 +364,8 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 				for (size_t j = 0; j < statements.size(); j++)
 					statements[j] += ';';
 
+				size_t prev_statements_location = 0;
+
 				for (size_t s = 0; s < statements.size(); s++)
 				{
 	
@@ -404,9 +406,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 					bool found_type = false;
 					bool is_struct = false;
 					bool is_const = false;
-					//bool is_static = false;
-
-					// find first of
+					bool is_static = false;
 
 					// Is known type?
 					if (types.end() != find(
@@ -498,7 +498,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 							if (tokens[0] == "static ")
 							{
-								//is_static = true;
+								is_static = true;
 
 								type = "static ";
 
@@ -578,8 +578,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 								for (size_t i = 1; i < tokens.size(); i++)
 								{
-									if (
-										tokens[i] == "short" ||
+									if (tokens[i] == "short" ||
 										tokens[i] == "long" ||
 										tokens[i] == "int" ||
 										tokens[i] == "char")
@@ -598,8 +597,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 								for (size_t i = 0; i < tokens.size(); i++)
 								{
-									if (
-										tokens[i] == "unsigned" ||
+									if (tokens[i] == "unsigned" ||
 										tokens[i] == "signed" ||
 										tokens[i] == "int")
 									{
@@ -618,8 +616,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 								for (size_t i = 0; i < tokens.size(); i++)
 								{
-									if (
-										tokens[i] == "unsigned" ||
+									if (tokens[i] == "unsigned" ||
 										tokens[i] == "signed" ||
 										tokens[i] == "int")
 									{
@@ -637,23 +634,23 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 								type = "struct " + tokens[1];
 							}
 
-							ostringstream type_oss;
-							type_oss << type << ' ';
-							size_t first_index = 1;
+							//ostringstream type_oss;
+							//type_oss << type << ' ';
+							//size_t first_index = 1;
 
-							if (is_struct || is_const)
-								first_index = 2;
+							//if (is_struct || is_const)
+							//	first_index = 2;
 
-							for (size_t j = first_index; j < tokens.size(); j++)
-								type_oss << tokens[j] << ' ';
+							//for (size_t j = first_index; j < tokens.size(); j++)
+							//	type_oss << tokens[j] << ' ';
 
 							//type_oss << endl;
-							if (false == inside_slashstar_comment /*&& false == inside_double_slash_comment*/)
-							{
-								size_t line_pos = prev_lines_vector[p].find(statements[s]);
 
-								//if (line_pos == string::npos)
-								//	line_pos = 0;
+							if (false == inside_slashstar_comment)
+							{
+								size_t line_pos = prev_lines_vector[p].find(statements[s], prev_statements_location);
+
+								prev_statements_location = line_pos + statements[s].size();
 
 								variable_declaration v;
 								v.declaration = statements[s];// type_oss.str();
@@ -786,7 +783,7 @@ int main(void)
 
 	cout << declarations.size() << " " << pointer_only_declarations.size() << endl;
 
-	return 0;
+	//return 0;
 
 	// TODO: Store vector of previous scopes, so when scope_depth reduces, popback on the vector 
 	// and then assign the scope block to the block number on top of the vector
