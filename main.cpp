@@ -229,10 +229,16 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 				{
 					for (size_t l = 0; l < prev_string.size() - 1; l++)
 					{
+						if (false == inside_slashstar_comment && false == inside_double_slash_comment)
+						{
+							final_string += prev_string[l];
+						}
+
 						if (prev_string[l] == '/' && prev_string[l + 1] == '*')
 						{
 							inside_slashstar_comment = true;
 							l++;
+							final_string.pop_back();
 							continue;
 						}
 
@@ -240,6 +246,10 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 						{
 							inside_slashstar_comment = false;
 							l++;
+
+							if (final_string.size() > 0)
+								final_string.pop_back();
+							
 							continue;
 						}
 
@@ -247,13 +257,14 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 						{
 							inside_double_slash_comment = true;
 							l++;
+
+							if(final_string.size() > 0)
+								final_string.pop_back();
+							
 							continue;
 						}
 						
-						if (false == inside_slashstar_comment && false == inside_double_slash_comment)
-						{
-							final_string += prev_string[l];
-						}
+
 					}
 
 					if(prev_string.size() > 0)
@@ -264,7 +275,10 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 					final_string = prev_string;
 				}
 
-				cout << "FINAL_STRING " << final_string << endl;
+				if (final_string == "")
+					continue; 
+
+				cout << "FINAL_STRING \"" << final_string << "\"" << endl;
 
 
 				//if (string::npos == prev_string.find("/*") &&
