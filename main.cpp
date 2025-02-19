@@ -330,19 +330,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 
 
-				//for (size_t j = 0; j < line.size(); j++)
-				//{
-				//	if (line[j] == '{')
-				//	{
-				//		scope_block_number++;
-				//		scope_depth++;
-				//	}
-				//	else if (line[j] == '}')
-				//	{
-				//		if (scope_depth > 0)
-				//			scope_depth--;
-				//	}
-				//}
+
 
 
 
@@ -652,13 +640,30 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 								prev_statements_location = line_pos + statements[s].size();
 
+								size_t local_scope_depth = scope_depth;
+								size_t local_scope_block_number = scope_block_number;
+
+								//for (size_t x = 0; x < line_pos; x++)
+								//{
+								//	if (prev_lines_vector[p][x] == '{')
+								//	{
+								//		local_scope_block_number++;
+								//		local_scope_depth++;
+								//	}
+								//	else if (prev_lines_vector[p][x] == '}')
+								//	{
+								//		if (local_scope_depth > 0)
+								//			local_scope_depth--;
+								//	}
+								//}
+
 								variable_declaration v;
 								v.declaration = statements[s];// type_oss.str();
 								v.filename = filenames[i];
 								v.line_number = line_num;
 								v.line_pos = line_pos;
-								v.scope_depth = scope_depth;
-								v.scope_block_number = scope_block_number;
+								v.scope_depth = local_scope_depth;
+								v.scope_block_number = local_scope_block_number;
 
 								declarations.push_back(v);
 							}
@@ -675,7 +680,25 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 						}
 					}
 				}
+
+				// Update running totals
+				for (size_t j = 0; j < prev_lines_vector[p].size(); j++)
+				{
+					if (prev_lines_vector[p][j] == '{')
+					{
+						scope_block_number++;
+						scope_depth++;
+					}
+					else if (prev_lines_vector[p][j] == '}')
+					{
+						if (scope_depth > 0)
+							scope_depth--;
+					}
+				}
 			}
+
+
+
 		}
 
 		infile.close();
