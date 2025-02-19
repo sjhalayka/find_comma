@@ -93,6 +93,10 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 	vector<string> types;
 
+	// Note: this system does not accept variables that are
+	// in the form of int***x; (note the lack of spaces)
+	// So, either int*** x; or int ***x; int *** x; will work
+
 	types.push_back("static ");
 	types.push_back("const ");
 	types.push_back("short ");
@@ -159,7 +163,6 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 	// No quadruple pointers used in the LDAK code
 
-
 	vector<string> filenames;
 
 	for (const auto& entry : filesystem::directory_iterator(path))
@@ -169,7 +172,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 		if (str_pos != string::npos)
 			filenames.push_back(entry.path().string());
 
-
+			
 
 
 
@@ -194,8 +197,8 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 	for (size_t i = 0; i < filenames.size(); i++)
 	{
-		//size_t scope_depth = 0;
-		//size_t scope_block_number = 0;
+		size_t scope_depth = 0;
+		size_t scope_block_number = 0;
 
 		ifstream infile(filenames[i]);
 
@@ -225,39 +228,15 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 				continue;
 			}
 
-			//string temp_line = "";// = line;
-
-			//bool inside_double_slash_comment = false;
-
-			//if(line.size() > 0)
-			//temp_line += line[line.size() - 1];
-
-
-			///string final_string = line;
-
-			//if (inside_double_slash_comment || inside_slashstar_comment)
-			//	cout << line << endl;
-
-
-			if (line == "")
-			{
-				//output << endl;
-				continue;
-			}
-
 			if (line[line.size() - 1] == '\\')
 			{
-				//cout << "Found trailing \\" << endl;
 				prev_lines_vector.push_back(line);
-				//exit(0);
-				//prev_lines = prev_lines + line;
 				continue;
 			}
 			else
 			{
 				prev_lines_vector.clear();
-				prev_lines_vector.push_back(line);
-				//prev_lines = line;
+				prev_lines_vector.push_back(line);;
 			}
 
 			string prev_string = "";
@@ -289,8 +268,10 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 						{
 							inside_slashstar_comment = true;
 							l++;
+
 							if (final_string.size() > 0)
-							final_string.pop_back();
+								final_string.pop_back();
+
 							continue;
 						}
 
@@ -421,7 +402,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 					bool is_const = false;
 					//bool is_static = false;
 
-
+					// find first of
 
 					// Is known type?
 					if (types.end() != find(
@@ -671,20 +652,20 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 								v.declaration = statements[s];// type_oss.str();
 								v.filename = filenames[i];
 								v.line_number = line_num;
-								//v.scope_depth = scope_depth;
-								//v.scope_block_number = scope_block_number;
+								v.scope_depth = scope_depth;
+								v.scope_block_number = scope_block_number;
 
 								declarations.push_back(v);
 							}
 							else
 							{
-								cout << "Skipping variable declaration in comment" << endl;
+								//cout << "Skipping variable declaration in comment" << endl;
 
-								cout << type_oss.str() << endl;
-								cout << filenames[i] << endl;
-								cout << line_num << endl;
+								//cout << type_oss.str() << endl;
+								//cout << filenames[i] << endl;
+								//cout << line_num << endl;
 
-								cout << endl << endl;
+								//cout << endl << endl;
 							}
 						}
 					}
@@ -744,6 +725,8 @@ int main(void)
 
 	for (size_t i = 0; i < declarations.size(); i++)
 	{
+		// TODO: move these two variables into te declaration creation
+
 		string variable_type0 = "";
 		string variable_name0 = "";
 
@@ -751,12 +734,12 @@ int main(void)
 
 		bool found_pointer_type = false;
 
-		// This should never happen after Microsoft style beautification of pointer types
+		// This should never happen after Microsoft style beautification of pointer types,
+		// but we'll take it into account, just in case
+		// e.g. variables are of the form int* x;
 		if (string::npos != variable_type0.find("*"))
 		{
 			size_t starcount = count(variable_type0.begin(), variable_type0.end(), '*');
-
-			cout << "STARCOUNT " << starcount << endl;
 
 			variable_type0 = variable_type0.substr(0, variable_type0.size() - starcount - 1);
 
@@ -767,6 +750,7 @@ int main(void)
 		}
 
 		// This should always happen after Microsoft style beautification of pointer types
+		// e.g. variables are of the form int *x;
 		if (string::npos != variable_name0.find("*"))
 			found_pointer_type = true;
 
@@ -774,77 +758,80 @@ int main(void)
 		if (false == found_pointer_type)
 			continue;
 
+		trim_left_whitespace(variable_type0);
+		trim_right_whitespace(variable_type0);
 
-		// force it to 
-
+		trim_left_whitespace(variable_name0);
+		trim_right_whitespace(variable_name0);
 
 		pointer_only_declarations.push_back(declarations[i]);
 
-		cout << variable_type0 << endl;
-		cout << variable_name0 << endl;
-		cout << declarations[i].declaration << endl;
-		cout << declarations[i].filename << endl;
-		cout << declarations[i].line_number << endl;
-		cout << declarations[i].scope_depth << endl;
-		cout << endl;
+		//cout << "\"" << variable_type0 << "\"" << endl;
+		//cout << "\"" << variable_name0 << "\"" << endl;
+		//cout << "\"" << declarations[i].declaration << "\"" << endl;
+		//cout << "\"" << declarations[i].filename << "\"" << endl;
+		//cout << declarations[i].line_number << endl;
+		//cout << declarations[i].scope_depth << endl;
+		//cout << endl << endl;
 	}
 
-	cout << declarations.size() << " " << pointer_only_declarations.size() << endl;
+	//cout << declarations.size() << " " << pointer_only_declarations.size() << endl;
 
-	return 0;
+	//return 0;
 
-	//	sort(declarations.begin(), declarations.end());
-	//
-	//	// Search for collisions
-	//	for (size_t i = 0; i < declarations.size() - 1; i++)
-	//	{
-	//		vector<string> declaration_tokens0 = std_strtok(declarations[i].declaration, "[=;]\\s*");
-	//		vector<string> declaration_tokens1 = std_strtok(declarations[i + 1].declaration, "[=;]\\s*");
-	//
-	//		if (declaration_tokens0.size() == 0 || declaration_tokens1.size() == 0)
-	//			continue;
-	//
-	//		vector<string> declaration_tokens0_whitespace = std_strtok(declaration_tokens0[0], "[ \t]\\s*");
-	//		vector<string> declaration_tokens1_whitespace = std_strtok(declaration_tokens1[0], "[ \t]\\s*");
-	//
-	//		if (declaration_tokens0_whitespace.size() == 0 || declaration_tokens1_whitespace.size() == 0)
-	//			continue;
-	//
-	//		string variable_name0 = declaration_tokens0_whitespace[declaration_tokens0_whitespace.size() - 1];
-	//		string variable_name1 = declaration_tokens1_whitespace[declaration_tokens1_whitespace.size() - 1];
-	//
-	//		if (declarations[i].filename == declarations[i + 1].filename)
-	//		{
-	//			if (variable_name0 == variable_name1)
-	//			{
-	//				if (declarations[i].scope_depth == declarations[i + 1].scope_depth)
-	//				{
-	//					cout << "Possible collision" << endl;
-	//					cout << variable_name0 << " " << variable_name1 << endl;
-	//					cout << declarations[i].scope_block_number << " " << declarations[i + 1].scope_block_number << endl;
-	//					cout << declarations[i].filename << endl;
-	//					cout << endl;
-	//
-	//					//if (declarations[i].scope_block_number == declarations[i + 1].scope_block_number)
-	//					//{
-	//
-	//					//}
-	//				}
-	//			}
-	//		}
-	//
-	//
-	//		//cout << "VARIABLE NAME " << variable_name0 << endl;
-	//
-	//		//cout << "DECLARATION TOKENS " << endl;
-	//
-	//		//for (size_t j = 0; j < declaration_tokens0.size(); j++)
-	//		//{
-	//		//	cout << declaration_tokens0[j] << ' ';
-	//		//}
-	//
-	////		cout << endl;
-	//	}
+	// TODO: Store vector of previous scopes, so when scope_depth reduces, popback on the vector 
+	// and then assign the scope block to the block number on top of the vector
+
+		sort(pointer_only_declarations.begin(), pointer_only_declarations.end());
+	
+		// search for collisions
+		for (size_t i = 0; i < pointer_only_declarations.size() - 1; i++)
+		{
+			vector<string> declaration_tokens0 = std_strtok(pointer_only_declarations[i].declaration, "[=;]\\s*");
+			vector<string> declaration_tokens1 = std_strtok(pointer_only_declarations[i + 1].declaration, "[=;]\\s*");
+	
+			if (declaration_tokens0.size() == 0 || declaration_tokens1.size() == 0)
+				continue;
+	
+			vector<string> declaration_tokens0_whitespace = std_strtok(declaration_tokens0[0], "[* \t]\\s*");
+			vector<string> declaration_tokens1_whitespace = std_strtok(declaration_tokens1[0], "[* \t]\\s*");
+	
+			if (declaration_tokens0_whitespace.size() == 0 || declaration_tokens1_whitespace.size() == 0)
+				continue;
+	
+			string variable_name0 = declaration_tokens0_whitespace[declaration_tokens0_whitespace.size() - 1];
+			string variable_name1 = declaration_tokens1_whitespace[declaration_tokens1_whitespace.size() - 1];
+	
+			if (pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
+			{
+				if (variable_name0 == variable_name1)
+				{
+					if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
+					{
+						if (pointer_only_declarations[i].scope_block_number == pointer_only_declarations[i + 1].scope_block_number)
+						{
+							cout << "possible collision" << endl;
+							cout << variable_name0 << " " << variable_name1 << endl;
+							cout << pointer_only_declarations[i].scope_block_number << " " << pointer_only_declarations[i + 1].scope_block_number << endl;
+							cout << pointer_only_declarations[i].filename << endl;
+							cout << endl;
+						}
+					}
+				}
+			}
+	
+	
+			//cout << "variable name " << variable_name0 << endl;
+	
+			//cout << "declaration tokens " << endl;
+	
+			//for (size_t j = 0; j < declaration_tokens0.size(); j++)
+			//{
+			//	cout << declaration_tokens0[j] << ' ';
+			//}
+	
+	//		cout << endl;
+		}
 
 	return 0;
 }
