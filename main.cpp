@@ -8,7 +8,6 @@ using namespace std;
 
 
 
-// NOTE: Only handles one /* */ per line
 
 
 
@@ -210,10 +209,10 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 				//prev_lines = line;
 			}
 
+			string prev_string = "";
 
 
-
-			for (size_t p = 0; p < prev_lines_vector.size(); p++)
+			for (long signed int p = 0; p < prev_lines_vector.size(); p++)
 			{
 				//cout << endl << endl << endl;
 
@@ -223,7 +222,8 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 				string line_inside_comment = "";
 				string line_after_comment = "";	
 
-				string prev_string = prev_lines_vector[p];
+				if(prev_string == "")
+				prev_string = prev_lines_vector[p];
 
 				 size_t slashstar_location = prev_string.find("/*");
 				 size_t starslash_location = prev_string.find("*/");
@@ -276,6 +276,8 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 								line_after_comment = prev_string.substr(starslash_location + 2, prev_string.size() - slashstar_location - 4);
 
 								prev_string = line_after_comment;
+								p--;
+								continue;
 
 								//cout << "found star slash on same line" << endl;
 								//cout << prev_lines_vector[p] << endl;
