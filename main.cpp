@@ -7,6 +7,12 @@
 using namespace std;
 
 
+
+// NOTE: Only handles one /* */ per line
+
+
+
+
 inline void trim_left_whitespace(std::string& s) {
 	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
 		return !std::isspace(ch);
