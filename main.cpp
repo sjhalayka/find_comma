@@ -164,29 +164,29 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 	for (const auto& entry : filesystem::directory_iterator(path))
 	{
-		size_t str_pos = entry.path().string().find("getnums.c");
+		//size_t str_pos = entry.path().string().find("getnums.c");
 
-		if (str_pos != string::npos)
-			filenames.push_back(entry.path().string());
-
-
+		//if (str_pos != string::npos)
+		//	filenames.push_back(entry.path().string());
 
 
 
-		//string s = entry.path().string();
 
-		//vector<string> tokens = std_strtok(s, "[.]\\s*");
 
-		//for (size_t i = 0; i < tokens.size(); i++)
-		//	for (size_t j = 0; j < tokens[i].size(); j++)
-		//		tokens[i][j] = tolower(tokens[i][j]);
+		string s = entry.path().string();
 
-		//if (tokens.size() > 0 &&
-		//	(tokens[tokens.size() - 1] == "c" ||
-		//		tokens[tokens.size() - 1] == "cpp"))
-		//{
-		//	filenames.push_back(s);
-		//}
+		vector<string> tokens = std_strtok(s, "[.]\\s*");
+
+		for (size_t i = 0; i < tokens.size(); i++)
+			for (size_t j = 0; j < tokens[i].size(); j++)
+				tokens[i][j] = tolower(tokens[i][j]);
+
+		if (tokens.size() > 0 &&
+			(tokens[tokens.size() - 1] == "c" ||
+				tokens[tokens.size() - 1] == "cpp"))
+		{
+			filenames.push_back(s);
+		}
 	}
 
 
@@ -290,6 +290,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 						{
 							inside_slashstar_comment = true;
 							l++;
+							if (final_string.size() > 0)
 							final_string.pop_back();
 							continue;
 						}
@@ -751,6 +752,8 @@ int main(void)
 
 		bool found_pointer_type = false;
 
+		// TODO: move the * characters from the type to the variable name
+
 		// This should never happen after Microsoft style beautification of pointer types
 		if (string::npos != variable_type0.find("*"))
 			found_pointer_type = true;
@@ -778,11 +781,7 @@ int main(void)
 		cout << endl;
 	}
 
-
-
-
-
-	//cout << declarations.size() << " " << pointer_only_declarations.size() << endl;
+	cout << declarations.size() << " " << pointer_only_declarations.size() << endl;
 
 	return 0;
 
