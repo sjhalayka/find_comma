@@ -52,6 +52,7 @@ public:
 	string declaration = "";
 	string filename = "";
 	size_t line_number = 0;
+	size_t line_pos = 0;
 	size_t scope_depth = 0;
 	size_t scope_block_number = 0;
 
@@ -365,6 +366,9 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 				for (size_t s = 0; s < statements.size(); s++)
 				{
+	
+
+
 					//cout << "STATEMENT " << statements[s] << endl;
 
 
@@ -646,12 +650,16 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 							//type_oss << endl;
 							if (false == inside_slashstar_comment /*&& false == inside_double_slash_comment*/)
 							{
-								//cout << "Found declaration" << endl;
+								size_t line_pos = prev_lines_vector[p].find(statements[s]);
+
+								//if (line_pos == string::npos)
+								//	line_pos = 0;
 
 								variable_declaration v;
 								v.declaration = statements[s];// type_oss.str();
 								v.filename = filenames[i];
 								v.line_number = line_num;
+								v.line_pos = line_pos;
 								v.scope_depth = scope_depth;
 								v.scope_block_number = scope_block_number;
 
@@ -766,18 +774,19 @@ int main(void)
 
 		pointer_only_declarations.push_back(declarations[i]);
 
-		//cout << "\"" << variable_type0 << "\"" << endl;
-		//cout << "\"" << variable_name0 << "\"" << endl;
-		//cout << "\"" << declarations[i].declaration << "\"" << endl;
-		//cout << "\"" << declarations[i].filename << "\"" << endl;
-		//cout << declarations[i].line_number << endl;
-		//cout << declarations[i].scope_depth << endl;
-		//cout << endl << endl;
+		cout << "\"" << variable_type0 << "\"" << endl;
+		cout << "\"" << variable_name0 << "\"" << endl;
+		cout << "\"" << declarations[i].declaration << "\"" << endl;
+		cout << "\"" << declarations[i].filename << "\"" << endl;
+		cout << declarations[i].line_number << endl;
+		cout << declarations[i].line_pos << endl;
+		cout << declarations[i].scope_depth << endl;
+		cout << endl << endl;
 	}
 
-	//cout << declarations.size() << " " << pointer_only_declarations.size() << endl;
+	cout << declarations.size() << " " << pointer_only_declarations.size() << endl;
 
-	//return 0;
+	return 0;
 
 	// TODO: Store vector of previous scopes, so when scope_depth reduces, popback on the vector 
 	// and then assign the scope block to the block number on top of the vector
