@@ -176,7 +176,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 			//string temp_line = "";// = line;
 
-			bool inside_double_slash_comment = false;
+			//bool inside_double_slash_comment = false;
 
 			//if(line.size() > 0)
 			//temp_line += line[line.size() - 1];
@@ -210,138 +210,193 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 			}
 
 			string prev_string = "";
+			bool refresh_prev_string = true;
+			bool inside_double_slash_comment = false;
 
 
 			for (long signed int p = 0; p < prev_lines_vector.size(); p++)
 			{
 				//cout << endl << endl << endl;
 
+				if (refresh_prev_string)
+					prev_string = prev_lines_vector[p];
+
 				string final_string = "";
 
-				string line_before_comment = "";
-				string line_inside_comment = "";
-				string line_after_comment = "";	
-
-				if(prev_string == "")
-				prev_string = prev_lines_vector[p];
-
-				 size_t slashstar_location = prev_string.find("/*");
-				 size_t starslash_location = prev_string.find("*/");
-				 size_t double_slash_location = prev_string.find("//");
-
-				if (string::npos == slashstar_location &&
-					string::npos == starslash_location &&
-					string::npos == double_slash_location)
+				if (string::npos != prev_string.find_first_of("/*") ||
+					string::npos != prev_string.find_first_of("*/") ||
+					string::npos != prev_string.find_first_of("//"))
 				{
-					//if(inside_slashstar_comment)
-					//	cout << "Commentless line Inside SLASHSTAR " << prev_string << endl;
-					//else
-					//	cout << "Commentless line Outside SLASHSTAR " << prev_string << endl;
+					for (size_t l = 0; l < prev_string.size() - 1; l++)
+					{
+						if (prev_string[l] == '/' && prev_string[l + 1] == '*')
+						{
+							inside_slashstar_comment = true;
+							l++;
+							continue;
+						}
 
-					final_string = prev_string;
+						else if (prev_string[l] == '*' && prev_string[l + 1] == '/')
+						{
+							inside_slashstar_comment = false;
+							l++;
+							continue;
+						}
+
+						else if (prev_string[l] == '/' && prev_string[l + 1] == '/')
+						{
+							inside_double_slash_comment = true;
+							l++;
+							continue;
+						}
+						
+						if (false == inside_slashstar_comment && false == inside_double_slash_comment)
+						{
+							final_string += prev_string[l];
+						}
+					}
+
+					if(prev_string.size() > 0)
+					final_string += prev_string[prev_string.size() - 1];
 				}
 				else
 				{
-					bool found_starslash_on_same_line = false;
-
-					if (slashstar_location != string::npos)
-					{
-						inside_slashstar_comment = true;
-						line_before_comment = prev_string.substr(0, slashstar_location);
-						line_inside_comment = prev_string.substr(slashstar_location + 2, prev_string.size() - slashstar_location + 2);
-						line_after_comment = "";
-
-						prev_string = line_before_comment + line_inside_comment;
-
-						//cout << "found slash star" << endl;
-						//cout << prev_lines_vector[p] << endl;
-						//cout << "\"" << line_before_comment << "\"" << endl;
-						//cout << "\"" << line_inside_comment << "\"" << endl;
-						//cout << "\"" << line_after_comment << "\"" << endl;
-						//cout << "\"" << prev_string << "\"" << endl;
-						//cout << filenames[i] << endl;
-						//cout << endl << endl;
-
-						if (prev_string != "")
-						{
-							starslash_location = prev_string.find("*/");
-
-							if (starslash_location != string::npos)
-							{
-								found_starslash_on_same_line = true;
-								inside_slashstar_comment = false;
-
-								line_before_comment = "";// ;
-								line_inside_comment = prev_string.substr(0, starslash_location);
-								line_after_comment = prev_string.substr(starslash_location + 2, prev_string.size() - slashstar_location - 4);
-
-								prev_string = line_after_comment;
-								p--;
-								continue;
-
-								//cout << "found star slash on same line" << endl;
-								//cout << prev_lines_vector[p] << endl;
-								//cout << "\"" << line_before_comment << "\"" << endl;
-								//cout << "\"" << line_inside_comment << "\"" << endl;
-								//cout << "\"" << line_after_comment << "\"" << endl;
-								//cout << "\"" << prev_string << "\"" << endl;
-								//cout << filenames[i] << endl;
-								//cout << endl << endl;
-							}
-						}
-
-					}
-
-					 if (false == found_starslash_on_same_line && starslash_location != string::npos)
-					{
-						if (prev_string != "")
-						{
-							inside_slashstar_comment = false;
-
-							line_before_comment = "";// ;
-							line_inside_comment = prev_string.substr(0, starslash_location);
-							line_after_comment = prev_string.substr(slashstar_location + 3, prev_string.size() - slashstar_location - 3);
-
-							prev_string = line_after_comment;
-
-							//cout << "found star slash" << endl;
-							//cout << prev_lines_vector[p] << endl;
-							//cout << "\"" << line_before_comment << "\"" << endl;
-							//cout << "\"" << line_inside_comment << "\"" << endl;
-							//cout << "\"" << line_after_comment << "\"" << endl;
-							//cout << "\"" << prev_string << "\"" << endl;
-							//cout << filenames[i] << endl;
-							//cout << endl << endl;
-						}
-					}
-					
-					if(false == inside_slashstar_comment)
-					{
-						if (prev_string != "")
-						{
-							if (double_slash_location != string::npos)
-							{
-								inside_double_slash_comment = false;
-								line_before_comment = prev_string.substr(0, double_slash_location);
-								line_inside_comment = prev_string.substr(double_slash_location, prev_string.size() - double_slash_location - 2);
-								line_after_comment = "";
-
-								prev_string = line_before_comment;
-
-								//cout << "found double slash" << endl;
-								//cout << prev_lines_vector[p] << endl;
-								//cout << "\"" << line_before_comment << "\"" << endl;
-								//cout << "\"" << line_inside_comment << "\"" << endl;
-								//cout << "\"" << line_after_comment << "\"" << endl;
-								//cout << "\"" << prev_string << "\"" << endl;
-								//cout << filenames[i] << endl;
-								//cout << endl << endl;
-							}
-						}
-					}
-
 					final_string = prev_string;
 				}
+
+				cout << "FINAL_STRING " << final_string << endl;
+
+
+				//if (string::npos == prev_string.find("/*") &&
+				//	string::npos == prev_string.find("*/") &&
+				//	string::npos == prev_string.find("//"))
+				//{
+				//	//if(inside_slashstar_comment)
+				//	//	cout << "Commentless line Inside SLASHSTAR " << prev_string << endl;
+				//	//else
+				//	//	cout << "Commentless line Outside SLASHSTAR " << prev_string << endl;
+
+				//	final_string = prev_string;
+				//}
+				//else
+				//{
+				//	bool found_starslash_on_same_line = false;
+
+				//	size_t slashstar_location = prev_string.find("/*");
+
+				//	if (slashstar_location != string::npos)
+				//	{
+				//		inside_slashstar_comment = true;
+				//		line_before_comment = prev_string.substr(0, slashstar_location);
+				//		line_inside_comment = prev_string.substr(slashstar_location + 2, prev_string.size() - slashstar_location + 2);
+				//		line_after_comment = "";
+
+				//		prev_string = line_before_comment + line_inside_comment;
+
+				//		//cout << "found slash star" << endl;
+				//		//cout << prev_lines_vector[p] << endl;
+				//		//cout << "\"" << line_before_comment << "\"" << endl;
+				//		//cout << "\"" << line_inside_comment << "\"" << endl;
+				//		//cout << "\"" << line_after_comment << "\"" << endl;
+				//		//cout << "\"" << prev_string << "\"" << endl;
+				//		//cout << filenames[i] << endl;
+				//		//cout << endl << endl;
+
+				//		if (prev_string != "")
+				//		{
+				//			size_t starslash_location = prev_string.find("*/");
+
+				//			if (starslash_location != string::npos)
+				//			{
+				//				found_starslash_on_same_line = true;
+				//				inside_slashstar_comment = false;
+
+				//				line_before_comment = "";// ;
+				//				line_inside_comment = prev_string.substr(0, starslash_location);
+				//				line_after_comment = prev_string.substr(starslash_location + 2, prev_string.size() - slashstar_location - 1);
+
+				//				prev_string += line_after_comment;
+
+				//				cout << prev_string << endl;
+
+				//				refresh_prev_string = false;
+				//				p--;
+				//				continue;
+
+				//				//cout << "found star slash on same line" << endl;
+				//				//cout << prev_lines_vector[p] << endl;
+				//				//cout << "\"" << line_before_comment << "\"" << endl;
+				//				//cout << "\"" << line_inside_comment << "\"" << endl;
+				//				//cout << "\"" << line_after_comment << "\"" << endl;
+				//				//cout << "\"" << prev_string << "\"" << endl;
+				//				//cout << filenames[i] << endl;
+				//				//cout << endl << endl;
+				//			}
+				//		}
+
+				//	}
+
+				//	size_t starslash_location = prev_string.find("*/");
+
+				//	if (/*false == found_starslash_on_same_line && */starslash_location != string::npos)
+				//	{
+				//		if (prev_string != "")
+				//		{
+				//			inside_slashstar_comment = false;
+
+				//			line_before_comment = "";// ;
+				//			line_inside_comment = prev_string.substr(0, starslash_location);
+				//			line_after_comment = prev_string.substr(slashstar_location + 2, prev_string.size() - slashstar_location);
+
+				//			prev_string = line_after_comment;
+
+				//			refresh_prev_string = false;
+				//			p--;
+				//			continue;
+
+
+				//			//cout << "found star slash" << endl;
+				//			//cout << prev_lines_vector[p] << endl;
+				//			//cout << "\"" << line_before_comment << "\"" << endl;
+				//			//cout << "\"" << line_inside_comment << "\"" << endl;
+				//			//cout << "\"" << line_after_comment << "\"" << endl;
+				//			//cout << "\"" << prev_string << "\"" << endl;
+				//			//cout << filenames[i] << endl;
+				//			//cout << endl << endl;
+				//		}
+				//	}
+
+				//	if (false == inside_slashstar_comment)
+				//	{
+				//		if (prev_string != "")
+				//		{
+				//			size_t double_slash_location = prev_string.find("//");
+
+				//			if (double_slash_location != string::npos)
+				//			{
+				//				//inside_double_slash_comment = true;
+				//				line_before_comment = prev_string.substr(0, double_slash_location);
+				//				line_inside_comment = prev_string.substr(double_slash_location, prev_string.size() - double_slash_location - 2);
+				//				line_after_comment = "";
+
+				//				prev_string = line_before_comment;
+
+				//				refresh_prev_string = false;
+
+				//				//cout << "found double slash" << endl;
+				//				//cout << prev_lines_vector[p] << endl;
+				//				//cout << "\"" << line_before_comment << "\"" << endl;
+				//				//cout << "\"" << line_inside_comment << "\"" << endl;
+				//				//cout << "\"" << line_after_comment << "\"" << endl;
+				//				//cout << "\"" << prev_string << "\"" << endl;
+				//				//cout << filenames[i] << endl;
+				//				//cout << endl << endl;
+				//			}
+				//		}
+				//	}
+
+				//	final_string = prev_string;
+				//}
 
 				//if (final_string[0] == ' ')
 				//	final_string = final_string.substr(1, final_string.size() - 1);
@@ -457,35 +512,35 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 
 					// This is not a variable declaration statement
-					if (false == found_type)
-					{
-						//// Not a variable declaration
-						//if (finished_with_semi_colon)
-						//{
-						//	output << statements[s];
-						//}
-						//else
-						//{
-						//	statements[s].pop_back();
-						//	output << statements[s];
-						//}
+						if (false == found_type)
+						{
+							//// Not a variable declaration
+							//if (finished_with_semi_colon)
+							//{
+							//	output << statements[s];
+							//}
+							//else
+							//{
+							//	statements[s].pop_back();
+							//	output << statements[s];
+							//}
 
-						//output << endl;
+							//output << endl;
 
-						size_t malloc_found = statements[s].find("malloc");
-						size_t free_found = statements[s].find("free");
+							size_t malloc_found = statements[s].find("malloc");
+							size_t free_found = statements[s].find("free");
 
-						//if (malloc_found != string::npos || free_found != string::npos)
-						//{
-						//	output << statements[s] << endl;
-						//}
-						//else
-						//{
-						//	output << statements[s] << endl;
-						//}
+							//if (malloc_found != string::npos || free_found != string::npos)
+							//{
+							//	output << statements[s] << endl;
+							//}
+							//else
+							//{
+							//	output << statements[s] << endl;
+							//}
 
-						continue;
-					}
+							continue;
+						}
 
 					//bool found_initializer = false;
 
@@ -679,7 +734,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 								type_oss << tokens[j] << ' ';
 
 							//type_oss << endl;
-							if (false == inside_slashstar_comment && false == inside_double_slash_comment)
+							if (false == inside_slashstar_comment /*&& false == inside_double_slash_comment*/)
 							{
 								//cout << "Found declaration" << endl;
 
@@ -699,6 +754,8 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 								cout << type_oss.str() << endl;
 								cout << filenames[i] << endl;
 								cout << line_num << endl;
+
+								cout << endl << endl;
 							}
 						}
 					}
