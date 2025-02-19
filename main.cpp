@@ -173,57 +173,6 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 			bool inside_double_slash_comment = false;
 
-			//if (string::npos != line.find("/*") ||
-			//	string::npos != line.find("*/") ||
-			//	string::npos != line.find("//"))
-			//{
-			//	inside_double_slash_comment = false;
-
-			//	for (size_t l = 0; l < line.size() - 1; l++)
-			//	{
-			//		if (line[l] == '/' && line[l + 1] == '*')
-			//		{
-			//			inside_slashstar_comment = true;
-			//			l++;
-			//			continue;
-			//		}
-
-			//		else if (line[l] == '*' && line[l + 1] == '/')
-			//		{
-			//			inside_slashstar_comment = false;
-			//			l++;
-			//			continue;
-			//		}
-
-			//		else if (line[l] == '/' && line[l + 1] == '/')
-			//		{
-			//			inside_double_slash_comment = true;
-			//			l++;
-			//			continue;
-			//		}
-			//		else
-			//		{
-			//			if (inside_slashstar_comment || inside_double_slash_comment)
-			//				continue;
-			//			else
-			//				temp_line += line[l];
-			//		}
-			//	}
-			//}
-			//else
-			//{
-			//	temp_line = line;
-			//}
-
-
-
-
-
-
-
-
-
-
 			//if(line.size() > 0)
 			//temp_line += line[line.size() - 1];
 
@@ -257,16 +206,17 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 
 
-			string final_string = "";
-
-
-
-			string line_before_comment = "";
-			string line_inside_comment = "";
-			string line_after_comment = "";
 
 			for (size_t p = 0; p < prev_lines_vector.size(); p++)
 			{
+				cout << endl << endl << endl;
+
+				string final_string = "";
+
+				string line_before_comment = "";
+				string line_inside_comment = "";
+				string line_after_comment = "";	
+
 				string prev_string = prev_lines_vector[p];
 
 				 size_t slashstar_location = prev_string.find("/*");
@@ -304,7 +254,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 						cout << "\"" << line_after_comment << "\"" << endl;
 						cout << "\"" << prev_string << "\"" << endl;
 						cout << filenames[i] << endl;
-						cout << endl << endl;
+						//cout << endl << endl;
 
 						if (prev_string != "")
 						{
@@ -317,7 +267,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 								line_before_comment = "";// ;
 								line_inside_comment = prev_string.substr(0, starslash_location);
-								line_after_comment = prev_string.substr(0, prev_string.size() - slashstar_location - 4);
+								line_after_comment = prev_string.substr(starslash_location + 2, prev_string.size() - slashstar_location - 4);
 
 								prev_string = line_after_comment;
 
@@ -328,13 +278,13 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 								cout << "\"" << line_after_comment << "\"" << endl;
 								cout << "\"" << prev_string << "\"" << endl;
 								cout << filenames[i] << endl;
-								cout << endl << endl;
+								//cout << endl << endl;
 							}
 						}
 
 					}
 
-					else if (false == found_starslash_on_same_line && starslash_location != string::npos)
+					 if (false == found_starslash_on_same_line && starslash_location != string::npos)
 					{
 						if (prev_string != "")
 						{
@@ -342,7 +292,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 							line_before_comment = "";// ;
 							line_inside_comment = prev_string.substr(0, starslash_location);
-							line_after_comment = prev_string.substr(0, prev_string.size() - slashstar_location - 4);
+							line_after_comment = prev_string.substr(slashstar_location + 3, prev_string.size() - slashstar_location - 3);
 
 							prev_string = line_after_comment;
 
@@ -353,21 +303,22 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 							cout << "\"" << line_after_comment << "\"" << endl;
 							cout << "\"" << prev_string << "\"" << endl;
 							cout << filenames[i] << endl;
-							cout << endl << endl;
+							//cout << endl << endl;
 						}
 					}
-					else if(false == inside_slashstar_comment)
+					
+					if(false == inside_slashstar_comment)
 					{
 						if (prev_string != "")
 						{
 							if (double_slash_location != string::npos)
 							{
-								inside_double_slash_comment = true;
+								inside_double_slash_comment = false;
 								line_before_comment = prev_string.substr(0, double_slash_location);
 								line_inside_comment = prev_string.substr(double_slash_location, prev_string.size() - double_slash_location - 2);
 								line_after_comment = "";
 
-								prev_string = line_before_comment;// +line_after_comment;
+								prev_string = line_before_comment;
 
 								cout << "found double slash" << endl;
 								cout << prev_lines_vector[p] << endl;
@@ -376,7 +327,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 								cout << "\"" << line_after_comment << "\"" << endl;
 								cout << "\"" << prev_string << "\"" << endl;
 								cout << filenames[i] << endl;
-								cout << endl << endl;
+								//cout << endl << endl;
 							}
 						}
 					}
@@ -384,8 +335,18 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 					final_string = prev_string;
 				}
 
+				//if (final_string[0] == ' ')
+				//	final_string = final_string.substr(1, final_string.size() - 1);
+
+				trim_left_whitespace(final_string);
+				trim_right_whitespace(final_string);
+
 				if (final_string == "")
 					continue;
+
+				cout << "FINALSTRING " << final_string << endl;
+				cout << inside_slashstar_comment << " " << inside_double_slash_comment << endl;
+
 
 				//if (inside_slashstar_comment || inside_double_slash_comment)
 				//	final_string = prev_lines_vector[p];
@@ -431,6 +392,9 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 				for (size_t s = 0; s < statements.size(); s++)
 				{
+					cout << "STATEMENT " << statements[s] << endl;
+
+
 					vector<string> tokens = std_strtok(statements[s], "[ \t]\\s*");
 
 					if (tokens.size() == 0)
@@ -445,7 +409,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 					}
 
 					// Found a # or / as the first character
-					if (tokens[0][0] == '#' || tokens[0][0] == '/')
+					if (tokens[0][0] == '#')// || tokens[0][0] == '/')
 					{
 						//output << prev_lines << endl;
 						break;
@@ -465,14 +429,24 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 					bool is_const = false;
 					//bool is_static = false;
 
+
+
 					// Is known type?
 					if (types.end() != find(
 						types.begin(),
 						types.end(),
 						tokens[0]))
 					{
+						cout << "FOUND TYPE " << tokens[0] << endl;
+
 						found_type = true;
 					}
+					else
+						cout << "DID NOT FIND TYPE " << tokens[0] << endl;
+
+
+
+
 
 					// This is not a variable declaration statement
 					if (false == found_type)
@@ -699,6 +673,8 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 							//type_oss << endl;
 							if (false == inside_slashstar_comment && false == inside_double_slash_comment)
 							{
+								cout << "Found declaration" << endl;
+
 								variable_declaration v;
 								v.declaration = type_oss.str();
 								v.filename = filenames[i];
