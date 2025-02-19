@@ -92,6 +92,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 	declarations.clear();
 
 	vector<string> types;
+
 	types.push_back("static ");
 	types.push_back("const ");
 	types.push_back("short ");
@@ -107,6 +108,57 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 	types.push_back("DIR ");
 	types.push_back("gzFile ");
 	types.push_back("struct ");
+
+	types.push_back("static* ");
+	types.push_back("const* ");
+	types.push_back("short* ");
+	types.push_back("long* ");
+	types.push_back("int* ");
+	types.push_back("char* ");
+	types.push_back("unsigned* ");
+	types.push_back("signed* ");
+	types.push_back("float* ");
+	types.push_back("double* ");
+	types.push_back("size_t* ");
+	types.push_back("FILE* ");
+	types.push_back("DIR* ");
+	types.push_back("gzFile* ");
+	types.push_back("struct* ");
+
+	types.push_back("static** ");
+	types.push_back("const** ");
+	types.push_back("short** ");
+	types.push_back("long** ");
+	types.push_back("int** ");
+	types.push_back("char** ");
+	types.push_back("unsigned** ");
+	types.push_back("signed** ");
+	types.push_back("float** ");
+	types.push_back("double** ");
+	types.push_back("size_t** ");
+	types.push_back("FILE** ");
+	types.push_back("DIR** ");
+	types.push_back("gzFile** ");
+	types.push_back("struct** ");
+
+	types.push_back("static*** ");
+	types.push_back("const*** ");
+	types.push_back("short*** ");
+	types.push_back("long*** ");
+	types.push_back("int*** ");
+	types.push_back("char*** ");
+	types.push_back("unsigned*** ");
+	types.push_back("signed*** ");
+	types.push_back("float*** ");
+	types.push_back("double*** ");
+	types.push_back("size_t*** ");
+	types.push_back("FILE*** ");
+	types.push_back("DIR*** ");
+	types.push_back("gzFile*** ");
+	types.push_back("struct*** ");
+
+	// No quadruple pointers used in the LDAK code
+
 
 	vector<string> filenames;
 
@@ -263,8 +315,6 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 							
 							continue;
 						}
-						
-
 					}
 
 					if(prev_string.size() > 0)
@@ -710,8 +760,12 @@ int main(void)
 			found_pointer_type = true;
 
 		// We're only interested in pointers
-		//if (false == found_pointer_type)
-		//	continue;
+		if (false == found_pointer_type)
+			continue;
+
+
+		// force it to 
+
 
 		pointer_only_declarations.push_back(declarations[i]);
 
