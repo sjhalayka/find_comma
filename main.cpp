@@ -684,7 +684,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 								//cout << "Found declaration" << endl;
 
 								variable_declaration v;
-								v.declaration = type_oss.str();
+								v.declaration = statements[s];// type_oss.str();
 								v.filename = filenames[i];
 								v.line_number = line_num;
 								//v.scope_depth = scope_depth;
