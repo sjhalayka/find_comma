@@ -278,7 +278,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 				if (final_string == "")
 					continue; 
 
-				cout << "FINAL_STRING \"" << final_string << "\"" << endl;
+				//cout << "FINAL_STRING \"" << final_string << "\"" << endl;
 
 				trim_left_whitespace(final_string);
 				trim_right_whitespace(final_string);
