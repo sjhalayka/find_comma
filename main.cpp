@@ -688,16 +688,14 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 								prev_statements_location = line_pos + statements[s].size();
 
 								long long signed int local_scope_depth = scope_depth;
-								//vector<size_t> local_block_numbers = block_numbers;
 
 								//cout << "PREV LINES P " << prev_lines_vector[p] << endl;
 
-								long long signed int open_brace_count = count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '{');
-								long long signed int closing_brace_count = count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '}');
+								long long signed int open_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '{');
+								long long signed int closing_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '}');
 
 								local_scope_depth += open_brace_count;
 								local_scope_depth -= closing_brace_count;
-
 
 								variable_declaration v;
 								v.declaration = statements[s];// type_oss.str();
@@ -726,12 +724,6 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 				long long signed int open_brace_count = ranges::count(prev_lines_vector[p], '{');
 				long long signed int closing_brace_count = ranges::count(prev_lines_vector[p], '}');
-
-				//long long signed int open_brace_count = count(prev_lines_vector[p].begin(), prev_lines_vector[p].end(), '{');
-				//long long signed int closing_brace_count = count(prev_lines_vector[p].begin(), prev_lines_vector[p].end(), '}');
-
-				//if (closing_brace_count != 0)
-				//	cout << open_brace_count << " " << closing_brace_count << endl;
 
 				scope_depth += open_brace_count;
 				scope_depth -= closing_brace_count;
