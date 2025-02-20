@@ -747,8 +747,11 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 
 
-void get_type_and_name(const string& input, string& variable_type0, string& variable_name0)
+void get_type_and_name(string input, string& variable_type0, string& variable_name0)
 {
+	input = trimLeft(input);
+	input = trimRight(input);
+
 	variable_type0 = variable_name0 = "";
 
 	vector<string> declaration_tokens0 = std_strtok(input, "[=;]+");
@@ -763,21 +766,43 @@ void get_type_and_name(const string& input, string& variable_type0, string& vari
 
 	variable_name0 = declaration_tokens0_whitespace[declaration_tokens0_whitespace.size() - 1];
 
-	//string temp_name = "";
+	string temp_name = "";
 
-	//for (size_t i = 0; i < variable_name0.size(); i++)
-	//{
-	//	if (variable_name0[i] != '*')
-	//		temp_name += variable_name0[i];
-	//}
-	//variable_name0 = temp_name;
+	cout << "VAR_NAME BEFORE " << variable_name0 << endl;
 
-	cout << "VAR_NAME " << variable_name0 << endl;
+	size_t num_stars_found = 0;
+
+	for (size_t i = 0; i < variable_name0.size(); i++)
+	{
+		if (variable_name0[i] != '*')
+		{
+			temp_name += variable_name0[i];
+			num_stars_found++;
+		}
+	}
+	variable_name0 = temp_name;
+
+
+	cout << "VAR_NAME aFTER " << variable_name0 << endl;
+
+
 
 	variable_type0 = "";
 
 	for (size_t j = 0; j < declaration_tokens0_whitespace.size() - 1; j++)
-		variable_type0 += declaration_tokens0_whitespace[j] + " ";
+	{
+		variable_type0 += declaration_tokens0_whitespace[j];
+	}
+
+	for (size_t j = 0; j < num_stars_found; j++)
+	{
+		variable_type0 += '*';
+	}
+
+	variable_type0 += ' ';
+
+
+	cout << "VAR_TYPE " << variable_type0 << endl;
 }
 
 
