@@ -4,26 +4,54 @@
 #include <regex>
 #include <cctype>
 #include <fstream>
+#include <ranges>
 using namespace std;
 
 
+std::string trimLeft(const std::string& str) {
+	if (str.empty()) {
+		return str;
+	}
 
+	size_t firstNonSpace = str.find_first_not_of(" \t\n\r\f\v");
 
+	// If the string is all whitespace
+	if (firstNonSpace == std::string::npos) {
+		return "";
+	}
 
-
-
-inline void trim_left_whitespace(std::string& s) {
-	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
-		return !std::isspace(ch);
-		}));
+	return str.substr(firstNonSpace);
 }
 
-// trim from end (in place)
-inline void trim_right_whitespace(std::string& s) {
-	s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
-		return !std::isspace(ch);
-		}).base(), s.end());
+std::string trimRight(const std::string& str) {
+	if (str.empty()) {
+		return str;
+	}
+
+	size_t lastNonSpace = str.find_last_not_of(" \t\n\r\f\v");
+
+	// If the string is all whitespace
+	if (lastNonSpace == std::string::npos) {
+		return "";
+	}
+
+	return str.substr(0, lastNonSpace + 1);
 }
+
+
+//
+//inline void trim_left_whitespace(std::string& s) {
+//	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+//		return !std::isspace(ch);
+//		}));
+//}
+//
+//// trim from end (in place)
+//inline void trim_right_whitespace(std::string& s) {
+//	s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+//		return !std::isspace(ch);
+//		}).base(), s.end());
+//}
 
 vector<string> std_strtok(const string& s, const string& regex_s)
 {
@@ -53,8 +81,8 @@ public:
 	string filename = "";
 	size_t line_number = 0;
 	size_t line_pos = 0;
-	size_t scope_depth = 0;
-	size_t scope_block_number = 0;
+	long long signed int scope_depth = 0;
+	//	size_t scope_block_number = 0;
 
 	bool operator<(const variable_declaration& rhs)
 	{
@@ -78,10 +106,10 @@ public:
 		else if (scope_depth > rhs.scope_depth)
 			return false;
 
-		if (scope_block_number < rhs.scope_block_number)
-			return true;
-		else if (scope_block_number > rhs.scope_block_number)
-			return false;
+		//if (scope_block_number < rhs.scope_block_number)
+		//	return true;
+		//else if (scope_block_number > rhs.scope_block_number)
+		//	return false;
 
 		return false;
 	}
@@ -173,7 +201,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 		if (str_pos != string::npos)
 			filenames.push_back(entry.path().string());
 
-			
+
 
 
 
@@ -198,8 +226,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 	for (size_t i = 0; i < filenames.size(); i++)
 	{
-		size_t scope_depth = 0;
-		size_t scope_block_number = 0;
+		long long signed int scope_depth = 0;
 
 		ifstream infile(filenames[i]);
 
@@ -221,6 +248,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 		while (getline(infile, line))
 		{
+
 			line_num++;
 
 			if (line == "")
@@ -237,35 +265,38 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 			else
 			{
 				prev_lines_vector.clear();
-				prev_lines_vector.push_back(line);;
+				prev_lines_vector.push_back(line);
 			}
 
-			string prev_string = "";
-			bool refresh_prev_string = true;
+			//bool refresh_prev_string = true;
 			bool inside_double_slash_comment = false;
 
 
+
 			for (long signed int p = 0; p < prev_lines_vector.size(); p++)
-			{
+			{ 
+				//cout << "PREV_LINES_VECTOR " << prev_lines_vector[p] << endl;
+
+
 				//cout << endl << endl << endl;
 
-				if (refresh_prev_string)
-					prev_string = prev_lines_vector[p];
+				//if (refresh_prev_string)
+				//string prev_string = prev_lines_vector[p];
 
 				string final_string = "";
 
-				if (string::npos != prev_string.find_first_of("/*") ||
-					string::npos != prev_string.find_first_of("*/") ||
-					string::npos != prev_string.find_first_of("//"))
+				if (string::npos != prev_lines_vector[p].find_first_of("/*") ||
+					string::npos != prev_lines_vector[p].find_first_of("*/") ||
+					string::npos != prev_lines_vector[p].find_first_of("//"))
 				{
-					for (size_t l = 0; l < prev_string.size() - 1; l++)
+					for (size_t l = 0; l < prev_lines_vector[p].size() - 1; l++)
 					{
 						if (false == inside_slashstar_comment && false == inside_double_slash_comment)
 						{
-							final_string += prev_string[l];
+							final_string += prev_lines_vector[p][l];
 						}
 
-						if (prev_string[l] == '/' && prev_string[l + 1] == '*')
+						if (prev_lines_vector[p][l] == '/' && prev_lines_vector[p][l + 1] == '*')
 						{
 							inside_slashstar_comment = true;
 							l++;
@@ -276,47 +307,57 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 							continue;
 						}
 
-						else if (prev_string[l] == '*' && prev_string[l + 1] == '/')
+						else if (prev_lines_vector[p][l] == '*' && prev_lines_vector[p][l + 1] == '/')
 						{
 							inside_slashstar_comment = false;
 							l++;
 
 							if (final_string.size() > 0)
 								final_string.pop_back();
-							
+
 							continue;
 						}
 
-						else if (prev_string[l] == '/' && prev_string[l + 1] == '/')
+						else if (prev_lines_vector[p][l] == '/' && prev_lines_vector[p][l + 1] == '/')
 						{
 							inside_double_slash_comment = true;
 							l++;
 
-							if(final_string.size() > 0)
+							if (final_string.size() > 0)
 								final_string.pop_back();
-							
+
 							continue;
 						}
 					}
 
-					if(prev_string.size() > 0)
-					final_string += prev_string[prev_string.size() - 1];
+					if (prev_lines_vector[p].size() > 0)
+						final_string += prev_lines_vector[p][prev_lines_vector[p].size() - 1];
 				}
 				else
 				{
-					final_string = prev_string;
+					final_string = prev_lines_vector[p];
 				}
 
 				if (final_string == "")
-					continue; 
+					continue;
 
-				//cout << "FINAL_STRING \"" << final_string << "\"" << endl;
 
-				trim_left_whitespace(final_string);
-				trim_right_whitespace(final_string);
+
+
+				final_string = trimLeft(final_string);
+				final_string = trimRight(final_string);
+
+
+				//trim_left_whitespace(final_string);
+				//trim_right_whitespace(final_string);
 
 				if (final_string == "")
 					continue;
+
+
+				//cout << "FINAL_STRING \"" << final_string << "\"" << endl;
+
+
 
 				//cout << "FINALSTRING " << final_string << endl;
 				//cout << inside_slashstar_comment << " " << inside_double_slash_comment << endl;
@@ -344,32 +385,33 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 				else
 				{
 					//output << prev_lines << endl;
-					continue;
+					//continue;
 				}
 
-				vector<string> statements = std_strtok(final_string, "[;]\\s*");
+				vector<string> statements = std_strtok(final_string, "[;]+");
 
 				for (size_t j = 0; j < statements.size(); j++)
 					statements[j] += ';';
 
 				size_t prev_statements_location = 0;
 
+
+
 				for (size_t s = 0; s < statements.size(); s++)
 				{
-	
-
-
 					//cout << "STATEMENT " << statements[s] << endl;
 
 
-					vector<string> tokens = std_strtok(statements[s], "[= \t]\\s*");
+					vector<string> tokens = std_strtok(statements[s], "[= \t]+");
 
 					if (tokens.size() == 0)
 						continue;
 
 					for (size_t j = 0; j < tokens.size(); j++)
 					{
-						trim_left_whitespace(tokens[j]);
+						tokens[j] = trimLeft(tokens[j]);
+
+						//trim_left_whitespace(tokens[j]);
 
 						if (j < tokens.size() - 1)
 							tokens[j] += ' ';
@@ -474,7 +516,6 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 					//	cout << statements[s] << endl;
 					//	continue;
 					//}
-
 
 
 
@@ -640,30 +681,27 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 								prev_statements_location = line_pos + statements[s].size();
 
-								size_t local_scope_depth = scope_depth;
-								size_t local_scope_block_number = scope_block_number;
+								long long signed int local_scope_depth = scope_depth;
+								//vector<size_t> local_block_numbers = block_numbers;
 
-								//for (size_t x = 0; x < line_pos; x++)
-								//{
-								//	if (prev_lines_vector[p][x] == '{')
-								//	{
-								//		local_scope_block_number++;
-								//		local_scope_depth++;
-								//	}
-								//	else if (prev_lines_vector[p][x] == '}')
-								//	{
-								//		if (local_scope_depth > 0)
-								//			local_scope_depth--;
-								//	}
-								//}
+								//cout << "PREV LINES P " << prev_lines_vector[p] << endl;
+
+								long long signed int open_brace_count = count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '{');
+								long long signed int closing_brace_count = count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '}');
+
+								local_scope_depth += open_brace_count;
+								local_scope_depth -= closing_brace_count;
+
 
 								variable_declaration v;
 								v.declaration = statements[s];// type_oss.str();
 								v.filename = filenames[i];
 								v.line_number = line_num;
-								v.line_pos = line_pos;
+									
+								//if(line_pos > 0)
+								v.line_pos = line_pos;// +1;
+
 								v.scope_depth = local_scope_depth;
-								v.scope_block_number = local_scope_block_number;
 
 								declarations.push_back(v);
 							}
@@ -681,20 +719,20 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 					}
 				}
 
-				// Update running totals
-				for (size_t j = 0; j < prev_lines_vector[p].size(); j++)
-				{
-					if (prev_lines_vector[p][j] == '{')
-					{
-						scope_block_number++;
-						scope_depth++;
-					}
-					else if (prev_lines_vector[p][j] == '}')
-					{
-						if (scope_depth > 0)
-							scope_depth--;
-					}
-				}
+				//cout << "LINE " << prev_lines_vector[p] << endl;
+
+				long long signed int open_brace_count = ranges::count(prev_lines_vector[p], '{');
+				long long signed int closing_brace_count = ranges::count(prev_lines_vector[p], '}');
+
+				//long long signed int open_brace_count = count(prev_lines_vector[p].begin(), prev_lines_vector[p].end(), '{');
+				//long long signed int closing_brace_count = count(prev_lines_vector[p].begin(), prev_lines_vector[p].end(), '}');
+
+				//if (closing_brace_count != 0)
+				//	cout << open_brace_count << " " << closing_brace_count << endl;
+
+				scope_depth += open_brace_count;
+				scope_depth -= closing_brace_count;
+
 			}
 
 
@@ -721,12 +759,12 @@ void get_type_and_name(const string& input, string& variable_type0, string& vari
 {
 	variable_type0 = variable_name0 = "";
 
-	vector<string> declaration_tokens0 = std_strtok(input, "[=;]\\s*");
+	vector<string> declaration_tokens0 = std_strtok(input, "[=;]+");
 
 	if (declaration_tokens0.size() == 0)
 		return;
 
-	vector<string> declaration_tokens0_whitespace = std_strtok(declaration_tokens0[0], "[ \t]\\s*");
+	vector<string> declaration_tokens0_whitespace = std_strtok(declaration_tokens0[0], "[ \t]+");
 
 	if (declaration_tokens0_whitespace.size() == 0)
 		return;
@@ -786,11 +824,17 @@ int main(void)
 		if (false == found_pointer_type)
 			continue;
 
-		trim_left_whitespace(variable_type0);
-		trim_right_whitespace(variable_type0);
+		variable_type0 = trimLeft(variable_type0);
+		variable_type0 = trimRight(variable_type0);
 
-		trim_left_whitespace(variable_name0);
-		trim_right_whitespace(variable_name0);
+		//trim_left_whitespace(variable_type0);
+		//trim_right_whitespace(variable_type0);
+
+		variable_name0 = trimLeft(variable_name0);
+		variable_name0 = trimRight(variable_name0);
+
+		//trim_left_whitespace(variable_name0);
+		//trim_right_whitespace(variable_name0);
 
 		pointer_only_declarations.push_back(declarations[i]);
 
@@ -801,6 +845,7 @@ int main(void)
 		cout << declarations[i].line_number << endl;
 		cout << declarations[i].line_pos << endl;
 		cout << declarations[i].scope_depth << endl;
+		//cout << declarations[i].scope_block_number << endl;
 		cout << endl << endl;
 	}
 
@@ -808,59 +853,57 @@ int main(void)
 
 	//return 0;
 
-	// TODO: Store vector of previous scopes, so when scope_depth reduces, popback on the vector 
-	// and then assign the scope block to the block number on top of the vector
 
-		sort(pointer_only_declarations.begin(), pointer_only_declarations.end());
-	
-		// search for collisions
-		for (size_t i = 0; i < pointer_only_declarations.size() - 1; i++)
+	sort(pointer_only_declarations.begin(), pointer_only_declarations.end());
+
+	// search for collisions
+	for (size_t i = 0; i < pointer_only_declarations.size() - 1; i++)
+	{
+		vector<string> declaration_tokens0 = std_strtok(pointer_only_declarations[i].declaration, "[=;]+");
+		vector<string> declaration_tokens1 = std_strtok(pointer_only_declarations[i + 1].declaration, "[=;]+");
+
+		if (declaration_tokens0.size() == 0 || declaration_tokens1.size() == 0)
+			continue;
+
+		vector<string> declaration_tokens0_whitespace = std_strtok(declaration_tokens0[0], "[* \t]+");
+		vector<string> declaration_tokens1_whitespace = std_strtok(declaration_tokens1[0], "[* \t]+");
+
+		if (declaration_tokens0_whitespace.size() == 0 || declaration_tokens1_whitespace.size() == 0)
+			continue;
+
+		string variable_name0 = declaration_tokens0_whitespace[declaration_tokens0_whitespace.size() - 1];
+		string variable_name1 = declaration_tokens1_whitespace[declaration_tokens1_whitespace.size() - 1];
+
+		if (pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
 		{
-			vector<string> declaration_tokens0 = std_strtok(pointer_only_declarations[i].declaration, "[=;]\\s*");
-			vector<string> declaration_tokens1 = std_strtok(pointer_only_declarations[i + 1].declaration, "[=;]\\s*");
-	
-			if (declaration_tokens0.size() == 0 || declaration_tokens1.size() == 0)
-				continue;
-	
-			vector<string> declaration_tokens0_whitespace = std_strtok(declaration_tokens0[0], "[* \t]\\s*");
-			vector<string> declaration_tokens1_whitespace = std_strtok(declaration_tokens1[0], "[* \t]\\s*");
-	
-			if (declaration_tokens0_whitespace.size() == 0 || declaration_tokens1_whitespace.size() == 0)
-				continue;
-	
-			string variable_name0 = declaration_tokens0_whitespace[declaration_tokens0_whitespace.size() - 1];
-			string variable_name1 = declaration_tokens1_whitespace[declaration_tokens1_whitespace.size() - 1];
-	
-			if (pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
+			if (variable_name0 == variable_name1)
 			{
-				if (variable_name0 == variable_name1)
+				if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
 				{
-					if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
+					if (1)//pointer_only_declarations[i].scope_block_number == pointer_only_declarations[i + 1].scope_block_number)
 					{
-						if (pointer_only_declarations[i].scope_block_number == pointer_only_declarations[i + 1].scope_block_number)
-						{
-							cout << "possible collision" << endl;
-							cout << variable_name0 << " " << variable_name1 << endl;
-							cout << pointer_only_declarations[i].scope_block_number << " " << pointer_only_declarations[i + 1].scope_block_number << endl;
-							cout << pointer_only_declarations[i].filename << endl;
-							cout << endl;
-						}
+						cout << "possible collision" << endl;
+						cout << variable_name0 << " " << variable_name1 << endl;
+						cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
+						cout << pointer_only_declarations[i].filename << endl;
+						cout << endl;
 					}
 				}
 			}
-	
-	
-			//cout << "variable name " << variable_name0 << endl;
-	
-			//cout << "declaration tokens " << endl;
-	
-			//for (size_t j = 0; j < declaration_tokens0.size(); j++)
-			//{
-			//	cout << declaration_tokens0[j] << ' ';
-			//}
-	
-	//		cout << endl;
 		}
+
+
+		//cout << "variable name " << variable_name0 << endl;
+
+		//cout << "declaration tokens " << endl;
+
+		//for (size_t j = 0; j < declaration_tokens0.size(); j++)
+		//{
+		//	cout << declaration_tokens0[j] << ' ';
+		//}
+
+//		cout << endl;
+	}
 
 	return 0;
 }
