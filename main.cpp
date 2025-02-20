@@ -404,16 +404,19 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 				for (size_t s = 0; s < statements.size(); s++)
 				{
-					string statement_backup = statements[s];
 
-					for (size_t k = 0; k < statement_backup.size(); k++)
-					{
-						if (statement_backup[k] == '{' || statement_backup[k] == '}')
-							statement_backup[k] = ' ';
-					}
 
-					if(statement_backup.size() > 0)
-					statements[s] = statement_backup;
+
+					//string statement_backup = statements[s];
+
+					//for (size_t k = 0; k < statement_backup.size(); k++)
+					//{
+					//	if (statement_backup[k] == '{' || statement_backup[k] == '}')
+					//		statement_backup[k] = ' ';
+					//}
+
+					//if(statement_backup.size() > 0)
+					//statements[s] = statement_backup;
 
 
 					//cout << "STATEMENT " << statements[s] << endl;
@@ -438,8 +441,91 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 							tokens[j] += ' ';
 					}
 
-					// Found a # or / as the first character
-					if (tokens[0][0] == '#')// || tokens[0][0] == '/')
+
+
+					//// Perform the replacement
+					//string temp_string = regex_replace(tokens[0], regex("(\\*+)"), " $1 ");
+					//string temp_string2 = regex_replace(temp_string, regex("\\s+"), " ");
+
+					//vector<string> temp_tokens = std_strtok(temp_string2, "[= \t]+");
+
+					//cout << "TOKENS" << endl;
+
+					//for (size_t j = 0; j < temp_tokens.size(); j++)
+					//	cout << temp_tokens[j] << endl;
+
+					//cout << endl;
+
+
+					//string temp_string = tokens[0];
+					//size_t star_count = 0;
+
+					//string temp_string2 = "";
+
+					//for (size_t j = 0; j < temp_string.size() - 1; j++)
+					//{
+					//	if (temp_string[j] == '*' && temp_string[j + 1] != '*')
+					//	{
+					//		temp_string2 += temp_string[j];
+					//		temp_string2 += ' ';
+					//		
+					//	}
+					//	else
+					//	{
+					//		temp_string2 += temp_string[j];
+					//	}
+					//}
+
+
+					//if(temp_string[temp_string.size() - 1] != ';')
+					//temp_string2 += temp_string[temp_string.size() - 1];
+
+					//	cout << "TOKENS[0]   " << tokens[0] << endl;
+					//	cout << "TEMP STRING2 " << temp_string2 << endl;
+
+
+					//tokens[0] = temp_string2;
+
+
+
+
+
+
+					//string temp_string = "";
+					//size_t star_count = 0;
+
+					//for (size_t j = 0; j < tokens[0].size() - 1; j++)
+					//{
+					//	temp_string += tokens[0][j];
+
+					//	if (tokens[0][j] != '*' && tokens[0][j + 1] == '*')
+					//		temp_string += ' ';
+					//	else if (tokens[0][j] == '*' && tokens[0][j + 1] != '*')
+					//		temp_string += ' ';
+
+					//	if (tokens[0][j] == '*')
+					//		star_count++;
+					//}
+
+					//if (tokens[0][tokens[0].size() - 1] == '*')
+					//	star_count++;
+
+					//temp_string += tokens[0][tokens[0].size() - 1];
+
+					//temp_string = trimLeft(temp_string);
+					//temp_string = trimRight(temp_string);
+
+					////cout << "TOKENS[0]   " << tokens[0] << endl;
+					////cout << "TEMP STRING " << temp_string << endl;
+					//
+					//if(star_count)
+					//tokens[0] = temp_string;
+
+
+					// to do: add space before and after stars where not adjacent
+
+
+					if (tokens[0][0] == '#')
 					{
 						//output << prev_lines << endl;
 						continue;
@@ -479,6 +565,8 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 					// This is not a variable declaration statement
 						if (false == found_type)
 						{
+							cout << "DIDNT FIND TYPE " << tokens[0] << endl;
+
 							//// Not a variable declaration
 							//if (finished_with_semi_colon)
 							//{
@@ -728,22 +816,14 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 								prev_statements_location = line_pos + statements[s].size();
 
-
 								long long signed int local_scope_depth = scope_depth;
-
 								//cout << "PREV LINES P " << prev_lines_vector[p] << endl;
-								cout << "lala " << line_pos << endl;
-
 
 								long long signed int open_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '{');
 								long long signed int closing_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '}');
 
 								local_scope_depth += open_brace_count;
 								local_scope_depth -= closing_brace_count;
-
-								
-								
-
 
 								variable_declaration v;
 								v.declaration = statements[s];// type_oss.str();
@@ -766,8 +846,6 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 							}
 						}
 					}
-
-
 				}
 
 				//cout << "LINE " << prev_lines_vector[p] << endl;
