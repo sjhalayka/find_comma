@@ -122,7 +122,7 @@ public:
 };
 
 
-void enumerate_variables(string path, vector<variable_declaration>& declarations)
+void enumerate_variables(const string path, vector<variable_declaration>& declarations)
 {
 	declarations.clear();
 
@@ -394,13 +394,12 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 					//continue;
 				}
 
-				vector<string> statements = std_strtok(final_string, "[;]+");
+				vector<string> statements = std_strtok(final_string, "[{};]+");
 
 				for (size_t j = 0; j < statements.size(); j++)
 					statements[j] += ';';
 
 				size_t prev_statements_location = 0;
-
 
 
 				for (size_t s = 0; s < statements.size(); s++)
@@ -764,6 +763,17 @@ void get_type_and_name(const string& input, string& variable_type0, string& vari
 
 	variable_name0 = declaration_tokens0_whitespace[declaration_tokens0_whitespace.size() - 1];
 
+	//string temp_name = "";
+
+	//for (size_t i = 0; i < variable_name0.size(); i++)
+	//{
+	//	if (variable_name0[i] != '*')
+	//		temp_name += variable_name0[i];
+	//}
+	//variable_name0 = temp_name;
+
+	cout << "VAR_NAME " << variable_name0 << endl;
+
 	variable_type0 = "";
 
 	for (size_t j = 0; j < declaration_tokens0_whitespace.size() - 1; j++)
@@ -796,16 +806,14 @@ int main(void)
 		bool found_pointer_type = false;
 
 		// This should never happen after Microsoft style beautification of pointer types,
-		// but we'll take it into account, just in case
-		// e.g. variables are of the form int* x;
 		if (string::npos != variable_type0.find("*"))
 		{
-			size_t starcount = count(variable_type0.begin(), variable_type0.end(), '*');
+			//size_t starcount = count(variable_type0.begin(), variable_type0.end(), '*');
 
-			variable_type0 = variable_type0.substr(0, variable_type0.size() - starcount - 1);
+			//variable_type0 = variable_type0.substr(0, variable_type0.size() - starcount - 1);
 
-			for (size_t j = 0; j < starcount; j++)
-				variable_name0 = '*' + variable_name0;
+			//for (size_t j = 0; j < starcount; j++)
+			//	variable_name0 = '*' + variable_name0;
 
 			found_pointer_type = true;
 		}
@@ -813,7 +821,16 @@ int main(void)
 		// This should always happen after Microsoft style beautification of pointer types
 		// e.g. variables are of the form int *x;
 		if (string::npos != variable_name0.find("*"))
+		{
+			size_t starcount = count(variable_name0.begin(), variable_name0.end(), '*');
+
+			variable_name0 = variable_name0.substr(1, variable_name0.size() - starcount);
+
+			for (size_t j = 0; j < starcount; j++)
+				variable_type0 = variable_type0 + '*';
+
 			found_pointer_type = true;
+		}
 
 		// We're only interested in pointers
 		if (false == found_pointer_type)
@@ -854,23 +871,22 @@ int main(void)
 	// search for collisions
 	for (size_t i = 0; i < pointer_only_declarations.size() - 1; i++)
 	{
-		string variable_name0 = pointer_only_declarations[i].var_name;
-		string variable_name1 = pointer_only_declarations[i + 1].var_name;
-
 		if (pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
 		{
+			string variable_name0 = pointer_only_declarations[i].var_name;
+			string variable_name1 = pointer_only_declarations[i + 1].var_name;
+
+			cout << variable_name0 << " " << variable_name1 << endl;
+
 			if (variable_name0 == variable_name1)
 			{
 				if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
 				{
-					if (1)//pointer_only_declarations[i].scope_block_number == pointer_only_declarations[i + 1].scope_block_number)
-					{
-						cout << "possible collision" << endl;
-						cout << variable_name0 << " " << variable_name1 << endl;
-						cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
-						cout << pointer_only_declarations[i].filename << endl;
-						cout << endl;
-					}
+					cout << "possible collision" << endl;
+					cout << variable_name0 << " " << variable_name1 << endl;
+					cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
+					cout << pointer_only_declarations[i].filename << endl;
+					cout << endl;
 				}
 			}
 		}
