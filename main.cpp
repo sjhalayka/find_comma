@@ -128,10 +128,6 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 	vector<string> types;
 
-	// Note: this system does not accept variables that are
-	// in the form of int***x; (note the lack of spaces)
-	// So, either int*** x; or int ***x; int *** x; will work
-
 	types.push_back("static ");
 	types.push_back("const ");
 	types.push_back("short ");
@@ -404,7 +400,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 				for (size_t s = 0; s < statements.size(); s++)
 				{
-
+					
 
 
 					//string statement_backup = statements[s];
@@ -421,9 +417,76 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 					//cout << "STATEMENT " << statements[s] << endl;
 					//cout << "STATEMENT BACKUP " << statement_backup << endl;
+					//string temp_string = statements[s];
+
+					//string temp_string2 = "";
+
+					//for (size_t j = 0; j < temp_string.size() - 1; j++)
+					//{
+					//	temp_string2 += temp_string[j];
+
+					//	if (temp_string[j] != '*' && temp_string[j + 1] == '*')
+					//	{
+					//		temp_string2 += ' ';
+					//	}
 
 
-					vector<string> tokens = std_strtok(statements[s], "[= \t]+");
+					//}
+
+					//temp_string2 += temp_string[temp_string.size() - 1];
+
+
+					//
+					//string temp_string2 = regex_replace(temp_string, regex("\\s+"), " ");
+
+
+					string temp_string = statements[s];
+
+					temp_string = regex_replace(temp_string, regex("(\\*+)"), " $1 ");
+					temp_string = regex_replace(temp_string, regex("\\s+"), " ");
+
+
+					cout << "STATEMENT BEFORE " << statements[s] << endl;
+
+
+					//// only do this if there is no space after the stars
+					//size_t first_star_pos = temp_string.find_first_of('*');
+
+					//if (first_star_pos != string::npos)
+					//{
+					//	if (first_star_pos >= 1)
+					//	{
+					//		if (temp_string[first_star_pos - 1] != ' ')// && temp_string[first_star_pos - 1] != '\t')
+					//		{
+					//			temp_string.insert(temp_string.begin() + first_star_pos, ' ');
+					//		}
+					//	}
+					//}
+					//
+
+
+					cout << "STATEMENT AFTER " << temp_string << endl;
+
+
+					//bool found_non_star_after_star
+
+
+			/*		string temp_string2 = regex_replace(statements[s], regex("(\\*+)"), "$1 ");
+					temp_string2 = regex_replace(temp_string2, regex("\\s+"), " ");
+
+					temp_string2 = trimLeft(temp_string2);
+					temp_string2 = trimRight(temp_string2);*/
+
+				
+
+					//cout << "STATEMENTS " << statements[s] << endl;
+					//cout << "tempstring2 " << temp_string2 << endl;
+
+
+
+
+
+					vector<string> tokens = std_strtok(temp_string, "[= \t]+");
 
 					if (tokens.size() == 0)
 						continue;
@@ -443,8 +506,11 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 
 
-					//// Perform the replacement
+					//// Perform the replaceme
+
 					//string temp_string = regex_replace(tokens[0], regex("(\\*+)"), " $1 ");
+
+
 					//string temp_string2 = regex_replace(temp_string, regex("\\s+"), " ");
 
 					//vector<string> temp_tokens = std_strtok(temp_string2, "[= \t]+");
@@ -882,6 +948,9 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 	input = trimLeft(input);
 	input = trimRight(input);
 
+	input = regex_replace(input, regex("(\\*+)"), " $1 ");
+	input = regex_replace(input, regex("\\s+"), " ");
+
 	variable_type0 = variable_name0 = "";
 
 	vector<string> declaration_tokens0 = std_strtok(input, "[=;]+");
@@ -927,6 +996,7 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 
 	variable_type0 += ' ';
 
+	cout << "VAR_NAME " << variable_name0 << endl;
 
 	cout << "VAR_TYPE " << variable_type0 << endl;
 }
@@ -966,12 +1036,14 @@ int main(void)
 			//for (size_t j = 0; j < starcount; j++)
 			//	variable_name0 = '*' + variable_name0;
 
+			//cout << "FOUND STARS ON TYPE" << endl;
+
 			found_pointer_type = true;
 		}
 
 		// This should always happen after Microsoft style beautification of pointer types
 		// e.g. variables are of the form int *x;
-		if (string::npos != variable_name0.find("*"))
+		else if (string::npos != variable_name0.find("*"))
 		{
 			size_t starcount = count(variable_name0.begin(), variable_name0.end(), '*');
 
