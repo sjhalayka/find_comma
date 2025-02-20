@@ -91,15 +91,15 @@ public:
 		else if (filename > rhs.filename)
 			return false;
 
-		if (declaration < rhs.declaration)
-			return true;
-		else if (declaration > rhs.declaration)
-			return false;
+		//if (declaration < rhs.declaration)
+		//	return true;
+		//else if (declaration > rhs.declaration)
+		//	return false;
 
-		if (line_number < rhs.line_number)
-			return true;
-		else if (line_number > rhs.line_number)
-			return false;
+		//if (line_number < rhs.line_number)
+		//	return true;
+		//else if (line_number > rhs.line_number)
+		//	return false;
 
 		if (scope_depth < rhs.scope_depth)
 			return true;
@@ -697,10 +697,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 								v.declaration = statements[s];// type_oss.str();
 								v.filename = filenames[i];
 								v.line_number = line_num;
-									
-								//if(line_pos > 0)
-								v.line_pos = line_pos;// +1;
-
+								v.line_pos = line_pos;
 								v.scope_depth = local_scope_depth;
 
 								declarations.push_back(v);
@@ -876,9 +873,11 @@ int main(void)
 
 		if (pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
 		{
+			cout << "VARNAMES " << variable_name0 << " " << variable_name1 << endl;
+
 			if (variable_name0 == variable_name1)
 			{
-				if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
+				if (1)//pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
 				{
 					if (1)//pointer_only_declarations[i].scope_block_number == pointer_only_declarations[i + 1].scope_block_number)
 					{
