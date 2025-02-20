@@ -404,13 +404,29 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 				for (size_t s = 0; s < statements.size(); s++)
 				{
+					string statement_backup = statements[s];
+
+					for (size_t k = 0; k < statement_backup.size(); k++)
+					{
+						if (statement_backup[k] == '{' || statement_backup[k] == '}')
+							statement_backup[k] = ' ';
+					}
+
+					if(statement_backup.size() > 0)
+					statements[s] = statement_backup;
+
+
 					//cout << "STATEMENT " << statements[s] << endl;
+					//cout << "STATEMENT BACKUP " << statement_backup << endl;
 
 
 					vector<string> tokens = std_strtok(statements[s], "[= \t]+");
 
 					if (tokens.size() == 0)
 						continue;
+
+
+
 
 					for (size_t j = 0; j < tokens.size(); j++)
 					{
@@ -523,11 +539,16 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 					//}
 
 
-
 					if (found_type)
 					{
+
+					
+
+
 						if (1)//type == "" || s == 0)
 						{
+
+
 							type = tokens[0];
 
 							if (tokens[0] == "static ")
@@ -667,6 +688,9 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 								type = "struct " + tokens[1];
 							}
 
+
+
+
 							//ostringstream type_oss;
 							//type_oss << type << ' ';
 							//size_t first_index = 1;
@@ -681,19 +705,45 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 							if (false == inside_slashstar_comment)
 							{
+								//string temp_statement = statements[s];
+
+								//if (temp_statement.size() > 0 && temp_statement[temp_statement.size() - 1] == ';')
+								//	temp_statement.pop_back();
+
+								//statements[s] = temp_statement;
+
+								statements[s] = trimLeft(statements[s]);
+								statements[s] = trimRight(statements[s]);
+
 								size_t line_pos = prev_lines_vector[p].find(statements[s], prev_statements_location);
 
+								if (line_pos == string::npos)
+								{
+									cout << "COULD NOT FIND STATEMENT " << endl;
+									cout << prev_lines_vector[p] << endl;
+									cout << statements[s] << endl;
+									cout << endl;
+									exit(123);
+								}
+
 								prev_statements_location = line_pos + statements[s].size();
+
 
 								long long signed int local_scope_depth = scope_depth;
 
 								//cout << "PREV LINES P " << prev_lines_vector[p] << endl;
+								cout << "lala " << line_pos << endl;
+
 
 								long long signed int open_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '{');
 								long long signed int closing_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '}');
 
 								local_scope_depth += open_brace_count;
 								local_scope_depth -= closing_brace_count;
+
+								
+								
+
 
 								variable_declaration v;
 								v.declaration = statements[s];// type_oss.str();
@@ -716,6 +766,8 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 							}
 						}
 					}
+
+
 				}
 
 				//cout << "LINE " << prev_lines_vector[p] << endl;
@@ -768,22 +820,18 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 
 	string temp_name = "";
 
-	cout << "VAR_NAME BEFORE " << variable_name0 << endl;
-
 	size_t num_stars_found = 0;
 
 	for (size_t i = 0; i < variable_name0.size(); i++)
 	{
 		if (variable_name0[i] != '*')
-		{
 			temp_name += variable_name0[i];
+		else
 			num_stars_found++;
-		}
 	}
+
 	variable_name0 = temp_name;
 
-
-	cout << "VAR_NAME aFTER " << variable_name0 << endl;
 
 
 
