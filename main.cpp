@@ -78,6 +78,7 @@ class variable_declaration
 {
 public:
 	string declaration = "";
+	string var_name = "";
 	string filename = "";
 	size_t line_number = 0;
 	size_t line_pos = 0;
@@ -89,6 +90,11 @@ public:
 		if (filename < rhs.filename)
 			return true;
 		else if (filename > rhs.filename)
+			return false;
+
+		if (var_name < rhs.var_name)
+			return true;
+		else if (var_name > rhs.var_name)
 			return false;
 
 		//if (declaration < rhs.declaration)
@@ -795,6 +801,8 @@ int main(void)
 
 		get_type_and_name(declarations[i].declaration, variable_type0, variable_name0);
 
+		declarations[i].var_name = variable_name0;
+
 		bool found_pointer_type = false;
 
 		// This should never happen after Microsoft style beautification of pointer types,
@@ -856,28 +864,14 @@ int main(void)
 	// search for collisions
 	for (size_t i = 0; i < pointer_only_declarations.size() - 1; i++)
 	{
-		vector<string> declaration_tokens0 = std_strtok(pointer_only_declarations[i].declaration, "[=;]+");
-		vector<string> declaration_tokens1 = std_strtok(pointer_only_declarations[i + 1].declaration, "[=;]+");
-
-		if (declaration_tokens0.size() == 0 || declaration_tokens1.size() == 0)
-			continue;
-
-		vector<string> declaration_tokens0_whitespace = std_strtok(declaration_tokens0[0], "[* \t]+");
-		vector<string> declaration_tokens1_whitespace = std_strtok(declaration_tokens1[0], "[* \t]+");
-
-		if (declaration_tokens0_whitespace.size() == 0 || declaration_tokens1_whitespace.size() == 0)
-			continue;
-
-		string variable_name0 = declaration_tokens0_whitespace[declaration_tokens0_whitespace.size() - 1];
-		string variable_name1 = declaration_tokens1_whitespace[declaration_tokens1_whitespace.size() - 1];
+		string variable_name0 = pointer_only_declarations[i].var_name;
+		string variable_name1 = pointer_only_declarations[i + 1].var_name;
 
 		if (pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
 		{
-			cout << "VARNAMES " << variable_name0 << " " << variable_name1 << endl;
-
 			if (variable_name0 == variable_name1)
 			{
-				if (1)//pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
+				if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
 				{
 					if (1)//pointer_only_declarations[i].scope_block_number == pointer_only_declarations[i + 1].scope_block_number)
 					{
