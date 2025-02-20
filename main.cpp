@@ -427,7 +427,7 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 					if (tokens[0][0] == '#')// || tokens[0][0] == '/')
 					{
 						//output << prev_lines << endl;
-						break;
+						continue;
 					}
 
 					if (tokens[0].size() >= 3 &&
@@ -454,8 +454,8 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 						found_type = true;
 					}
-					else
-						//cout << "DID NOT FIND TYPE " << tokens[0] << endl;
+					//else
+					//	cout << "DID NOT FIND TYPE " << tokens[0] << endl;
 
 
 
@@ -646,7 +646,6 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 							}
 							else if (tokens.size() > 1 && tokens[0] == "long ")
 							{
-
 								type = "long ";
 
 								for (size_t i = 0; i < tokens.size(); i++)
@@ -727,7 +726,6 @@ void enumerate_variables(string path, vector<variable_declaration>& declarations
 
 				scope_depth += open_brace_count;
 				scope_depth -= closing_brace_count;
-
 			}
 
 
