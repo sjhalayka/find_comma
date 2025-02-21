@@ -134,6 +134,46 @@ public:
 };
 
 
+vector<string> get_filenames(const string path)
+{
+	vector<string> filenames;
+
+	for (const auto& entry : filesystem::directory_iterator(path))
+	{
+
+
+
+
+		size_t str_pos = entry.path().string().find("sort.c");
+
+		if (str_pos != string::npos)
+			filenames.push_back(entry.path().string());
+
+
+
+
+		//string s = entry.path().string();
+
+		//vector<string> tokens = std_strtok(s, "[.]\\s*");
+
+		//for (size_t i = 0; i < tokens.size(); i++)
+		//	for (size_t j = 0; j < tokens[i].size(); j++)
+		//		tokens[i][j] = tolower(tokens[i][j]);
+
+		//if (tokens.size() > 0 &&
+		//	(tokens[tokens.size() - 1] == "c" ||
+		//		tokens[tokens.size() - 1] == "cpp"))
+		//{
+		//	filenames.push_back(s);
+		//}
+
+
+
+	}
+
+	return filenames;
+}
+
 
 void enumerate_non_variables(const string path, vector<string>& non_declarations)
 {
@@ -207,40 +247,9 @@ void enumerate_non_variables(const string path, vector<string>& non_declarations
 
 	// No quadruple pointers used in the LDAK code
 
-	vector<string> filenames;
-
-	for (const auto& entry : filesystem::directory_iterator(path))
-	{
+	vector<string> filenames = get_filenames(path);
 
 
-
-
-		size_t str_pos = entry.path().string().find("sort.c");
-
-		if (str_pos != string::npos)
-			filenames.push_back(entry.path().string());
-
-
-
-
-		//string s = entry.path().string();
-
-		//vector<string> tokens = std_strtok(s, "[.]\\s*");
-
-		//for (size_t i = 0; i < tokens.size(); i++)
-		//	for (size_t j = 0; j < tokens[i].size(); j++)
-		//		tokens[i][j] = tolower(tokens[i][j]);
-
-		//if (tokens.size() > 0 &&
-		//	(tokens[tokens.size() - 1] == "c" ||
-		//		tokens[tokens.size() - 1] == "cpp"))
-		//{
-		//	filenames.push_back(s);
-		//}
-
-
-
-	}
 
 
 
@@ -635,40 +644,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 	// No quadruple pointers used in the LDAK code
 
-	vector<string> filenames;
-
-	for (const auto& entry : filesystem::directory_iterator(path))
-	{
-
-
-
-
-		size_t str_pos = entry.path().string().find("sort.c");
-
-		if (str_pos != string::npos)
-			filenames.push_back(entry.path().string());
-
-
-
-
-		//string s = entry.path().string();
-
-		//vector<string> tokens = std_strtok(s, "[.]\\s*");
-
-		//for (size_t i = 0; i < tokens.size(); i++)
-		//	for (size_t j = 0; j < tokens[i].size(); j++)
-		//		tokens[i][j] = tolower(tokens[i][j]);
-
-		//if (tokens.size() > 0 &&
-		//	(tokens[tokens.size() - 1] == "c" ||
-		//		tokens[tokens.size() - 1] == "cpp"))
-		//{
-		//	filenames.push_back(s);
-		//}
-
-
-
-	}
+	vector<string> filenames = get_filenames(path);
 
 
 
