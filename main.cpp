@@ -209,7 +209,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 	for (const auto& entry : filesystem::directory_iterator(path))
 	{
 
-		//size_t str_pos = entry.path().string().find("sort.c");
+		//size_t str_pos = entry.path().string().find("getnums.c");
 
 		//if (str_pos != string::npos)
 		//	filenames.push_back(entry.path().string());
@@ -1027,18 +1027,6 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 
 	variable_name0 = temp_name;
 
-
-	// TODO: Avoid 
-
-	//"char * al2b, int Nb, int * allchr, double * allbp, char **"
-	//	"allnames,"
-	//	"char *al2b, int Nb, int *allchr, double *allbp, char **allnames,"
-	//	"Y:/home/sjhalayka/ldak_min\sort.c"
-	//	617
-	//	16
-	//	0
-
-
 	variable_type0 = "";
 
 	for (size_t j = 0; j < declaration_tokens0_whitespace.size() - 1; j++)
@@ -1131,14 +1119,14 @@ int main(void)
 
 		pointer_only_declarations.push_back(declarations[i]);
 
-		cout << "\"" << variable_type0 << "\"" << endl;
-		cout << "\"" << variable_name0 << "\"" << endl;
-		cout << "\"" << declarations[i].declaration << "\"" << endl;
-		cout << "\"" << declarations[i].filename << "\"" << endl;
-		cout << declarations[i].line_number << endl;
-		cout << declarations[i].line_pos << endl;
-		cout << declarations[i].scope_depth << endl;
-		cout << endl << endl;
+		//cout << "\"" << variable_type0 << "\"" << endl;
+		//cout << "\"" << variable_name0 << "\"" << endl;
+		//cout << "\"" << declarations[i].declaration << "\"" << endl;
+		//cout << "\"" << declarations[i].filename << "\"" << endl;
+		//cout << declarations[i].line_number << endl;
+		//cout << declarations[i].line_pos << endl;
+		//cout << declarations[i].scope_depth << endl;
+		//cout << endl << endl;
 	}
 
 	cout << "Declaration count: " << declarations.size() << endl;
@@ -1160,15 +1148,13 @@ int main(void)
 			string variable_name0 = pointer_only_declarations[i].var_name;
 			string variable_name1 = pointer_only_declarations[i + 1].var_name;
 
-			//cout << variable_name0 << " " << variable_name1 << endl;
-
 			if (variable_name0 == variable_name1)
 			{
 				if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
 				{
 					if (pointer_only_declarations[i].scope_id == pointer_only_declarations[i + 1].scope_id)
 					{
-						cout << "possible collision" << endl;
+						cout << "Possible collision:" << endl;
 						cout << variable_name0 << " " << variable_name1 << endl;
 						cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
 						cout << pointer_only_declarations[i].filename << endl;
@@ -1178,18 +1164,6 @@ int main(void)
 				}
 			}
 		}
-
-
-		//cout << "variable name " << variable_name0 << endl;
-
-		//cout << "declaration tokens " << endl;
-
-		//for (size_t j = 0; j < declaration_tokens0.size(); j++)
-		//{
-		//	cout << declaration_tokens0[j] << ' ';
-		//}
-
-//		cout << endl;
 	}
 
 	return 0;
