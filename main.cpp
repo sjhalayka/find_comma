@@ -73,6 +73,16 @@ vector<string> std_strtok(const string& s, const string& regex_s)
 	return tokens;
 }
 
+string generateRandomString(size_t length)
+{
+	const char* charmap = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	const size_t charmapLength = strlen(charmap);
+	auto generator = [&]() { return charmap[rand() % charmapLength]; };
+	string result;
+	result.reserve(length);
+	generate_n(back_inserter(result), length, generator);
+	return result;
+}
 
 class variable_declaration
 {
@@ -83,7 +93,9 @@ public:
 	size_t line_number = 0;
 	size_t line_pos = 0;
 	long long signed int scope_depth = 0;
-	//	size_t scope_block_number = 0;
+	string scope_id;
+
+
 
 	bool operator<(const variable_declaration& rhs)
 	{
@@ -112,10 +124,10 @@ public:
 		else if (scope_depth > rhs.scope_depth)
 			return false;
 
-		//if (scope_block_number < rhs.scope_block_number)
-		//	return true;
-		//else if (scope_block_number > rhs.scope_block_number)
-		//	return false;
+		if (scope_id < rhs.scope_id)
+			return true;
+		else if (scope_id > rhs.scope_id)
+			return false;
 
 		return false;
 	}
@@ -199,25 +211,31 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 	for (const auto& entry : filesystem::directory_iterator(path))
 	{
 
+		size_t str_pos = entry.path().string().find("sort.c");
+
+		if (str_pos != string::npos)
+			filenames.push_back(entry.path().string());
 
 
 
 
+		//string s = entry.path().string();
 
-		string s = entry.path().string();
+		//vector<string> tokens = std_strtok(s, "[.]\\s*");
 
-		vector<string> tokens = std_strtok(s, "[.]\\s*");
+		//for (size_t i = 0; i < tokens.size(); i++)
+		//	for (size_t j = 0; j < tokens[i].size(); j++)
+		//		tokens[i][j] = tolower(tokens[i][j]);
 
-		for (size_t i = 0; i < tokens.size(); i++)
-			for (size_t j = 0; j < tokens[i].size(); j++)
-				tokens[i][j] = tolower(tokens[i][j]);
+		//if (tokens.size() > 0 &&
+		//	(tokens[tokens.size() - 1] == "c" ||
+		//		tokens[tokens.size() - 1] == "cpp"))
+		//{
+		//	filenames.push_back(s);
+		//}
 
-		if (tokens.size() > 0 &&
-			(tokens[tokens.size() - 1] == "c" ||
-				tokens[tokens.size() - 1] == "cpp"))
-		{
-			filenames.push_back(s);
-		}
+
+
 	}
 
 
@@ -226,6 +244,8 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 	for (size_t i = 0; i < filenames.size(); i++)
 	{
 		long long signed int scope_depth = 0;
+
+		vector<string> scope_ids;
 
 		ifstream infile(filenames[i]);
 
@@ -441,6 +461,9 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 					string temp_string = statements[s];
 
 					temp_string = regex_replace(temp_string, regex("(\\*+)"), " $1 ");
+
+					temp_string = regex_replace(temp_string, regex("struct"), "struct ");
+
 					temp_string = regex_replace(temp_string, regex("\\s+"), " ");
 
 
@@ -703,16 +726,16 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 							type = tokens[0];
 
-							if (tokens[0] == "static ")
+							if (tokens.size() > 1 && tokens[0] == "static")
 							{
 								is_static = true;
 
+
 								type = "static ";
 
-								for (size_t i = 1; i < tokens.size(); i++)
+								for (size_t i = 0; i < tokens.size(); i++)
 								{
-									if (//tokens[i] == "static " ||
-										tokens[i] == "size_t " ||
+									if (tokens[i] == "size_t " ||
 										tokens[i] == "FILE " ||
 										tokens[i] == "DIR " ||
 										tokens[i] == "gzFile " ||
@@ -725,7 +748,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 										tokens[i] == "int " ||
 										tokens[i] == "char ")
 									{
-										/*if (tokens[i] != "static ")*/
+										if (tokens[i] != "static")
 										type += tokens[i] + " ";
 
 										tokens.erase(tokens.begin() + i);
@@ -886,6 +909,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 								long long signed int local_scope_depth = scope_depth;
 								//cout << "PREV LINES P " << prev_lines_vector[p] << endl;
+								vector<string> local_scope_ids = scope_ids;
 
 								long long signed int open_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '{');
 								long long signed int closing_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '}');
@@ -893,7 +917,11 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 								local_scope_depth += open_brace_count;
 								local_scope_depth -= closing_brace_count;
 
+								for (long long signed int j = 0; j < open_brace_count; j++)
+									local_scope_ids.push_back(generateRandomString(128));
 
+								for (long long signed int j = 0; j < closing_brace_count; j++)
+									local_scope_ids.pop_back();
 
 								variable_declaration v;
 								v.declaration = statements[s];// type_oss.str();
@@ -901,6 +929,11 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 								v.line_number = line_num;
 								v.line_pos = line_pos;
 								v.scope_depth = local_scope_depth;
+
+								if (local_scope_ids.size() > 0)
+									v.scope_id = local_scope_ids[local_scope_ids.size() - 1];
+								else
+									v.scope_id = "";
 
 								declarations.push_back(v);
 							}
@@ -925,6 +958,12 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 				scope_depth += open_brace_count;
 				scope_depth -= closing_brace_count;
+
+				for(long long signed int j = 0; j < open_brace_count; j++)
+					scope_ids.push_back(generateRandomString(128));
+
+				for (long long signed int j = 0; j < closing_brace_count; j++)
+					scope_ids.pop_back();
 			}
 
 
@@ -953,6 +992,9 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 	input = trimRight(input);
 
 	input = regex_replace(input, regex("(\\*+)"), " $1 ");
+
+
+
 	input = regex_replace(input, regex("\\s+"), " ");
 
 	variable_type0 = variable_name0 = "";
@@ -984,13 +1026,22 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 	variable_name0 = temp_name;
 
 
+	// TODO: Avoid 
+
+	//"char * al2b, int Nb, int * allchr, double * allbp, char **"
+	//	"allnames,"
+	//	"char *al2b, int Nb, int *allchr, double *allbp, char **allnames,"
+	//	"Y:/home/sjhalayka/ldak_min\sort.c"
+	//	617
+	//	16
+	//	0
 
 
 	variable_type0 = "";
 
 	for (size_t j = 0; j < declaration_tokens0_whitespace.size() - 1; j++)
 	{
-		variable_type0 += declaration_tokens0_whitespace[j];
+		variable_type0 += declaration_tokens0_whitespace[j] + ' ';
 	}
 
 	for (size_t j = 0; j < num_stars_found; j++)
@@ -1078,14 +1129,14 @@ int main(void)
 
 		pointer_only_declarations.push_back(declarations[i]);
 
-		//cout << "\"" << variable_type0 << "\"" << endl;
-		//cout << "\"" << variable_name0 << "\"" << endl;
-		//cout << "\"" << declarations[i].declaration << "\"" << endl;
-		//cout << "\"" << declarations[i].filename << "\"" << endl;
-		//cout << declarations[i].line_number << endl;
-		//cout << declarations[i].line_pos << endl;
-		//cout << declarations[i].scope_depth << endl;
-		//cout << endl << endl;
+		cout << "\"" << variable_type0 << "\"" << endl;
+		cout << "\"" << variable_name0 << "\"" << endl;
+		cout << "\"" << declarations[i].declaration << "\"" << endl;
+		cout << "\"" << declarations[i].filename << "\"" << endl;
+		cout << declarations[i].line_number << endl;
+		cout << declarations[i].line_pos << endl;
+		cout << declarations[i].scope_depth << endl;
+		cout << endl << endl;
 	}
 
 	cout << "Declaration count: " << declarations.size() << endl;
@@ -1107,17 +1158,21 @@ int main(void)
 			string variable_name0 = pointer_only_declarations[i].var_name;
 			string variable_name1 = pointer_only_declarations[i + 1].var_name;
 
-			cout << variable_name0 << " " << variable_name1 << endl;
+			//cout << variable_name0 << " " << variable_name1 << endl;
 
 			if (variable_name0 == variable_name1)
 			{
 				if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
 				{
-					cout << "possible collision" << endl;
-					cout << variable_name0 << " " << variable_name1 << endl;
-					cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
-					cout << pointer_only_declarations[i].filename << endl;
-					cout << endl;
+					if (pointer_only_declarations[i].scope_id == pointer_only_declarations[i + 1].scope_id)
+					{
+						cout << "possible collision" << endl;
+						cout << variable_name0 << " " << variable_name1 << endl;
+						cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
+						cout << pointer_only_declarations[i].filename << endl;
+						cout << pointer_only_declarations[i].line_number << endl;
+						cout << endl;
+					}
 				}
 			}
 		}
