@@ -259,6 +259,16 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 	for (size_t i = 0; i < filenames.size(); i++)
 	{
+		vector<string> var_names_in_this_file;
+
+		for (size_t j = 0; j < declarations.size(); j++)
+		{
+			if (declarations[j].filename == filenames[i])
+				var_names_in_this_file.push_back(declarations[j].var_name);
+		}
+
+
+
 		long long signed int scope_depth = 0;
 
 		vector<string> scope_ids;
@@ -450,6 +460,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 				{
 					string temp_string = statements[s];
 
+					// Add padding spacing around things like int***x;
 					temp_string = regex_replace(temp_string, regex("(\\*+)"), " $1 ");
 					temp_string = regex_replace(temp_string, regex("\\s+"), " ");
 
@@ -500,17 +511,44 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 					// This is not a variable declaration statement
 					if (false == found_type)
 					{
-						vector<string> tokens = std_strtok(statements[s], "[ \t;.\\-\\+\\*/<=>,\\(\\)\\[\\]\\{\\}]\\s*");
+						vector<string> tokens = std_strtok(statements[s], "[!~^ \t;:.,\\-\\+\\*/<!=>&\\(\\)\\[\\]\\{\\}]\\s*");
 
-						cout << statements[s] << endl;
+						//cout << statements[s] << endl;
 
-						for (size_t z = 0; z < tokens.size(); z++)
-							cout << tokens[z] << endl;
+						for (size_t t = 0; t < tokens.size(); t++)
+						{
+							string token = tokens[t];
+
+							const vector<string>:: const_iterator ci = find(var_names_in_this_file.begin(), var_names_in_this_file.end(), token);
+
+							if (var_names_in_this_file.end() != ci)
+							{
+								size_t statement_line_pos = prev_lines_vector[p].find(statements[s]);
+								size_t token_statement_line_pos = statements[s].find(token);
+
+								size_t line_pos = statement_line_pos + token_statement_line_pos;
+
+								cout << "VAR_NAME " << *ci << endl;
+								cout << "LINE_NUM " << line_num << endl;
+
+								if (line_pos == string::npos)
+									cout << "LINE_POS NPOS" << endl;
+								else
+									cout << "LINE_POS " << line_pos << endl;
+
+								non_declarations.push_back(statements[s]);
+								break;
+							}
+
+							///cout << token << endl;
+						}
 
 						cout << endl << endl;
 
+
+
 						//output << endl;
-						non_declarations.push_back(statements[s]);
+						
 
 
 
@@ -1397,7 +1435,7 @@ int main(void)
 
 	for (size_t i = 0; i < declarations.size(); i++)
 	{
-		// TODO: move these two variables into te declaration creation
+		// TODO: move these two variables into the declaration creation
 
 		string variable_type0 = "";
 		string variable_name0 = "";
@@ -1450,14 +1488,14 @@ int main(void)
 
 		pointer_only_declarations.push_back(declarations[i]);
 
-		cout << "\"" << variable_type0 << "\"" << endl;
-		cout << "\"" << variable_name0 << "\"" << endl;
-		cout << "\"" << declarations[i].declaration << "\"" << endl;
-		cout << "\"" << declarations[i].filename << "\"" << endl;
-		cout << declarations[i].line_number << endl;
-		cout << declarations[i].line_pos << endl;
-		cout << declarations[i].scope_depth << endl;
-		cout << endl << endl;
+		//cout << "\"" << variable_type0 << "\"" << endl;
+		//cout << "\"" << variable_name0 << "\"" << endl;
+		//cout << "\"" << declarations[i].declaration << "\"" << endl;
+		//cout << "\"" << declarations[i].filename << "\"" << endl;
+		//cout << declarations[i].line_number << endl;
+		//cout << declarations[i].line_pos << endl;
+		//cout << declarations[i].scope_depth << endl;
+		//cout << endl << endl;
 	}
 
 	cout << "Declaration count: " << declarations.size() << endl;
