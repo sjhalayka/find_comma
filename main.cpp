@@ -134,6 +134,435 @@ public:
 };
 
 
+
+void enumerate_non_variables(const string path, vector<string>& non_declarations)
+{
+	non_declarations.clear();
+
+	vector<string> types;
+
+	types.push_back("static ");
+	types.push_back("const ");
+	types.push_back("short ");
+	types.push_back("long ");
+	types.push_back("int ");
+	types.push_back("char ");
+	types.push_back("unsigned ");
+	types.push_back("signed ");
+	types.push_back("float ");
+	types.push_back("double ");
+	types.push_back("size_t ");
+	types.push_back("FILE ");
+	types.push_back("DIR ");
+	types.push_back("gzFile ");
+	types.push_back("struct ");
+
+	types.push_back("static* ");
+	types.push_back("const* ");
+	types.push_back("short* ");
+	types.push_back("long* ");
+	types.push_back("int* ");
+	types.push_back("char* ");
+	types.push_back("unsigned* ");
+	types.push_back("signed* ");
+	types.push_back("float* ");
+	types.push_back("double* ");
+	types.push_back("size_t* ");
+	types.push_back("FILE* ");
+	types.push_back("DIR* ");
+	types.push_back("gzFile* ");
+	types.push_back("struct* ");
+
+	types.push_back("static** ");
+	types.push_back("const** ");
+	types.push_back("short** ");
+	types.push_back("long** ");
+	types.push_back("int** ");
+	types.push_back("char** ");
+	types.push_back("unsigned** ");
+	types.push_back("signed** ");
+	types.push_back("float** ");
+	types.push_back("double** ");
+	types.push_back("size_t** ");
+	types.push_back("FILE** ");
+	types.push_back("DIR** ");
+	types.push_back("gzFile** ");
+	types.push_back("struct** ");
+
+	types.push_back("static*** ");
+	types.push_back("const*** ");
+	types.push_back("short*** ");
+	types.push_back("long*** ");
+	types.push_back("int*** ");
+	types.push_back("char*** ");
+	types.push_back("unsigned*** ");
+	types.push_back("signed*** ");
+	types.push_back("float*** ");
+	types.push_back("double*** ");
+	types.push_back("size_t*** ");
+	types.push_back("FILE*** ");
+	types.push_back("DIR*** ");
+	types.push_back("gzFile*** ");
+	types.push_back("struct*** ");
+
+	// No quadruple pointers used in the LDAK code
+
+	vector<string> filenames;
+
+	for (const auto& entry : filesystem::directory_iterator(path))
+	{
+
+
+
+
+		size_t str_pos = entry.path().string().find("sort.c");
+
+		if (str_pos != string::npos)
+			filenames.push_back(entry.path().string());
+
+
+
+
+		//string s = entry.path().string();
+
+		//vector<string> tokens = std_strtok(s, "[.]\\s*");
+
+		//for (size_t i = 0; i < tokens.size(); i++)
+		//	for (size_t j = 0; j < tokens[i].size(); j++)
+		//		tokens[i][j] = tolower(tokens[i][j]);
+
+		//if (tokens.size() > 0 &&
+		//	(tokens[tokens.size() - 1] == "c" ||
+		//		tokens[tokens.size() - 1] == "cpp"))
+		//{
+		//	filenames.push_back(s);
+		//}
+
+
+
+	}
+
+
+
+
+	for (size_t i = 0; i < filenames.size(); i++)
+	{
+		long long signed int scope_depth = 0;
+
+		vector<string> scope_ids;
+
+		ifstream infile(filenames[i]);
+
+		if (infile.fail())
+			continue;
+
+
+
+		string line;
+		vector<string> prev_lines_vector;
+
+		cout << endl << endl << endl;
+		cout << filenames[i] << endl << endl;
+
+		string type = "";
+		bool inside_slashstar_comment = false;
+
+		ostringstream output;
+
+		size_t line_num = 0;
+
+		while (getline(infile, line))
+		{
+			line_num++;
+
+			if (line == "")
+			{
+				//output << endl;
+				continue;
+			}
+
+			if (line[line.size() - 1] == '\\')
+			{
+				prev_lines_vector.push_back(line);
+				continue;
+			}
+			else
+			{
+				prev_lines_vector.clear();
+				prev_lines_vector.push_back(line);
+			}
+
+			//bool refresh_prev_string = true;
+			bool inside_double_slash_comment = false;
+
+
+
+			for (long signed int p = 0; p < prev_lines_vector.size(); p++)
+			{
+				//cout << "PREV_LINES_VECTOR " << prev_lines_vector[p] << endl;
+
+
+				//cout << endl << endl << endl;
+
+				//if (refresh_prev_string)
+				//string prev_string = prev_lines_vector[p];
+
+				string final_string = "";
+
+				if (string::npos != prev_lines_vector[p].find_first_of("/*") ||
+					string::npos != prev_lines_vector[p].find_first_of("*/") ||
+					string::npos != prev_lines_vector[p].find_first_of("//"))
+				{
+					for (size_t l = 0; l < prev_lines_vector[p].size() - 1; l++)
+					{
+						if (false == inside_slashstar_comment && false == inside_double_slash_comment)
+						{
+							final_string += prev_lines_vector[p][l];
+						}
+
+						if (prev_lines_vector[p][l] == '/' && prev_lines_vector[p][l + 1] == '*')
+						{
+							inside_slashstar_comment = true;
+							l++;
+
+							if (final_string.size() > 0)
+								final_string.pop_back();
+
+							continue;
+						}
+
+						else if (prev_lines_vector[p][l] == '*' && prev_lines_vector[p][l + 1] == '/')
+						{
+							inside_slashstar_comment = false;
+							l++;
+
+							if (final_string.size() > 0)
+								final_string.pop_back();
+
+							continue;
+						}
+
+						else if (prev_lines_vector[p][l] == '/' && prev_lines_vector[p][l + 1] == '/')
+						{
+							inside_double_slash_comment = true;
+							l++;
+
+							if (final_string.size() > 0)
+								final_string.pop_back();
+
+							continue;
+						}
+					}
+
+					if (prev_lines_vector[p].size() > 0)
+						final_string += prev_lines_vector[p][prev_lines_vector[p].size() - 1];
+				}
+				else
+				{
+					final_string = prev_lines_vector[p];
+				}
+
+				if (final_string == "")
+					continue;
+
+
+
+
+				final_string = trimLeft(final_string);
+				final_string = trimRight(final_string);
+
+
+				//trim_left_whitespace(final_string);
+				//trim_right_whitespace(final_string);
+
+				if (final_string == "")
+					continue;
+
+
+				//cout << "FINAL_STRING \"" << final_string << "\"" << endl;
+
+
+
+				//cout << "FINALSTRING " << final_string << endl;
+				//cout << inside_slashstar_comment << " " << inside_double_slash_comment << endl;
+
+
+				//if (inside_slashstar_comment || inside_double_slash_comment)
+				//	final_string = prev_lines_vector[p];
+				//else
+				//	final_string = prev_string;
+
+
+
+
+
+
+
+
+				//trim_left_whitespace(prev_lines);
+				//trim_right_whitespace(prev_lines);
+
+				bool finished_with_semi_colon = false;
+
+				if (final_string[final_string.size() - 1] == ';')
+					finished_with_semi_colon = true;
+				else
+				{
+					//output << prev_lines << endl;
+					//continue;
+				}
+
+
+
+				vector<string> statements = std_strtok(final_string, "[{};]+");
+
+				for (size_t j = 0; j < statements.size(); j++)
+				{
+					if (j == statements.size() - 1 && false == finished_with_semi_colon)
+					{
+
+					}
+					else
+					{
+						statements[j] += ';';
+					}
+				}
+
+				//if (finished_with_semi_colon == false)
+				//	statements[statements.size() - 1].pop_back();
+
+				size_t prev_statements_location = 0;
+
+
+				for (size_t s = 0; s < statements.size(); s++)
+				{
+					string temp_string = statements[s];
+
+					temp_string = regex_replace(temp_string, regex("(\\*+)"), " $1 ");
+					temp_string = regex_replace(temp_string, regex("\\s+"), " ");
+
+					vector<string> tokens = std_strtok(temp_string, "[= \t]+");
+
+					if (tokens.size() == 0)
+						continue;
+
+					for (size_t j = 0; j < tokens.size(); j++)
+					{
+						tokens[j] = trimLeft(tokens[j]);
+
+						//trim_left_whitespace(tokens[j]);
+
+						if (j < tokens.size() - 1)
+							tokens[j] += ' ';
+					}
+
+
+
+
+					if (tokens[0][0] == '#')
+					{
+						//output << prev_lines << endl;
+						continue;
+					}
+
+					if (tokens[0].size() >= 3 &&
+						tokens[0][0] == 'f' &&
+						tokens[0][1] == 'o' &&
+						tokens[0][2] == 'r')
+					{
+						//output << prev_lines << endl;
+						continue;
+					}
+
+					bool found_type = false;
+					bool is_struct = false;
+					bool is_const = false;
+					bool is_static = false;
+
+					// Is known type?
+					if (types.end() != find(
+						types.begin(),
+						types.end(),
+						tokens[0]))
+					{
+						//cout << "FOUND TYPE " << tokens[0] << endl;
+
+						found_type = true;
+					}
+
+					// This is not a variable declaration statement
+					if (false == found_type)
+					{
+						//cout << "DIDNT FIND TYPE " << tokens[0] << endl;
+
+						//// Not a variable declaration
+						//if (finished_with_semi_colon)
+						//{
+						//	output << statements[s];
+						//}
+						//else
+						//{
+						//	statements[s].pop_back();
+						//	output << statements[s];
+						//}
+
+						//output << endl;
+						non_declarations.push_back(statements[s]);
+
+						size_t malloc_found = statements[s].find("malloc");
+						size_t free_found = statements[s].find("free");
+
+						//if (malloc_found != string::npos || free_found != string::npos)
+						//{
+						//	output << statements[s] << endl;
+						//}
+						//else
+						//{
+						//	output << statements[s] << endl;
+						//}
+
+						continue;
+					}
+
+				}
+
+				//cout << "LINE " << prev_lines_vector[p] << endl;
+
+				long long signed int open_brace_count = ranges::count(prev_lines_vector[p], '{');
+				long long signed int closing_brace_count = ranges::count(prev_lines_vector[p], '}');
+
+				scope_depth += open_brace_count;
+				scope_depth -= closing_brace_count;
+
+				for (long long signed int j = 0; j < open_brace_count; j++)
+					scope_ids.push_back(generateRandomString(128));
+
+				for (long long signed int j = 0; j < closing_brace_count; j++)
+					scope_ids.pop_back();
+			}
+
+
+
+		}
+
+		infile.close();
+
+		//cout << output.str();
+
+		//ofstream outfile(filenames[i] + ".new");
+
+		//outfile << output.str();// << endl;
+
+		//outfile.close();
+	}
+
+
+}
+
+
+
+
+
 void enumerate_variables(const string path, vector<variable_declaration>& declarations)
 {
 	declarations.clear();
@@ -214,28 +643,28 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 
 
-		//size_t str_pos = entry.path().string().find("sort.c");
+		size_t str_pos = entry.path().string().find("sort.c");
 
-		//if (str_pos != string::npos)
-		//	filenames.push_back(entry.path().string());
-
-
+		if (str_pos != string::npos)
+			filenames.push_back(entry.path().string());
 
 
-		string s = entry.path().string();
 
-		vector<string> tokens = std_strtok(s, "[.]\\s*");
 
-		for (size_t i = 0; i < tokens.size(); i++)
-			for (size_t j = 0; j < tokens[i].size(); j++)
-				tokens[i][j] = tolower(tokens[i][j]);
+		//string s = entry.path().string();
 
-		if (tokens.size() > 0 &&
-			(tokens[tokens.size() - 1] == "c" ||
-				tokens[tokens.size() - 1] == "cpp"))
-		{
-			filenames.push_back(s);
-		}
+		//vector<string> tokens = std_strtok(s, "[.]\\s*");
+
+		//for (size_t i = 0; i < tokens.size(); i++)
+		//	for (size_t j = 0; j < tokens[i].size(); j++)
+		//		tokens[i][j] = tolower(tokens[i][j]);
+
+		//if (tokens.size() > 0 &&
+		//	(tokens[tokens.size() - 1] == "c" ||
+		//		tokens[tokens.size() - 1] == "cpp"))
+		//{
+		//	filenames.push_back(s);
+		//}
 
 
 
@@ -1119,14 +1548,14 @@ int main(void)
 
 		pointer_only_declarations.push_back(declarations[i]);
 
-		//cout << "\"" << variable_type0 << "\"" << endl;
-		//cout << "\"" << variable_name0 << "\"" << endl;
-		//cout << "\"" << declarations[i].declaration << "\"" << endl;
-		//cout << "\"" << declarations[i].filename << "\"" << endl;
-		//cout << declarations[i].line_number << endl;
-		//cout << declarations[i].line_pos << endl;
-		//cout << declarations[i].scope_depth << endl;
-		//cout << endl << endl;
+		cout << "\"" << variable_type0 << "\"" << endl;
+		cout << "\"" << variable_name0 << "\"" << endl;
+		cout << "\"" << declarations[i].declaration << "\"" << endl;
+		cout << "\"" << declarations[i].filename << "\"" << endl;
+		cout << declarations[i].line_number << endl;
+		cout << declarations[i].line_pos << endl;
+		cout << declarations[i].scope_depth << endl;
+		cout << endl << endl;
 	}
 
 	cout << "Declaration count: " << declarations.size() << endl;
@@ -1168,15 +1597,20 @@ int main(void)
 
 	cout << endl;
 
-	map<string, size_t> type_map;
+	//map<string, size_t> type_map;
 
-	for (size_t i = 0; i < pointer_only_declarations.size(); i++)
-		type_map[pointer_only_declarations[i].var_type]++;
+	//for (size_t i = 0; i < pointer_only_declarations.size(); i++)
+	//	type_map[pointer_only_declarations[i].var_type]++;
 
-	for (map<string, size_t>::const_iterator i = type_map.begin(); i != type_map.end(); i++)
-		cout << i->first << " " << i->second << endl;
+	//for (map<string, size_t>::const_iterator i = type_map.begin(); i != type_map.end(); i++)
+	//	cout << i->first << " " << i->second << endl;
 
+	vector<string> non_declarations;
 
+	enumerate_non_variables(path, non_declarations);
+
+	for (size_t i = 0; i < non_declarations.size(); i++)
+		cout << non_declarations[i] << endl;
 
 
 	return 0;
