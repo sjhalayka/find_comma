@@ -175,11 +175,11 @@ vector<string> get_filenames(const string path)
 }
 
 
-void enumerate_non_variables(const string path, vector<string>& non_declarations)
+vector<string> get_variable_types(void)
 {
-	non_declarations.clear();
-
 	vector<string> types;
+
+	// No quadruple pointers used in the LDAK code
 
 	types.push_back("static ");
 	types.push_back("const ");
@@ -245,14 +245,17 @@ void enumerate_non_variables(const string path, vector<string>& non_declarations
 	types.push_back("gzFile*** ");
 	types.push_back("struct*** ");
 
-	// No quadruple pointers used in the LDAK code
+	return types;
+}
 
+
+
+void enumerate_non_variables(const string path, vector<string>& non_declarations)
+{
+	non_declarations.clear();
+
+	vector<string> types = get_variable_types();
 	vector<string> filenames = get_filenames(path);
-
-
-
-
-
 
 	for (size_t i = 0; i < filenames.size(); i++)
 	{
@@ -518,8 +521,11 @@ void enumerate_non_variables(const string path, vector<string>& non_declarations
 						//output << endl;
 						non_declarations.push_back(statements[s]);
 
-						size_t malloc_found = statements[s].find("malloc");
-						size_t free_found = statements[s].find("free");
+
+
+
+						//size_t malloc_found = statements[s].find("malloc");
+						//size_t free_found = statements[s].find("free");
 
 						//if (malloc_found != string::npos || free_found != string::npos)
 						//{
@@ -576,78 +582,8 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 {
 	declarations.clear();
 
-	vector<string> types;
-
-	types.push_back("static ");
-	types.push_back("const ");
-	types.push_back("short ");
-	types.push_back("long ");
-	types.push_back("int ");
-	types.push_back("char ");
-	types.push_back("unsigned ");
-	types.push_back("signed ");
-	types.push_back("float ");
-	types.push_back("double ");
-	types.push_back("size_t ");
-	types.push_back("FILE ");
-	types.push_back("DIR ");
-	types.push_back("gzFile ");
-	types.push_back("struct ");
-
-	types.push_back("static* ");
-	types.push_back("const* ");
-	types.push_back("short* ");
-	types.push_back("long* ");
-	types.push_back("int* ");
-	types.push_back("char* ");
-	types.push_back("unsigned* ");
-	types.push_back("signed* ");
-	types.push_back("float* ");
-	types.push_back("double* ");
-	types.push_back("size_t* ");
-	types.push_back("FILE* ");
-	types.push_back("DIR* ");
-	types.push_back("gzFile* ");
-	types.push_back("struct* ");
-
-	types.push_back("static** ");
-	types.push_back("const** ");
-	types.push_back("short** ");
-	types.push_back("long** ");
-	types.push_back("int** ");
-	types.push_back("char** ");
-	types.push_back("unsigned** ");
-	types.push_back("signed** ");
-	types.push_back("float** ");
-	types.push_back("double** ");
-	types.push_back("size_t** ");
-	types.push_back("FILE** ");
-	types.push_back("DIR** ");
-	types.push_back("gzFile** ");
-	types.push_back("struct** ");
-
-	types.push_back("static*** ");
-	types.push_back("const*** ");
-	types.push_back("short*** ");
-	types.push_back("long*** ");
-	types.push_back("int*** ");
-	types.push_back("char*** ");
-	types.push_back("unsigned*** ");
-	types.push_back("signed*** ");
-	types.push_back("float*** ");
-	types.push_back("double*** ");
-	types.push_back("size_t*** ");
-	types.push_back("FILE*** ");
-	types.push_back("DIR*** ");
-	types.push_back("gzFile*** ");
-	types.push_back("struct*** ");
-
-	// No quadruple pointers used in the LDAK code
-
+	vector<string> types = get_variable_types();
 	vector<string> filenames = get_filenames(path);
-
-
-
 
 	for (size_t i = 0; i < filenames.size(); i++)
 	{
