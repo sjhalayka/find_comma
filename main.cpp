@@ -250,7 +250,7 @@ vector<string> get_variable_types(void)
 
 
 
-void enumerate_non_variables(const string path, vector<string>& non_declarations)
+void enumerate_non_variables(const string path, const vector<variable_declaration>& declarations, vector<string>& non_declarations)
 {
 	non_declarations.clear();
 
@@ -468,13 +468,11 @@ void enumerate_non_variables(const string path, vector<string>& non_declarations
 							tokens[j] += ' ';
 					}
 
-
-
+					bool check_for_type = true;
 
 					if (tokens[0][0] == '#')
 					{
-						//output << prev_lines << endl;
-						continue;
+						check_for_type = false;
 					}
 
 					if (tokens[0].size() >= 3 &&
@@ -482,17 +480,13 @@ void enumerate_non_variables(const string path, vector<string>& non_declarations
 						tokens[0][1] == 'o' &&
 						tokens[0][2] == 'r')
 					{
-						//output << prev_lines << endl;
-						continue;
+						check_for_type = false;
 					}
 
 					bool found_type = false;
-					bool is_struct = false;
-					bool is_const = false;
-					bool is_static = false;
 
 					// Is known type?
-					if (types.end() != find(
+					if (check_for_type && types.end() != find(
 						types.begin(),
 						types.end(),
 						tokens[0]))
@@ -502,21 +496,18 @@ void enumerate_non_variables(const string path, vector<string>& non_declarations
 						found_type = true;
 					}
 
+
 					// This is not a variable declaration statement
 					if (false == found_type)
 					{
-						//cout << "DIDNT FIND TYPE " << tokens[0] << endl;
+						vector<string> tokens = std_strtok(statements[s], "[ \t;.\\-\\+\\*/<=>,\\(\\)\\[\\]\\{\\}]\\s*");
 
-						//// Not a variable declaration
-						//if (finished_with_semi_colon)
-						//{
-						//	output << statements[s];
-						//}
-						//else
-						//{
-						//	statements[s].pop_back();
-						//	output << statements[s];
-						//}
+						cout << statements[s] << endl;
+
+						for (size_t z = 0; z < tokens.size(); z++)
+							cout << tokens[z] << endl;
+
+						cout << endl << endl;
 
 						//output << endl;
 						non_declarations.push_back(statements[s]);
@@ -536,24 +527,23 @@ void enumerate_non_variables(const string path, vector<string>& non_declarations
 						//	output << statements[s] << endl;
 						//}
 
-						continue;
 					}
 
 				}
 
-				//cout << "LINE " << prev_lines_vector[p] << endl;
+				////cout << "LINE " << prev_lines_vector[p] << endl;
 
-				long long signed int open_brace_count = ranges::count(prev_lines_vector[p], '{');
-				long long signed int closing_brace_count = ranges::count(prev_lines_vector[p], '}');
+				//long long signed int open_brace_count = ranges::count(prev_lines_vector[p], '{');
+				//long long signed int closing_brace_count = ranges::count(prev_lines_vector[p], '}');
 
-				scope_depth += open_brace_count;
-				scope_depth -= closing_brace_count;
+				//scope_depth += open_brace_count;
+				//scope_depth -= closing_brace_count;
 
-				for (long long signed int j = 0; j < open_brace_count; j++)
-					scope_ids.push_back(generateRandomString(128));
+				//for (long long signed int j = 0; j < open_brace_count; j++)
+				//	scope_ids.push_back(generateRandomString(128));
 
-				for (long long signed int j = 0; j < closing_brace_count; j++)
-					scope_ids.pop_back();
+				//for (long long signed int j = 0; j < closing_brace_count; j++)
+				//	scope_ids.pop_back();
 			}
 
 
@@ -1519,10 +1509,10 @@ int main(void)
 
 	vector<string> non_declarations;
 
-	enumerate_non_variables(path, non_declarations);
+	enumerate_non_variables(path, declarations, non_declarations);
 
-	for (size_t i = 0; i < non_declarations.size(); i++)
-		cout << non_declarations[i] << endl;
+	//for (size_t i = 0; i < non_declarations.size(); i++)
+	//	cout << non_declarations[i] << endl;
 
 
 	return 0;
