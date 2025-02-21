@@ -5,6 +5,7 @@
 #include <cctype>
 #include <fstream>
 #include <ranges>
+#include <map>
 using namespace std;
 
 
@@ -89,6 +90,7 @@ class variable_declaration
 public:
 	string declaration = "";
 	string var_name = "";
+	string var_type = "";
 	string filename = "";
 	size_t line_number = 0;
 	size_t line_pos = 0;
@@ -209,7 +211,10 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 	for (const auto& entry : filesystem::directory_iterator(path))
 	{
 
-		//size_t str_pos = entry.path().string().find("getnums.c");
+
+
+
+		//size_t str_pos = entry.path().string().find("sort.c");
 
 		//if (str_pos != string::npos)
 		//	filenames.push_back(entry.path().string());
@@ -459,9 +464,6 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 					string temp_string = statements[s];
 
 					temp_string = regex_replace(temp_string, regex("(\\*+)"), " $1 ");
-
-					temp_string = regex_replace(temp_string, regex("struct"), "struct ");
-
 					temp_string = regex_replace(temp_string, regex("\\s+"), " ");
 
 
@@ -994,9 +996,6 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 	input = trimRight(input);
 
 	input = regex_replace(input, regex("(\\*+)"), " $1 ");
-
-
-
 	input = regex_replace(input, regex("\\s+"), " ");
 
 	variable_type0 = variable_name0 = "";
@@ -1075,6 +1074,7 @@ int main(void)
 		get_type_and_name(declarations[i].declaration, variable_type0, variable_name0);
 
 		declarations[i].var_name = variable_name0;
+		declarations[i].var_type = variable_type0;
 
 		bool found_pointer_type = false;
 
@@ -1165,6 +1165,19 @@ int main(void)
 			}
 		}
 	}
+
+	cout << endl;
+
+	map<string, size_t> type_map;
+
+	for (size_t i = 0; i < pointer_only_declarations.size(); i++)
+		type_map[pointer_only_declarations[i].var_type]++;
+
+	for (map<string, size_t>::const_iterator i = type_map.begin(); i != type_map.end(); i++)
+		cout << i->first << " " << i->second << endl;
+
+
+
 
 	return 0;
 }
