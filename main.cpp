@@ -198,29 +198,26 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 	for (const auto& entry : filesystem::directory_iterator(path))
 	{
-		size_t str_pos = entry.path().string().find("getnums.c");
-
-		if (str_pos != string::npos)
-			filenames.push_back(entry.path().string());
 
 
 
 
 
-		//string s = entry.path().string();
 
-		//vector<string> tokens = std_strtok(s, "[.]\\s*");
+		string s = entry.path().string();
 
-		//for (size_t i = 0; i < tokens.size(); i++)
-		//	for (size_t j = 0; j < tokens[i].size(); j++)
-		//		tokens[i][j] = tolower(tokens[i][j]);
+		vector<string> tokens = std_strtok(s, "[.]\\s*");
 
-		//if (tokens.size() > 0 &&
-		//	(tokens[tokens.size() - 1] == "c" ||
-		//		tokens[tokens.size() - 1] == "cpp"))
-		//{
-		//	filenames.push_back(s);
-		//}
+		for (size_t i = 0; i < tokens.size(); i++)
+			for (size_t j = 0; j < tokens[i].size(); j++)
+				tokens[i][j] = tolower(tokens[i][j]);
+
+		if (tokens.size() > 0 &&
+			(tokens[tokens.size() - 1] == "c" ||
+				tokens[tokens.size() - 1] == "cpp"))
+		{
+			filenames.push_back(s);
+		}
 	}
 
 
@@ -235,11 +232,13 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 		if (infile.fail())
 			continue;
 
+
+
 		string line;
 		vector<string> prev_lines_vector;
 
-		//cout << endl << endl << endl;
-		//cout << filenames[i] << endl << endl;
+		cout << endl << endl << endl;
+		cout << filenames[i] << endl << endl;
 
 		string type = "";
 		bool inside_slashstar_comment = false;
@@ -250,7 +249,6 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 		while (getline(infile, line))
 		{
-
 			line_num++;
 
 			if (line == "")
@@ -446,7 +444,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 					temp_string = regex_replace(temp_string, regex("\\s+"), " ");
 
 
-					cout << "STATEMENT BEFORE " << statements[s] << endl;
+					//cout << "STATEMENT BEFORE " << statements[s] << endl;
 
 
 					//// only do this if there is no space after the stars
@@ -465,7 +463,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 					//
 
 
-					cout << "STATEMENT AFTER " << temp_string << endl;
+					//cout << "STATEMENT AFTER " << temp_string << endl;
 
 
 					//bool found_non_star_after_star
@@ -631,7 +629,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 					// This is not a variable declaration statement
 						if (false == found_type)
 						{
-							cout << "DIDNT FIND TYPE " << tokens[0] << endl;
+							//cout << "DIDNT FIND TYPE " << tokens[0] << endl;
 
 							//// Not a variable declaration
 							//if (finished_with_semi_colon)
@@ -859,12 +857,16 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 							if (false == inside_slashstar_comment)
 							{
-								//string temp_statement = statements[s];
+								// Avoid trouble with things like "double func_name()"
+								if (string::npos != statements[s].find('(') || string::npos != statements[s].find(')'))
+									continue;
 
-								//if (temp_statement.size() > 0 && temp_statement[temp_statement.size() - 1] == ';')
-								//	temp_statement.pop_back();
+								string temp_statement = statements[s];
 
-								//statements[s] = temp_statement;
+								if (temp_statement.size() > 0 && temp_statement[temp_statement.size() - 1] == ';')
+									temp_statement.pop_back();
+
+								statements[s] = temp_statement;
 
 								statements[s] = trimLeft(statements[s]);
 								statements[s] = trimRight(statements[s]);
@@ -877,7 +879,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 									cout << prev_lines_vector[p] << endl;
 									cout << statements[s] << endl;
 									cout << endl;
-									exit(123);
+									//exit(123);
 								}
 
 								prev_statements_location = line_pos + statements[s].size();
@@ -890,6 +892,8 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 								local_scope_depth += open_brace_count;
 								local_scope_depth -= closing_brace_count;
+
+
 
 								variable_declaration v;
 								v.declaration = statements[s];// type_oss.str();
@@ -996,9 +1000,9 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 
 	variable_type0 += ' ';
 
-	cout << "VAR_NAME " << variable_name0 << endl;
+	//cout << "VAR_NAME " << variable_name0 << endl;
 
-	cout << "VAR_TYPE " << variable_type0 << endl;
+	//cout << "VAR_TYPE " << variable_type0 << endl;
 }
 
 
@@ -1010,6 +1014,13 @@ int main(void)
 	vector<variable_declaration> declarations;
 
 	enumerate_variables(path, declarations);
+
+	if (declarations.size() == 0)
+	{
+		cout << "No declarations" << endl;
+		return -1;
+	}
+		
 
 	vector<variable_declaration> pointer_only_declarations;
 
@@ -1062,32 +1073,29 @@ int main(void)
 		variable_type0 = trimLeft(variable_type0);
 		variable_type0 = trimRight(variable_type0);
 
-		//trim_left_whitespace(variable_type0);
-		//trim_right_whitespace(variable_type0);
-
 		variable_name0 = trimLeft(variable_name0);
 		variable_name0 = trimRight(variable_name0);
 
-		//trim_left_whitespace(variable_name0);
-		//trim_right_whitespace(variable_name0);
-
 		pointer_only_declarations.push_back(declarations[i]);
 
-		cout << "\"" << variable_type0 << "\"" << endl;
-		cout << "\"" << variable_name0 << "\"" << endl;
-		cout << "\"" << declarations[i].declaration << "\"" << endl;
-		cout << "\"" << declarations[i].filename << "\"" << endl;
-		cout << declarations[i].line_number << endl;
-		cout << declarations[i].line_pos << endl;
-		cout << declarations[i].scope_depth << endl;
-		//cout << declarations[i].scope_block_number << endl;
-		cout << endl << endl;
+		//cout << "\"" << variable_type0 << "\"" << endl;
+		//cout << "\"" << variable_name0 << "\"" << endl;
+		//cout << "\"" << declarations[i].declaration << "\"" << endl;
+		//cout << "\"" << declarations[i].filename << "\"" << endl;
+		//cout << declarations[i].line_number << endl;
+		//cout << declarations[i].line_pos << endl;
+		//cout << declarations[i].scope_depth << endl;
+		//cout << endl << endl;
 	}
 
-	cout << declarations.size() << " " << pointer_only_declarations.size() << endl;
+	cout << "Declaration count: " << declarations.size() << endl;
+	cout << "Pointer declaration count: " << pointer_only_declarations.size() << endl;
 
-	//return 0;
-
+	if (pointer_only_declarations.size() == 0)
+	{
+		cout << "No pointer declarations" << endl;
+		return -1;
+	}
 
 	sort(pointer_only_declarations.begin(), pointer_only_declarations.end());
 
