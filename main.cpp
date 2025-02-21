@@ -95,8 +95,6 @@ public:
 	long long signed int scope_depth = 0;
 	string scope_id;
 
-
-
 	bool operator<(const variable_declaration& rhs)
 	{
 		if (filename < rhs.filename)
@@ -211,28 +209,28 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 	for (const auto& entry : filesystem::directory_iterator(path))
 	{
 
-		size_t str_pos = entry.path().string().find("sort.c");
+		//size_t str_pos = entry.path().string().find("sort.c");
 
-		if (str_pos != string::npos)
-			filenames.push_back(entry.path().string());
-
-
+		//if (str_pos != string::npos)
+		//	filenames.push_back(entry.path().string());
 
 
-		//string s = entry.path().string();
 
-		//vector<string> tokens = std_strtok(s, "[.]\\s*");
 
-		//for (size_t i = 0; i < tokens.size(); i++)
-		//	for (size_t j = 0; j < tokens[i].size(); j++)
-		//		tokens[i][j] = tolower(tokens[i][j]);
+		string s = entry.path().string();
 
-		//if (tokens.size() > 0 &&
-		//	(tokens[tokens.size() - 1] == "c" ||
-		//		tokens[tokens.size() - 1] == "cpp"))
-		//{
-		//	filenames.push_back(s);
-		//}
+		vector<string> tokens = std_strtok(s, "[.]\\s*");
+
+		for (size_t i = 0; i < tokens.size(); i++)
+			for (size_t j = 0; j < tokens[i].size(); j++)
+				tokens[i][j] = tolower(tokens[i][j]);
+
+		if (tokens.size() > 0 &&
+			(tokens[tokens.size() - 1] == "c" ||
+				tokens[tokens.size() - 1] == "cpp"))
+		{
+			filenames.push_back(s);
+		}
 
 
 
@@ -881,7 +879,11 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 							if (false == inside_slashstar_comment)
 							{
 								// Avoid trouble with things like "double func_name()"
-								if (string::npos != statements[s].find('(') || string::npos != statements[s].find(')'))
+								// and things like void func(double x) and
+								// and things like void func(double x, double y)
+								if (string::npos != statements[s].find('(') || 
+									string::npos != statements[s].find(')') ||
+									string::npos != statements[s].find(','))
 									continue;
 
 								string temp_statement = statements[s];
@@ -924,7 +926,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 									local_scope_ids.pop_back();
 
 								variable_declaration v;
-								v.declaration = statements[s];// type_oss.str();
+								v.declaration = statements[s] + ';';// type_oss.str();
 								v.filename = filenames[i];
 								v.line_number = line_num;
 								v.line_pos = line_pos;
