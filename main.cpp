@@ -317,7 +317,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 		for (size_t j = 0; j < declarations.size(); j++)
 		{
-			if (declarations[j].filename == filenames[i])
+			//if (declarations[j].filename == filenames[i])
 				var_names_in_this_file.push_back(declarations[j].var_name);
 		}
 
@@ -573,7 +573,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 						{
 							string token = tokens[t];
 
-							const vector<string>:: const_iterator ci = find(var_names_in_this_file.begin(), var_names_in_this_file.end(), token);
+							const vector<string>::const_iterator ci = find(var_names_in_this_file.begin(), var_names_in_this_file.end(), token);
 
 							if (var_names_in_this_file.end() != ci)
 							{
@@ -608,7 +608,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 
 						//output << endl;
-						
+
 
 
 
@@ -726,7 +726,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 
 			for (long signed int p = 0; p < prev_lines_vector.size(); p++)
-			{ 
+			{
 				//cout << "PREV_LINES_VECTOR " << prev_lines_vector[p] << endl;
 
 
@@ -850,7 +850,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 				for (size_t s = 0; s < statements.size(); s++)
 				{
-					
+
 
 
 					//string statement_backup = statements[s];
@@ -927,7 +927,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 					temp_string2 = trimLeft(temp_string2);
 					temp_string2 = trimRight(temp_string2);*/
 
-				
+
 
 					//cout << "STATEMENTS " << statements[s] << endl;
 					//cout << "tempstring2 " << temp_string2 << endl;
@@ -1079,37 +1079,37 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 
 					// This is not a variable declaration statement
-						if (false == found_type)
-						{
-							//cout << "DIDNT FIND TYPE " << tokens[0] << endl;
+					if (false == found_type)
+					{
+						//cout << "DIDNT FIND TYPE " << tokens[0] << endl;
 
-							//// Not a variable declaration
-							//if (finished_with_semi_colon)
-							//{
-							//	output << statements[s];
-							//}
-							//else
-							//{
-							//	statements[s].pop_back();
-							//	output << statements[s];
-							//}
+						//// Not a variable declaration
+						//if (finished_with_semi_colon)
+						//{
+						//	output << statements[s];
+						//}
+						//else
+						//{
+						//	statements[s].pop_back();
+						//	output << statements[s];
+						//}
 
-							//output << endl;
+						//output << endl;
 
-							size_t malloc_found = statements[s].find("malloc");
-							size_t free_found = statements[s].find("free");
+						size_t malloc_found = statements[s].find("malloc");
+						size_t free_found = statements[s].find("free");
 
-							//if (malloc_found != string::npos || free_found != string::npos)
-							//{
-							//	output << statements[s] << endl;
-							//}
-							//else
-							//{
-							//	output << statements[s] << endl;
-							//}
+						//if (malloc_found != string::npos || free_found != string::npos)
+						//{
+						//	output << statements[s] << endl;
+						//}
+						//else
+						//{
+						//	output << statements[s] << endl;
+						//}
 
-							continue;
-						}
+						continue;
+					}
 
 					//bool found_initializer = false;
 
@@ -1146,7 +1146,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 					if (found_type)
 					{
 
-					
+
 
 
 						if (1)//type == "" || s == 0)
@@ -1178,7 +1178,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 										tokens[i] == "char ")
 									{
 										if (tokens[i] != "static")
-										type += tokens[i] + " ";
+											type += tokens[i] + " ";
 
 										tokens.erase(tokens.begin() + i);
 										i = 0;
@@ -1312,7 +1312,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 								// Avoid trouble with things like "double func_name()"
 								// and things like void func(double x) and
 								// and things like void func(double x, double y)
-								if (string::npos != statements[s].find('(') || 
+								if (string::npos != statements[s].find('(') ||
 									string::npos != statements[s].find(')') ||
 									string::npos != statements[s].find(','))
 									continue;
@@ -1392,7 +1392,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 				scope_depth += open_brace_count;
 				scope_depth -= closing_brace_count;
 
-				for(long long signed int j = 0; j < open_brace_count; j++)
+				for (long long signed int j = 0; j < open_brace_count; j++)
 					scope_ids.push_back(generateRandomString(128));
 
 				for (long long signed int j = 0; j < closing_brace_count; j++)
@@ -1521,7 +1521,7 @@ int main(void)
 		cout << "No declarations" << endl;
 		return -1;
 	}
-		
+
 
 	vector<variable_declaration> pointer_only_declarations;
 
@@ -1639,6 +1639,8 @@ int main(void)
 
 	enumerate_non_variables(path, pointer_only_declarations, non_declarations);
 
+
+
 	sort(non_declarations.begin(), non_declarations.end());
 
 	map<string, size_t> variable_use_counts;
@@ -1675,16 +1677,26 @@ int main(void)
 			size_t m = malloc_counts[ci->first];
 			size_t f = free_counts[ci->first];
 
-			cout << ci->first << " " << ci->second << endl;
-			cout << "malloc() calls " << m << endl;
-			cout << "free() calls " << f << endl;
-			cout << "total references " << variable_use_counts[ci->first] << endl;
-			cout << "total references minus malloc and free " << variable_use_counts[ci->first] - m - f << endl;
+			if (m != f)
+			{
+				cout << ci->first << endl;// " " << ci->second << endl;
+				cout << "malloc() calls " << m << endl;
+				cout << "free() calls " << f << endl;
+				cout << "total references " << variable_use_counts[ci->first] << endl;
+				cout << "total references minus malloc and free " << variable_use_counts[ci->first] - m - f << endl;
+				cout << endl << endl;
+			}
+			else
+			{
+				//cout << "Skipping reference for " << ci->first << endl;
+			}
 		}
 		else
-			cout << "Skipping unused variable " << ci->first << endl;
+		{
+			//cout << "Skipping unused variable " << ci->first << endl;
+		}
 
-		cout << endl;
+//		cout << endl;
 	}
 
 	//cout << endl;
