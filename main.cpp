@@ -565,6 +565,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 					// This is not a variable declaration statement
 					if (false == found_type)
 					{
+						// Tokenize by stripping whitespace, all operators, and parentheses, etc.
 						vector<string> tokens = std_strtok(statements[s], "[!~^ \t;:.,\\-\\+\\*/<=>&\\(\\)\\[\\]\\{\\}]\\s*");
 
 						//cout << statements[s] << endl;
