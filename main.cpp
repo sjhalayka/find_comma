@@ -1627,47 +1627,7 @@ int main(void)
 
 	sort(non_declarations.begin(), non_declarations.end());
 
-	//set<string> pointer_declaration_var_names;
-
-	//for (size_t i = 0; i < pointer_only_declarations.size(); i++)
-	//	pointer_declaration_var_names.insert(pointer_only_declarations[i].var_name);
-
-	//set<string> non_declaration_var_names;
-
-	//for (size_t i = 0; i < non_declarations.size(); i++)
-	//	non_declaration_var_names.insert(non_declarations[i].var_name);
-
-	//for (set<string>::const_iterator ci = pointer_declaration_var_names.begin(); ci != pointer_declaration_var_names.end(); ci++)
-	//{
-	//	const string var_name = *ci;
-
-	//	if (non_declaration_var_names.end() != non_declaration_var_names.find(var_name))
-	//	{
-	//		cout << "USED VAR " << var_name << endl;
-	//	}
-	//	else
-	//	{
-	//		cout << "UNUSED VAR " << var_name << endl;
-	//	}
-	//}
-
-	//for (size_t i = 0; i < non_declarations.size(); i++)
-	//{
-	//	cout << non_declarations[i].var_name << endl;
-	//	cout << non_declarations[i].declaration << endl;
-	//	cout << non_declarations[i].line_number << endl;
-	//	cout << non_declarations[i].line_pos << endl;
-	//	cout << endl;
-	//}
-
-	
-
-
-	//cout << endl;
-
-
 	map<string, size_t> variable_use_counts;
-
 
 	for (size_t i = 0; i < pointer_only_declarations.size(); i++)
 		variable_use_counts[pointer_only_declarations[i].var_name] = 0;
@@ -1678,7 +1638,7 @@ int main(void)
 	for (map<string, size_t>::const_iterator i = variable_use_counts.begin(); i != variable_use_counts.end(); i++)
 	{
 		if(i->second != 0)
-		cout << i->first << " " << i->second << endl;
+			cout << i->first << " " << i->second << endl;
 	}
 
 
