@@ -6,6 +6,7 @@
 #include <fstream>
 #include <ranges>
 #include <map>
+#include <set>
 using namespace std;
 
 
@@ -134,6 +135,45 @@ public:
 };
 
 
+
+class non_variable_declaration
+{
+public:
+	string declaration = "";
+	string var_name = "";
+	string filename = "";
+	size_t line_number = 0;
+	size_t line_pos = 0;
+
+	bool operator<(const non_variable_declaration& rhs)
+	{
+		if (filename < rhs.filename)
+			return true;
+		else if (filename > rhs.filename)
+			return false;
+
+		if (var_name < rhs.var_name)
+			return true;
+		else if (var_name > rhs.var_name)
+			return false;
+
+		if (line_number < rhs.line_number)
+			return true;
+		else if (line_number > rhs.line_number)
+			return false;
+
+		if (line_pos < rhs.line_pos)
+			return true;
+		else if (line_pos > rhs.line_pos)
+			return false;
+
+		return false;
+	}
+};
+
+
+
+
 vector<string> get_filenames(const string path)
 {
 	vector<string> filenames;
@@ -144,28 +184,28 @@ vector<string> get_filenames(const string path)
 
 
 
-		size_t str_pos = entry.path().string().find("sort.c");
+		//size_t str_pos = entry.path().string().find("sort.c");
 
-		if (str_pos != string::npos)
-			filenames.push_back(entry.path().string());
-
-
+		//if (str_pos != string::npos)
+		//	filenames.push_back(entry.path().string());
 
 
-		//string s = entry.path().string();
 
-		//vector<string> tokens = std_strtok(s, "[.]\\s*");
 
-		//for (size_t i = 0; i < tokens.size(); i++)
-		//	for (size_t j = 0; j < tokens[i].size(); j++)
-		//		tokens[i][j] = tolower(tokens[i][j]);
+		string s = entry.path().string();
 
-		//if (tokens.size() > 0 &&
-		//	(tokens[tokens.size() - 1] == "c" ||
-		//		tokens[tokens.size() - 1] == "cpp"))
-		//{
-		//	filenames.push_back(s);
-		//}
+		vector<string> tokens = std_strtok(s, "[.]\\s*");
+
+		for (size_t i = 0; i < tokens.size(); i++)
+			for (size_t j = 0; j < tokens[i].size(); j++)
+				tokens[i][j] = tolower(tokens[i][j]);
+
+		if (tokens.size() > 0 &&
+			(tokens[tokens.size() - 1] == "c" ||
+				tokens[tokens.size() - 1] == "cpp"))
+		{
+			filenames.push_back(s);
+		}
 
 
 
@@ -250,7 +290,7 @@ vector<string> get_variable_types(void)
 
 
 
-void enumerate_non_variables(const string path, const vector<variable_declaration>& declarations, vector<string>& non_declarations)
+void enumerate_non_variables(const string path, const vector<variable_declaration>& declarations, vector<non_variable_declaration>& non_declarations)
 {
 	non_declarations.clear();
 
@@ -511,7 +551,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 					// This is not a variable declaration statement
 					if (false == found_type)
 					{
-						vector<string> tokens = std_strtok(statements[s], "[!~^ \t;:.,\\-\\+\\*/<!=>&\\(\\)\\[\\]\\{\\}]\\s*");
+						vector<string> tokens = std_strtok(statements[s], "[!~^ \t;:.,\\-\\+\\*/<=>&\\(\\)\\[\\]\\{\\}]\\s*");
 
 						//cout << statements[s] << endl;
 
@@ -528,22 +568,28 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 								size_t line_pos = statement_line_pos + token_statement_line_pos;
 
-								cout << "VAR_NAME " << *ci << endl;
-								cout << "LINE_NUM " << line_num << endl;
+								//cout << "VAR_NAME " << *ci << endl;
+								//cout << "LINE_NUM " << line_num << endl;
 
-								if (line_pos == string::npos)
-									cout << "LINE_POS NPOS" << endl;
-								else
-									cout << "LINE_POS " << line_pos << endl;
+								//if (line_pos == string::npos)
+								//	cout << "LINE_POS NPOS" << endl;
+								//else
+								//	cout << "LINE_POS " << line_pos << endl;
 
-								non_declarations.push_back(statements[s]);
-								break;
+								non_variable_declaration nvd;
+								nvd.var_name = *ci;
+								nvd.declaration = statements[s];
+								nvd.filename = filenames[i];
+								nvd.line_number = line_num;
+								nvd.line_pos = line_pos;
+
+								non_declarations.push_back(nvd);
 							}
 
 							///cout << token << endl;
 						}
 
-						cout << endl << endl;
+						//cout << endl << endl;
 
 
 
@@ -1415,9 +1461,41 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 }
 
 
+//
+//vector<void *> malloc_replacement_pointer_addresses;
+//
+//void* malloc_replacement(size_t size)
+//{
+//	void* ptr = malloc(sizeof(double*) * 123);
+//	malloc_replacement_pointer_addresses.push_back(ptr);
+//
+//	return ptr;
+//}
+//
+//void free_replacement(void* addr)
+//{
+//	if (0 != addr)
+//		free(addr);
+//}
 
 int main(void)
 {
+	//double** x = (double **) malloc_replacement(sizeof(double*) * 123);
+	//char *y = (char*) malloc_replacement(sizeof(char) * 456);
+
+	//// do stuff
+
+	//// Free all pointers in one spot
+	//for (size_t i = 0; i < malloc_replacement_pointer_addresses.size(); i++)
+	//	free_replacement((void *)malloc_replacement_pointer_addresses[i]);
+
+	//return 0;
+
+
+
+
+
+
 	std::string path = "Y:/home/sjhalayka/ldak_min";
 
 	vector<variable_declaration> declarations;
@@ -1435,8 +1513,6 @@ int main(void)
 
 	for (size_t i = 0; i < declarations.size(); i++)
 	{
-		// TODO: move these two variables into the declaration creation
-
 		string variable_type0 = "";
 		string variable_name0 = "";
 
@@ -1545,12 +1621,65 @@ int main(void)
 	//for (map<string, size_t>::const_iterator i = type_map.begin(); i != type_map.end(); i++)
 	//	cout << i->first << " " << i->second << endl;
 
-	vector<string> non_declarations;
+	vector<non_variable_declaration> non_declarations;
 
-	enumerate_non_variables(path, declarations, non_declarations);
+	enumerate_non_variables(path, pointer_only_declarations, non_declarations);
+
+	sort(non_declarations.begin(), non_declarations.end());
+
+	//set<string> pointer_declaration_var_names;
+
+	//for (size_t i = 0; i < pointer_only_declarations.size(); i++)
+	//	pointer_declaration_var_names.insert(pointer_only_declarations[i].var_name);
+
+	//set<string> non_declaration_var_names;
 
 	//for (size_t i = 0; i < non_declarations.size(); i++)
-	//	cout << non_declarations[i] << endl;
+	//	non_declaration_var_names.insert(non_declarations[i].var_name);
+
+	//for (set<string>::const_iterator ci = pointer_declaration_var_names.begin(); ci != pointer_declaration_var_names.end(); ci++)
+	//{
+	//	const string var_name = *ci;
+
+	//	if (non_declaration_var_names.end() != non_declaration_var_names.find(var_name))
+	//	{
+	//		cout << "USED VAR " << var_name << endl;
+	//	}
+	//	else
+	//	{
+	//		cout << "UNUSED VAR " << var_name << endl;
+	//	}
+	//}
+
+	//for (size_t i = 0; i < non_declarations.size(); i++)
+	//{
+	//	cout << non_declarations[i].var_name << endl;
+	//	cout << non_declarations[i].declaration << endl;
+	//	cout << non_declarations[i].line_number << endl;
+	//	cout << non_declarations[i].line_pos << endl;
+	//	cout << endl;
+	//}
+
+	
+
+
+	//cout << endl;
+
+
+	map<string, size_t> variable_use_counts;
+
+
+	for (size_t i = 0; i < pointer_only_declarations.size(); i++)
+		variable_use_counts[pointer_only_declarations[i].var_name] = 0;
+
+	for (size_t i = 0; i < non_declarations.size(); i++)
+		variable_use_counts[non_declarations[i].var_name]++;
+
+	for (map<string, size_t>::const_iterator i = variable_use_counts.begin(); i != variable_use_counts.end(); i++)
+	{
+		if(i->second != 0)
+		cout << i->first << " " << i->second << endl;
+	}
 
 
 	return 0;
