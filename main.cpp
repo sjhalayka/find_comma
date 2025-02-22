@@ -10,6 +10,20 @@
 using namespace std;
 
 
+// returns count of non-overlapping occurrences of 'sub' in 'str'
+int countSubstring(const std::string& str, const std::string& sub)
+{
+	if (sub.length() == 0) return 0;
+	int count = 0;
+	for (size_t offset = str.find(sub); offset != std::string::npos;
+		offset = str.find(sub, offset + sub.length()))
+	{
+		++count;
+	}
+	return count;
+}
+
+
 std::string trimLeft(const std::string& str) {
 	if (str.empty()) {
 		return str;
@@ -1628,19 +1642,72 @@ int main(void)
 	sort(non_declarations.begin(), non_declarations.end());
 
 	map<string, size_t> variable_use_counts;
+	map<string, size_t> malloc_counts;
+	map<string, size_t> free_counts;
 
 	for (size_t i = 0; i < pointer_only_declarations.size(); i++)
-		variable_use_counts[pointer_only_declarations[i].var_name] = 0;
-
-	for (size_t i = 0; i < non_declarations.size(); i++)
-		variable_use_counts[non_declarations[i].var_name]++;
-
-	for (map<string, size_t>::const_iterator i = variable_use_counts.begin(); i != variable_use_counts.end(); i++)
 	{
-		if(i->second != 0)
-			cout << i->first << " " << i->second << endl;
+		variable_use_counts[pointer_only_declarations[i].var_name] = 0;
+		malloc_counts[pointer_only_declarations[i].var_name] = 0;
+		free_counts[pointer_only_declarations[i].var_name] = 0;
 	}
 
+
+
+	for (size_t i = 0; i < non_declarations.size(); i++)
+	{
+		size_t var_name_instances = countSubstring(non_declarations[i].declaration, non_declarations[i].var_name);
+		variable_use_counts[non_declarations[i].var_name] += var_name_instances;
+
+		size_t malloc_count = countSubstring(non_declarations[i].declaration, "malloc");
+		size_t free_count = countSubstring(non_declarations[i].declaration, "free");
+
+		malloc_counts[non_declarations[i].var_name] += malloc_count;
+		free_counts[non_declarations[i].var_name] += free_count;
+	}
+
+	cout << "References" << endl;
+
+	for (map<string, size_t>::const_iterator ci = variable_use_counts.begin(); ci != variable_use_counts.end(); ci++)
+	{
+		if (ci->second != 0)
+		{
+			size_t m = malloc_counts[ci->first];
+			size_t f = free_counts[ci->first];
+
+			cout << ci->first << " " << ci->second << endl;
+			cout << "malloc() calls " << m << endl;
+			cout << "free() calls " << f << endl;
+			cout << "total references " << variable_use_counts[ci->first] << endl;
+			cout << "total references minus malloc and free " << variable_use_counts[ci->first] - m - f << endl;
+		}
+		else
+			cout << "Skipping unused variable " << ci->first << endl;
+
+		cout << endl;
+	}
+
+	//cout << endl;
+
+	//cout << "malloc() calls" << endl;
+
+	//for (map<string, size_t>::const_iterator ci = malloc_counts.begin(); ci != malloc_counts.end(); ci++)
+	//{
+	//	if (ci->second != 0)
+	//		cout << ci->first << " " << ci->second << endl;
+	//}
+
+	//cout << endl;
+
+	//cout << "free() calls" << endl;
+
+	//for (map<string, size_t>::const_iterator ci = free_counts.begin(); ci != free_counts.end(); ci++)
+	//{
+	//	if (ci->second != 0)
+	//		cout << ci->first << " " << ci->second << endl;
+	//}
+
+	//cout << endl;
 
 	return 0;
 }
