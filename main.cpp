@@ -194,10 +194,6 @@ vector<string> get_filenames(const string path)
 
 	for (const auto& entry : filesystem::directory_iterator(path))
 	{
-
-
-
-
 		//size_t str_pos = entry.path().string().find("sort.c");
 
 		//if (str_pos != string::npos)
@@ -205,6 +201,14 @@ vector<string> get_filenames(const string path)
 
 
 
+
+
+
+
+		size_t str_pos = entry.path().string().find("declaration.c");
+
+		if (str_pos != string::npos)
+			filenames.push_back(entry.path().string());
 
 		string s = entry.path().string();
 
@@ -218,7 +222,16 @@ vector<string> get_filenames(const string path)
 			(tokens[tokens.size() - 1] == "c" ||
 				tokens[tokens.size() - 1] == "cpp"))
 		{
-			filenames.push_back(s);
+			size_t str_pos = s.find("declaration.c");
+
+			if (str_pos == string::npos)
+			{
+				filenames.push_back(s);
+			}
+			else
+			{
+				//cout << "skipping declaration.c because we already included it above" << endl;
+			}
 		}
 
 
@@ -337,8 +350,8 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 		string line;
 		vector<string> prev_lines_vector;
 
-		cout << endl << endl << endl;
-		cout << filenames[i] << endl << endl;
+		//cout << endl << endl << endl;
+		//cout << filenames[i] << endl << endl;
 
 		string type = "";
 		bool inside_slashstar_comment = false;
@@ -690,8 +703,8 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 		string line;
 		vector<string> prev_lines_vector;
 
-		cout << endl << endl << endl;
-		cout << filenames[i] << endl << endl;
+		//cout << endl << endl << endl;
+		//cout << filenames[i] << endl << endl;
 
 		string type = "";
 		bool inside_slashstar_comment = false;
@@ -1678,7 +1691,9 @@ int main(void)
 			size_t m = malloc_counts[ci->first];
 			size_t f = free_counts[ci->first];
 
-			if (m != f)
+			if (m != 0 || f != 0)
+				//if (/*(m == 0 && f != 0) ||*/ (m != 0 && f == 0))
+				//if (m != f && !(m == 0 && f == 1))
 			{
 				cout << ci->first << endl;// " " << ci->second << endl;
 				cout << "malloc() calls " << m << endl;
@@ -1689,12 +1704,15 @@ int main(void)
 			}
 			else
 			{
-				//cout << "Skipping reference for " << ci->first << endl;
+				cout << "No malloc() or free() found for " << ci->first << endl;
+				cout << "total references " << variable_use_counts[ci->first] << endl;
+				cout << endl << endl;
 			}
 		}
 		else
 		{
-			//cout << "Skipping unused variable " << ci->first << endl;
+			cout << "Skipping unused variable " << ci->first << endl;
+			cout << endl << endl;
 		}
 
 //		cout << endl;
