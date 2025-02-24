@@ -634,8 +634,8 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 								nvd.scope_depth = scope_depth;
 
-								//size_t x = 0;
 
+								//nvd.scope_id = declarations[x].filename
 								for (size_t x = 0; x < declarations.size(); x++)
 								{
 									if (nvd.filename == declarations[x].filename &&
@@ -1683,7 +1683,7 @@ int main(void)
 
 	for (size_t i = 0; i < non_declarations.size(); i++)
 	{
-		size_t var_name_instances = countSubstring(non_declarations[i].declaration, non_declarations[i].var_name);
+		//size_t var_name_instances = countSubstring(non_declarations[i].declaration, non_declarations[i].var_name);
 
 		const size_t var_name_location = non_declarations[i].declaration.find(non_declarations[i].var_name);
 		const size_t malloc_location = non_declarations[i].declaration.find("malloc");
