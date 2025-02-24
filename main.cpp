@@ -311,12 +311,12 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 	for (size_t i = 0; i < filenames.size(); i++)
 	{
-		vector<string> var_names_in_this_file;
+		vector<string> var_names;
 
 		for (size_t j = 0; j < declarations.size(); j++)
 		{
 			//if (declarations[j].filename == filenames[i])
-			var_names_in_this_file.push_back(declarations[j].var_name);
+			var_names.push_back(declarations[j].var_name);
 		}
 
 
@@ -572,9 +572,9 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 						{
 							string token = tokens[t];
 
-							const vector<string>::const_iterator ci = find(var_names_in_this_file.begin(), var_names_in_this_file.end(), token);
+							const vector<string>::const_iterator ci = find(var_names.begin(), var_names.end(), token);
 
-							if (var_names_in_this_file.end() != ci)
+							if (var_names.end() != ci)
 							{
 								size_t statement_line_pos = prev_lines_vector[p].find(statements[s]);
 								size_t token_statement_line_pos = statements[s].find(token);
@@ -601,50 +601,9 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 							///cout << token << endl;
 						}
-
-						//cout << endl << endl;
-
-
-
-						//output << endl;
-
-
-
-
-
-						//size_t malloc_found = statements[s].find("malloc");
-						//size_t free_found = statements[s].find("free");
-
-						//if (malloc_found != string::npos || free_found != string::npos)
-						//{
-						//	output << statements[s] << endl;
-						//}
-						//else
-						//{
-						//	output << statements[s] << endl;
-						//}
-
 					}
-
 				}
-
-				////cout << "LINE " << prev_lines_vector[p] << endl;
-
-				//long long signed int open_brace_count = ranges::count(prev_lines_vector[p], '{');
-				//long long signed int closing_brace_count = ranges::count(prev_lines_vector[p], '}');
-
-				//scope_depth += open_brace_count;
-				//scope_depth -= closing_brace_count;
-
-				//for (long long signed int j = 0; j < open_brace_count; j++)
-				//	scope_ids.push_back(generateRandomString(128));
-
-				//for (long long signed int j = 0; j < closing_brace_count; j++)
-				//	scope_ids.pop_back();
 			}
-
-
-
 		}
 
 		infile.close();
@@ -1478,8 +1437,8 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 
 int main(void)
 {
-	std::string path = "Y:/home/sjhalayka/ldak_min";
-	//std::string path = "C:/dev/find_comma/input_code";
+	//std::string path = "Y:/home/sjhalayka/ldak_min";
+	std::string path = "C:/dev/find_comma/input_code";
 
 	vector<variable_declaration> declarations;
 
@@ -1577,35 +1536,36 @@ int main(void)
 		return -1;
 	}
 
-	sort(pointer_only_declarations.begin(), pointer_only_declarations.end());
+	//sort(pointer_only_declarations.begin(), pointer_only_declarations.end());
 
-	// search for collisions
-	for (size_t i = 0; i < pointer_only_declarations.size() - 1; i++)
-	{
-		if (pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
-		{
-			string variable_name0 = pointer_only_declarations[i].var_name;
-			string variable_name1 = pointer_only_declarations[i + 1].var_name;
+	//// search for collisions
+	//for (size_t i = 0; i < pointer_only_declarations.size() - 1; i++)
+	//{
+	//	if (pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
+	//	{
+	//		string variable_name0 = pointer_only_declarations[i].var_name;
+	//		string variable_name1 = pointer_only_declarations[i + 1].var_name;
 
-			if (variable_name0 == variable_name1)
-			{
-				if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
-				{
-					if (pointer_only_declarations[i].scope_id == pointer_only_declarations[i + 1].scope_id)
-					{
-						cout << "Possible collision:" << endl;
-						cout << variable_name0 << " " << variable_name1 << endl;
-						cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
-						cout << pointer_only_declarations[i].filename << endl;
-						cout << pointer_only_declarations[i].line_number << endl;
-						cout << endl;
-					}
-				}
-			}
-		}
-	}
+	//		if (variable_name0 == variable_name1)
+	//		{
+	//			if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
+	//			{
+	//				if (pointer_only_declarations[i].scope_id == pointer_only_declarations[i + 1].scope_id)
+	//				{
+	//					cout << "Possible collision:" << endl;
+	//					cout << variable_name0 << " " << variable_name1 << endl;
+	//					cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
+	//					cout << pointer_only_declarations[i].filename << endl;
+	//					cout << pointer_only_declarations[i].line_number << endl;
+	//					cout << endl;
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 
-	cout << endl;
+	// cout << endl;
+
 
 	//map<string, size_t> type_map;
 
@@ -1615,6 +1575,9 @@ int main(void)
 	//for (map<string, size_t>::const_iterator i = type_map.begin(); i != type_map.end(); i++)
 	//	cout << i->first << " " << i->second << endl;
 
+
+
+	cout << "Pointer only declarations count: " << pointer_only_declarations.size() << endl;
 
 
 	//for (size_t i = 0; i < pointer_only_declarations.size(); i++)
@@ -1646,12 +1609,14 @@ int main(void)
 
 	for (size_t i = 0; i < pointer_only_declarations.size(); i++)
 	{
-		variable_use_counts[pointer_only_declarations[i].var_name] = 0;
-		malloc_counts[pointer_only_declarations[i].var_name] = 0;
-		free_counts[pointer_only_declarations[i].var_name] = 0;
+		const string s = pointer_only_declarations[i].filename + " " + pointer_only_declarations[i].var_name;
+
+		variable_use_counts[s] = 0;
+		malloc_counts[s] = 0;
+		free_counts[s] = 0;
 	}
 
-
+	cout << variable_use_counts.size() << endl;
 
 	for (size_t i = 0; i < non_declarations.size(); i++)
 	{
@@ -1659,14 +1624,16 @@ int main(void)
 		const size_t malloc_location = non_declarations[i].declaration.find("malloc");
 		const size_t free_location = non_declarations[i].declaration.find("free");
 
+		const string s = non_declarations[i].filename + " " + non_declarations[i].var_name;
+
 		if(var_name_location != string::npos)
-			variable_use_counts[non_declarations[i].var_name]++;
+			variable_use_counts[s]++;
 
 		if(malloc_location != string::npos)
-			malloc_counts[non_declarations[i].var_name]++;
+			malloc_counts[s]++;
 
 		if (free_location != string::npos)
-			free_counts[non_declarations[i].var_name]++;
+			free_counts[s]++;
 	}
 
 //	cout << "NONDECLARATIONS" << endl;
