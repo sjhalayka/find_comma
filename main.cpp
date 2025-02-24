@@ -54,21 +54,6 @@ std::string trimRight(const std::string& str) {
 	return str.substr(0, lastNonSpace + 1);
 }
 
-
-//
-//inline void trim_left_whitespace(std::string& s) {
-//	s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
-//		return !std::isspace(ch);
-//		}));
-//}
-//
-//// trim from end (in place)
-//inline void trim_right_whitespace(std::string& s) {
-//	s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
-//		return !std::isspace(ch);
-//		}).base(), s.end());
-//}
-
 vector<string> std_strtok(const string& s, const string& regex_s)
 {
 	vector<string> tokens;
@@ -134,15 +119,15 @@ public:
 		//else if (line_number > rhs.line_number)
 		//	return false;
 
-		if (scope_depth < rhs.scope_depth)
-			return true;
-		else if (scope_depth > rhs.scope_depth)
-			return false;
+		//if (scope_depth < rhs.scope_depth)
+		//	return true;
+		//else if (scope_depth > rhs.scope_depth)
+		//	return false;
 
-		if (scope_id < rhs.scope_id)
-			return true;
-		else if (scope_id > rhs.scope_id)
-			return false;
+		//if (scope_id < rhs.scope_id)
+		//	return true;
+		//else if (scope_id > rhs.scope_id)
+		//	return false;
 
 		return false;
 	}
@@ -330,8 +315,8 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 		for (size_t j = 0; j < declarations.size(); j++)
 		{
-			//if (declarations[j].filename == filenames[i])
-				var_names_in_this_file.push_back(declarations[j].var_name);
+			if (declarations[j].filename == filenames[i])
+			var_names_in_this_file.push_back(declarations[j].var_name);
 		}
 
 
@@ -1489,42 +1474,11 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 }
 
 
-//
-//vector<void *> malloc_replacement_pointer_addresses;
-//
-//void* malloc_replacement(size_t size)
-//{
-//	void* ptr = malloc(sizeof(double*) * 123);
-//	malloc_replacement_pointer_addresses.push_back(ptr);
-//
-//	return ptr;
-//}
-//
-//void free_replacement(void* addr)
-//{
-//	if (0 != addr)
-//		free(addr);
-//}
+
 
 int main(void)
 {
-	//double** x = (double **) malloc_replacement(sizeof(double*) * 123);
-	//char *y = (char*) malloc_replacement(sizeof(char) * 456);
-
-	//// do stuff
-
-	//// Free all pointers in one spot
-	//for (size_t i = 0; i < malloc_replacement_pointer_addresses.size(); i++)
-	//	free_replacement((void *)malloc_replacement_pointer_addresses[i]);
-
-	//return 0;
-
-
-
-
-
-
-	std::string path = "Y:/home/sjhalayka/ldak_min";
+	std::string path = "C:/dev/find_comma/input_code";
 
 	vector<variable_declaration> declarations;
 
@@ -1590,6 +1544,16 @@ int main(void)
 		variable_name0 = trimLeft(variable_name0);
 		variable_name0 = trimRight(variable_name0);
 
+		//variable_declaration temp_;
+		//temp_.var_name = variable_name0;
+		//temp_.var_type = variable_type0;
+		//temp_.declaration = declarations[i].declaration;
+		//temp_.filename = declarations[i].filename;
+		//temp_.line_number = declarations[i].line_number;
+		//temp_.line_pos = declarations[i].line_pos;
+		//temp_.scope_depth = declarations[i].scope_depth;
+		//temp_.scope_id = declarations[i].scope_id;
+
 		pointer_only_declarations.push_back(declarations[i]);
 
 		//cout << "\"" << variable_type0 << "\"" << endl;
@@ -1604,6 +1568,7 @@ int main(void)
 
 	cout << "Declaration count: " << declarations.size() << endl;
 	cout << "Pointer declaration count: " << pointer_only_declarations.size() << endl;
+	cout << endl;
 
 	if (pointer_only_declarations.size() == 0)
 	{
@@ -1611,35 +1576,35 @@ int main(void)
 		return -1;
 	}
 
-	sort(pointer_only_declarations.begin(), pointer_only_declarations.end());
+	//sort(pointer_only_declarations.begin(), pointer_only_declarations.end());
 
-	// search for collisions
-	for (size_t i = 0; i < pointer_only_declarations.size() - 1; i++)
-	{
-		if (pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
-		{
-			string variable_name0 = pointer_only_declarations[i].var_name;
-			string variable_name1 = pointer_only_declarations[i + 1].var_name;
+	//// search for collisions
+	//for (size_t i = 0; i < pointer_only_declarations.size() - 1; i++)
+	//{
+	//	if (1)//pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
+	//	{
+	//		string variable_name0 = pointer_only_declarations[i].var_name;
+	//		string variable_name1 = pointer_only_declarations[i + 1].var_name;
 
-			if (variable_name0 == variable_name1)
-			{
-				if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
-				{
-					if (pointer_only_declarations[i].scope_id == pointer_only_declarations[i + 1].scope_id)
-					{
-						cout << "Possible collision:" << endl;
-						cout << variable_name0 << " " << variable_name1 << endl;
-						cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
-						cout << pointer_only_declarations[i].filename << endl;
-						cout << pointer_only_declarations[i].line_number << endl;
-						cout << endl;
-					}
-				}
-			}
-		}
-	}
+	//		if (variable_name0 == variable_name1)
+	//		{
+	//			if (1)//pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
+	//			{
+	//				if (1)//pointer_only_declarations[i].scope_id == pointer_only_declarations[i + 1].scope_id)
+	//				{
+	//					cout << "Possible collision:" << endl;
+	//					cout << variable_name0 << " " << variable_name1 << endl;
+	//					cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
+	//					cout << pointer_only_declarations[i].filename << endl;
+	//					cout << pointer_only_declarations[i].line_number << endl;
+	//					cout << endl;
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 
-	cout << endl;
+	//cout << endl;
 
 	//map<string, size_t> type_map;
 
@@ -1649,13 +1614,30 @@ int main(void)
 	//for (map<string, size_t>::const_iterator i = type_map.begin(); i != type_map.end(); i++)
 	//	cout << i->first << " " << i->second << endl;
 
+
+
+	//for (size_t i = 0; i < pointer_only_declarations.size(); i++)
+	//{
+	//	cout << pointer_only_declarations[i].declaration << endl;
+	//}
+
+	//cout << endl;
+
+
+
 	vector<non_variable_declaration> non_declarations;
 
 	enumerate_non_variables(path, pointer_only_declarations, non_declarations);
 
+	cout << "Non declarations" << endl;
+
+	for (size_t i = 0; i < non_declarations.size(); i++)
+		cout << non_declarations[i].declaration << endl;
+
+	cout << endl;
 
 
-	sort(non_declarations.begin(), non_declarations.end());
+	//sort(non_declarations.begin(), non_declarations.end());
 
 	map<string, size_t> variable_use_counts;
 	map<string, size_t> malloc_counts;
@@ -1672,17 +1654,29 @@ int main(void)
 
 	for (size_t i = 0; i < non_declarations.size(); i++)
 	{
-		size_t var_name_instances = countSubstring(non_declarations[i].declaration, non_declarations[i].var_name);
-		variable_use_counts[non_declarations[i].var_name] += var_name_instances;
+		const size_t var_name_location = non_declarations[i].declaration.find(non_declarations[i].var_name);
+		const size_t malloc_location = non_declarations[i].declaration.find("malloc");
+		const size_t free_location = non_declarations[i].declaration.find("free");
 
-		size_t malloc_count = countSubstring(non_declarations[i].declaration, "malloc");
-		size_t free_count = countSubstring(non_declarations[i].declaration, "free");
+		if(var_name_location != string::npos)
+			variable_use_counts[non_declarations[i].var_name]++;
 
-		malloc_counts[non_declarations[i].var_name] += malloc_count;
-		free_counts[non_declarations[i].var_name] += free_count;
+		if(malloc_location != string::npos)
+			malloc_counts[non_declarations[i].var_name]++;
+
+		if (free_location != string::npos)
+			free_counts[non_declarations[i].var_name]++;
 	}
 
-	cout << "References" << endl;
+//	cout << "NONDECLARATIONS" << endl;
+
+	cout << "Variables used: " << variable_use_counts.size() << endl;
+	cout << endl;
+
+
+
+
+	cout << "References" << endl << endl;
 
 	for (map<string, size_t>::const_iterator ci = variable_use_counts.begin(); ci != variable_use_counts.end(); ci++)
 	{
@@ -1700,6 +1694,7 @@ int main(void)
 				cout << "free() calls " << f << endl;
 				cout << "total references " << variable_use_counts[ci->first] << endl;
 				cout << "total references minus malloc and free " << variable_use_counts[ci->first] - m - f << endl;
+				
 				cout << endl << endl;
 			}
 			else
@@ -1715,7 +1710,7 @@ int main(void)
 			cout << endl << endl;
 		}
 
-//		cout << endl;
+		//		cout << endl;
 	}
 
 	//cout << endl;
