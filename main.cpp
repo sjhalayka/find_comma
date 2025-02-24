@@ -99,10 +99,10 @@ public:
 
 	bool operator<(const variable_declaration& rhs)
 	{
-		if (filename < rhs.filename)
-			return true;
-		else if (filename > rhs.filename)
-			return false;
+		//if (filename < rhs.filename)
+		//	return true;
+		//else if (filename > rhs.filename)
+		//	return false;
 
 		if (var_name < rhs.var_name)
 			return true;
@@ -119,15 +119,15 @@ public:
 		//else if (line_number > rhs.line_number)
 		//	return false;
 
-		//if (scope_depth < rhs.scope_depth)
-		//	return true;
-		//else if (scope_depth > rhs.scope_depth)
-		//	return false;
+		if (scope_depth < rhs.scope_depth)
+			return true;
+		else if (scope_depth > rhs.scope_depth)
+			return false;
 
-		//if (scope_id < rhs.scope_id)
-		//	return true;
-		//else if (scope_id > rhs.scope_id)
-		//	return false;
+		if (scope_id < rhs.scope_id)
+			return true;
+		else if (scope_id > rhs.scope_id)
+			return false;
 
 		return false;
 	}
@@ -315,7 +315,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 		for (size_t j = 0; j < declarations.size(); j++)
 		{
-			if (declarations[j].filename == filenames[i])
+			//if (declarations[j].filename == filenames[i])
 			var_names_in_this_file.push_back(declarations[j].var_name);
 		}
 
@@ -1478,7 +1478,8 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 
 int main(void)
 {
-	std::string path = "C:/dev/find_comma/input_code";
+	std::string path = "Y:/home/sjhalayka/ldak_min";
+	//std::string path = "C:/dev/find_comma/input_code";
 
 	vector<variable_declaration> declarations;
 
@@ -1576,35 +1577,35 @@ int main(void)
 		return -1;
 	}
 
-	//sort(pointer_only_declarations.begin(), pointer_only_declarations.end());
+	sort(pointer_only_declarations.begin(), pointer_only_declarations.end());
 
-	//// search for collisions
-	//for (size_t i = 0; i < pointer_only_declarations.size() - 1; i++)
-	//{
-	//	if (1)//pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
-	//	{
-	//		string variable_name0 = pointer_only_declarations[i].var_name;
-	//		string variable_name1 = pointer_only_declarations[i + 1].var_name;
+	// search for collisions
+	for (size_t i = 0; i < pointer_only_declarations.size() - 1; i++)
+	{
+		if (pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
+		{
+			string variable_name0 = pointer_only_declarations[i].var_name;
+			string variable_name1 = pointer_only_declarations[i + 1].var_name;
 
-	//		if (variable_name0 == variable_name1)
-	//		{
-	//			if (1)//pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
-	//			{
-	//				if (1)//pointer_only_declarations[i].scope_id == pointer_only_declarations[i + 1].scope_id)
-	//				{
-	//					cout << "Possible collision:" << endl;
-	//					cout << variable_name0 << " " << variable_name1 << endl;
-	//					cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
-	//					cout << pointer_only_declarations[i].filename << endl;
-	//					cout << pointer_only_declarations[i].line_number << endl;
-	//					cout << endl;
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
+			if (variable_name0 == variable_name1)
+			{
+				if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
+				{
+					if (pointer_only_declarations[i].scope_id == pointer_only_declarations[i + 1].scope_id)
+					{
+						cout << "Possible collision:" << endl;
+						cout << variable_name0 << " " << variable_name1 << endl;
+						cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
+						cout << pointer_only_declarations[i].filename << endl;
+						cout << pointer_only_declarations[i].line_number << endl;
+						cout << endl;
+					}
+				}
+			}
+		}
+	}
 
-	//cout << endl;
+	cout << endl;
 
 	//map<string, size_t> type_map;
 
@@ -1629,12 +1630,12 @@ int main(void)
 
 	enumerate_non_variables(path, pointer_only_declarations, non_declarations);
 
-	cout << "Non declarations" << endl;
+	//cout << "Non declarations" << endl;
 
-	for (size_t i = 0; i < non_declarations.size(); i++)
-		cout << non_declarations[i].declaration << endl;
+	//for (size_t i = 0; i < non_declarations.size(); i++)
+	//	cout << non_declarations[i].declaration << endl;
 
-	cout << endl;
+	//cout << endl;
 
 
 	//sort(non_declarations.begin(), non_declarations.end());
@@ -1672,7 +1673,7 @@ int main(void)
 
 	cout << "Variables used: " << variable_use_counts.size() << endl;
 	cout << endl;
-
+	 
 
 
 
@@ -1706,8 +1707,8 @@ int main(void)
 		}
 		else
 		{
-			cout << "Skipping unused variable " << ci->first << endl;
-			cout << endl << endl;
+			//cout << "Skipping unused variable " << ci->first << endl;
+			//cout << endl << endl;
 		}
 
 		//		cout << endl;
