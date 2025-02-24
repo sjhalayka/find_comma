@@ -1674,8 +1674,8 @@ int main(void)
 		}
 		else
 		{
-			//cout << "Skipping unused variable " << ci->first << endl;
-			//cout << endl << endl;
+			cout << "Skipping unused variable " << ci->first << endl;
+			cout << endl << endl;
 		}
 
 		//		cout << endl;

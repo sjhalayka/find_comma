@@ -7,3 +7,6 @@ y = 0;
 float** i;
 
 i = 0;
+
+
+i = malloc();
