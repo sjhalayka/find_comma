@@ -76,12 +76,25 @@ vector<string> std_strtok(const string& s, const string& regex_s)
 
 string generateRandomString(size_t length)
 {
-	const char* charmap = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	const size_t charmapLength = strlen(charmap);
-	auto generator = [&]() { return charmap[rand() % charmapLength]; };
-	string result;
-	result.reserve(length);
-	generate_n(back_inserter(result), length, generator);
+	//const char* charmap = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	//const size_t charmapLength = strlen(charmap);
+	//auto generator = [&]() { return charmap[rand() % charmapLength]; };
+	//string result;
+	//result.reserve(length);
+	//generate_n(back_inserter(result), length, generator);
+
+
+	string result = "";
+
+	for (size_t l = 0; l < length; l++)
+	{
+		static const char* const charmap = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		static const size_t charmapLength = strlen(charmap);
+
+		result += charmap[rand() % charmapLength];
+	}
+
+
 	return result;
 }
 
@@ -95,7 +108,7 @@ public:
 	size_t line_number = 0;
 	size_t line_pos = 0;
 	long long signed int scope_depth = 0;
-	string scope_id;
+	string scope_id = "";
 
 	bool operator<(const variable_declaration& rhs)
 	{
@@ -124,10 +137,10 @@ public:
 		else if (scope_depth > rhs.scope_depth)
 			return false;
 
-		if (scope_id < rhs.scope_id)
-			return true;
-		else if (scope_id > rhs.scope_id)
-			return false;
+		//if (scope_id < rhs.scope_id)
+		//	return true;
+		//else if (scope_id > rhs.scope_id)
+		//	return false;
 
 		return false;
 	}
@@ -143,6 +156,8 @@ public:
 	string filename = "";
 	size_t line_number = 0;
 	size_t line_pos = 0;
+	string scope_id = "";
+	size_t scope_depth = 0;
 
 	bool operator<(const non_variable_declaration& rhs)
 	{
@@ -304,6 +319,8 @@ vector<string> get_variable_types(void)
 
 void enumerate_non_variables(const string path, const vector<variable_declaration>& declarations, vector<non_variable_declaration>& non_declarations)
 {
+	//srand(456);
+
 	non_declarations.clear();
 
 	vector<string> types = get_variable_types();
@@ -322,7 +339,6 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 
 		long long signed int scope_depth = 0;
-
 		vector<string> scope_ids;
 
 		ifstream infile(filenames[i]);
@@ -505,7 +521,27 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 				//if (finished_with_semi_colon == false)
 				//	statements[statements.size() - 1].pop_back();
 
+
+
+				long long signed int open_brace_count = ranges::count(prev_lines_vector[p], '{');
+				long long signed int closing_brace_count = ranges::count(prev_lines_vector[p], '}');
+
+				scope_depth += open_brace_count;
+				scope_depth -= closing_brace_count;
+
+				for (long long signed int j = 0; j < open_brace_count; j++)
+					scope_ids.push_back(generateRandomString(8));
+
+				for (long long signed int j = 0; j < closing_brace_count; j++)
+					scope_ids.pop_back();
+
+
+
 				size_t prev_statements_location = 0;
+
+
+
+
 
 
 				for (size_t s = 0; s < statements.size(); s++)
@@ -596,6 +632,26 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 								nvd.line_number = line_num;
 								nvd.line_pos = line_pos;
 
+								nvd.scope_depth = scope_depth;
+
+								//size_t x = 0;
+
+								for (size_t x = 0; x < declarations.size(); x++)
+								{
+									if (nvd.filename == declarations[x].filename &&
+										nvd.var_name == declarations[x].var_name && 
+										nvd.scope_depth == declarations[x].scope_depth)
+									{
+										nvd.scope_id = declarations[x].scope_id;
+										break;
+									}
+								}
+
+								
+
+								
+
+								
 								non_declarations.push_back(nvd);
 							}
 
@@ -603,6 +659,8 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 						}
 					}
 				}
+
+
 			}
 		}
 
@@ -626,6 +684,8 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 void enumerate_variables(const string path, vector<variable_declaration>& declarations)
 {
+//	srand(123);
+
 	declarations.clear();
 
 	vector<string> types = get_variable_types();
@@ -1309,7 +1369,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 								local_scope_depth -= closing_brace_count;
 
 								for (long long signed int j = 0; j < open_brace_count; j++)
-									local_scope_ids.push_back(generateRandomString(128));
+									local_scope_ids.push_back(generateRandomString(8));
 
 								for (long long signed int j = 0; j < closing_brace_count; j++)
 									local_scope_ids.pop_back();
@@ -1324,7 +1384,11 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 								if (local_scope_ids.size() > 0)
 									v.scope_id = local_scope_ids[local_scope_ids.size() - 1];
 								else
-									v.scope_id = "";
+								{
+									//v.scope_id = "TEST";
+									scope_ids.push_back(generateRandomString(8));
+									v.scope_id = scope_ids[scope_ids.size() - 1];
+								}
 
 								declarations.push_back(v);
 							}
@@ -1351,7 +1415,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 				scope_depth -= closing_brace_count;
 
 				for (long long signed int j = 0; j < open_brace_count; j++)
-					scope_ids.push_back(generateRandomString(128));
+					scope_ids.push_back(generateRandomString(8));
 
 				for (long long signed int j = 0; j < closing_brace_count; j++)
 					scope_ids.pop_back();
@@ -1437,8 +1501,10 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 
 int main(void)
 {
+	srand(0);
+	
 	//std::string path = "Y:/home/sjhalayka/ldak_min";
-	std::string path = "C:/dev/find_comma/input_code";
+	std::string path = "Y:/home/sjhalayka/input_code";
 
 	vector<variable_declaration> declarations;
 
@@ -1536,35 +1602,35 @@ int main(void)
 		return -1;
 	}
 
-	//sort(pointer_only_declarations.begin(), pointer_only_declarations.end());
+	sort(pointer_only_declarations.begin(), pointer_only_declarations.end());
 
-	//// search for collisions
-	//for (size_t i = 0; i < pointer_only_declarations.size() - 1; i++)
-	//{
-	//	if (pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
-	//	{
-	//		string variable_name0 = pointer_only_declarations[i].var_name;
-	//		string variable_name1 = pointer_only_declarations[i + 1].var_name;
+	// search for collisions
+	for (size_t i = 0; i < pointer_only_declarations.size() - 1; i++)
+	{
+		if (pointer_only_declarations[i].filename == pointer_only_declarations[i + 1].filename)
+		{
+			string variable_name0 = pointer_only_declarations[i].var_name;
+			string variable_name1 = pointer_only_declarations[i + 1].var_name;
 
-	//		if (variable_name0 == variable_name1)
-	//		{
-	//			if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
-	//			{
-	//				if (pointer_only_declarations[i].scope_id == pointer_only_declarations[i + 1].scope_id)
-	//				{
-	//					cout << "Possible collision:" << endl;
-	//					cout << variable_name0 << " " << variable_name1 << endl;
-	//					cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
-	//					cout << pointer_only_declarations[i].filename << endl;
-	//					cout << pointer_only_declarations[i].line_number << endl;
-	//					cout << endl;
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
+			if (variable_name0 == variable_name1)
+			{
+				if (pointer_only_declarations[i].scope_depth == pointer_only_declarations[i + 1].scope_depth)
+				{
+					if (pointer_only_declarations[i].scope_id == pointer_only_declarations[i + 1].scope_id)
+					{
+						cout << "Possible collision:" << endl;
+						cout << variable_name0 << " " << variable_name1 << endl;
+						cout << pointer_only_declarations[i].scope_depth << " " << pointer_only_declarations[i + 1].scope_depth << endl;
+						cout << pointer_only_declarations[i].filename << endl;
+						cout << pointer_only_declarations[i].line_number << endl;
+						cout << endl;
+					}
+				}
+			}
+		}
+	}
 
-	// cout << endl;
+	 cout << endl;
 
 
 	//map<string, size_t> type_map;
@@ -1575,9 +1641,6 @@ int main(void)
 	//for (map<string, size_t>::const_iterator i = type_map.begin(); i != type_map.end(); i++)
 	//	cout << i->first << " " << i->second << endl;
 
-
-
-	cout << "Pointer only declarations count: " << pointer_only_declarations.size() << endl;
 
 
 	//for (size_t i = 0; i < pointer_only_declarations.size(); i++)
@@ -1593,12 +1656,12 @@ int main(void)
 
 	enumerate_non_variables(path, pointer_only_declarations, non_declarations);
 
-	//cout << "Non declarations" << endl;
+	cout << "Non declarations" << endl;
 
-	//for (size_t i = 0; i < non_declarations.size(); i++)
-	//	cout << non_declarations[i].declaration << endl;
+	for (size_t i = 0; i < non_declarations.size(); i++)
+		cout << non_declarations[i].declaration << endl;
 
-	//cout << endl;
+	cout << endl;
 
 
 	//sort(non_declarations.begin(), non_declarations.end());
@@ -1607,27 +1670,29 @@ int main(void)
 	map<string, size_t> malloc_counts;
 	map<string, size_t> free_counts;
 
-	for (size_t i = 0; i < pointer_only_declarations.size(); i++)
-	{
-		const string s = pointer_only_declarations[i].filename + " " + pointer_only_declarations[i].var_name;
+	//for (size_t i = 0; i < pointer_only_declarations.size(); i++)
+	//{
+	//	const string s = pointer_only_declarations[i].filename + " " + to_string(pointer_only_declarations[i].scope_depth) + " " + pointer_only_declarations[i].var_name + " " + pointer_only_declarations[i].scope_id;
 
-		variable_use_counts[s] = 0;
-		malloc_counts[s] = 0;
-		free_counts[s] = 0;
-	}
+	//	variable_use_counts[s] = 0;
+	//	malloc_counts[s] = 0;
+	//	free_counts[s] = 0;
+	//}
 
-	cout << variable_use_counts.size() << endl;
+	//cout << variable_use_counts.size() << endl;
 
 	for (size_t i = 0; i < non_declarations.size(); i++)
 	{
+		size_t var_name_instances = countSubstring(non_declarations[i].declaration, non_declarations[i].var_name);
+
 		const size_t var_name_location = non_declarations[i].declaration.find(non_declarations[i].var_name);
 		const size_t malloc_location = non_declarations[i].declaration.find("malloc");
 		const size_t free_location = non_declarations[i].declaration.find("free");
 
-		const string s = non_declarations[i].filename + " " + non_declarations[i].var_name;
+		const string s = non_declarations[i].filename + " " + to_string(non_declarations[i].scope_depth) + " " + non_declarations[i].var_name + " " + non_declarations[i].scope_id;
 
-		if(var_name_location != string::npos)
-			variable_use_counts[s]++;
+		if (var_name_location != string::npos)
+			variable_use_counts[s]++;// += var_name_instances;
 
 		if(malloc_location != string::npos)
 			malloc_counts[s]++;
