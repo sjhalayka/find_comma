@@ -157,7 +157,7 @@ public:
 	size_t line_number = 0;
 	size_t line_pos = 0;
 	string scope_id = "";
-	size_t scope_depth = 0;
+	long long signed int scope_depth = 0;
 
 	bool operator<(const non_variable_declaration& rhs)
 	{
@@ -631,19 +631,22 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 								nvd.filename = filenames[i];
 								nvd.line_number = line_num;
 								nvd.line_pos = line_pos;
-
 								nvd.scope_depth = scope_depth;
-
 
 								//nvd.scope_id = declarations[x].filename
 								for (size_t x = 0; x < declarations.size(); x++)
 								{
 									if (nvd.filename == declarations[x].filename &&
-										nvd.var_name == declarations[x].var_name && 
-										nvd.scope_depth == declarations[x].scope_depth)
+										nvd.var_name == declarations[x].var_name &&
+										nvd.line_number < declarations[x].line_number)
+									{
+										break;
+									}
+									else if (nvd.filename == declarations[x].filename &&
+										nvd.var_name == declarations[x].var_name &&
+										nvd.scope_depth <= declarations[x].scope_depth)
 									{
 										nvd.scope_id = declarations[x].scope_id;
-										break;
 									}
 								}
 
