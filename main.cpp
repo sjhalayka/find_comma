@@ -10,9 +10,9 @@
 using namespace std;
 
 
-const size_t num_chars_in_random_strings = 8;
+const size_t num_chars_in_random_strings = 16;
 
-string generateUniqueRandomString(size_t length)
+string generateUniqueRandomString(const size_t length)
 {
 	static vector<string> past_used_random_strings;
 	static const char* const charmap = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -25,7 +25,7 @@ string generateUniqueRandomString(size_t length)
 		for (size_t l = 0; l < length; l++)
 			result += charmap[rand() % charmapLength];
 
-		vector<string>::const_iterator ci = find(past_used_random_strings.begin(), past_used_random_strings.end(), result);
+		const vector<string>::const_iterator ci = find(past_used_random_strings.begin(), past_used_random_strings.end(), result);
 
 		if (ci != past_used_random_strings.end())
 		{
