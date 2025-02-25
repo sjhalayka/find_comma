@@ -10,12 +10,40 @@
 using namespace std;
 
 
-
-// TODO: make sure random char string is not already in the scope ids
-
-
-
 const size_t num_chars_in_random_strings = 8;
+
+string generateUniqueRandomString(size_t length)
+{
+	static vector<string> past_used_random_strings;
+	static const char* const charmap = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	static const size_t charmapLength = strlen(charmap);
+
+	string result = "";
+
+	while (1)
+	{
+		for (size_t l = 0; l < length; l++)
+			result += charmap[rand() % charmapLength];
+
+		vector<string>::const_iterator ci = find(past_used_random_strings.begin(), past_used_random_strings.end(), result);
+
+		if (ci != past_used_random_strings.end())
+		{
+			// collision, try again
+			result = "";
+			continue;
+		}
+		else
+		{
+			// no collision, proceed
+			past_used_random_strings.push_back(result);
+			break;
+		}
+	}
+
+	return result;
+}
+
 
 
 // returns count of non-overlapping occurrences of 'sub' in 'str'
@@ -83,45 +111,6 @@ vector<string> std_strtok(const string& s, const string& regex_s)
 }
 
 
-vector<string> past_used_random_strings;
-
-
-string generateUniqueRandomString(size_t length)
-{
-	//const char* charmap = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	//const size_t charmapLength = strlen(charmap);
-	//auto generator = [&]() { return charmap[rand() % charmapLength]; };
-	//string result;
-	//result.reserve(length);
-	//generate_n(back_inserter(result), length, generator);
-
-	string result = "";
-
-	while (1)
-	{
-		for (size_t l = 0; l < length; l++)
-		{
-			static const char* const charmap = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			static const size_t charmapLength = strlen(charmap);
-
-			result += charmap[rand() % charmapLength];
-		}
-
-		vector<string>::const_iterator ci = find(past_used_random_strings.begin(), past_used_random_strings.end(), result);
-
-		if (ci != past_used_random_strings.end())
-		{
-			// collision
-		}
-		else
-		{
-			past_used_random_strings.push_back(result);
-			break;
-		}
-	}
-
-	return result;
-}
 
 class variable_declaration
 {
@@ -1693,21 +1682,8 @@ int main(void)
 	map<string, size_t> malloc_counts;
 	map<string, size_t> free_counts;
 
-	//for (size_t i = 0; i < pointer_only_declarations.size(); i++)
-	//{
-	//	const string s = pointer_only_declarations[i].filename + " " + to_string(pointer_only_declarations[i].scope_depth) + " " + pointer_only_declarations[i].var_name + " " + pointer_only_declarations[i].scope_id;
-
-	//	variable_use_counts[s] = 0;
-	//	malloc_counts[s] = 0;
-	//	free_counts[s] = 0;
-	//}
-
-	//cout << variable_use_counts.size() << endl;
-
 	for (size_t i = 0; i < non_declarations.size(); i++)
 	{
-		//size_t var_name_instances = countSubstring(non_declarations[i].declaration, non_declarations[i].var_name);
-
 		const size_t var_name_location = non_declarations[i].declaration.find(non_declarations[i].var_name);
 		const size_t malloc_location = non_declarations[i].declaration.find("malloc");
 		const size_t free_location = non_declarations[i].declaration.find("free");
@@ -1715,7 +1691,7 @@ int main(void)
 		const string s = non_declarations[i].filename + "::" + to_string(non_declarations[i].scope_depth) + "::" + non_declarations[i].scope_id + "::" + non_declarations[i].var_name;
 
 		if (var_name_location != string::npos)
-			variable_use_counts[s]++;// += var_name_instances;
+			variable_use_counts[s]++;
 
 		if(malloc_location != string::npos)
 			malloc_counts[s]++;
