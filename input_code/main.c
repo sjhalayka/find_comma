@@ -31,7 +31,7 @@ int func(void)
 int main(void) 
 {
     
-        double** p;
+       double** p;
         p = 10;
     
     for (int f = 0; f < 10; f++)
@@ -39,7 +39,7 @@ int main(void)
     }
 
     {
-        double* p;
+        //double* p;
         p = 20;
         p++;
         p--;

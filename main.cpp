@@ -1682,7 +1682,7 @@ int main(void)
 		const size_t malloc_location = non_declarations[i].declaration.find("malloc");
 		const size_t free_location = non_declarations[i].declaration.find("free");
 
-		const string s = non_declarations[i].filename + "::" + to_string(non_declarations[i].scope_depth) + "::" + non_declarations[i].scope_id + "::" + non_declarations[i].var_name;
+		const string s = non_declarations[i].filename + "::" + non_declarations[i].scope_id + "::" + non_declarations[i].var_name;
 
 		if (var_name_location != string::npos)
 			variable_use_counts[s]++;
