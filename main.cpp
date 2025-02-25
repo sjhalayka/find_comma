@@ -346,7 +346,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 		for (size_t j = 0; j < declarations.size(); j++)
 		{
-			if (declarations[j].filename == filenames[i])
+			//if (declarations[j].filename == filenames[i])
 				var_names.push_back(declarations[j].var_name);
 		}
 
@@ -647,7 +647,8 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 								nvd.line_pos = line_pos;
 								nvd.scope_depth = scope_depth;
 
-								//nvd.scope_id = declarations[x].filename
+								nvd.scope_id = "";
+								
 								for (size_t x = 0; x < declarations.size(); x++)
 								{
 									if (nvd.filename == declarations[x].filename &&
@@ -661,6 +662,21 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 										nvd.scope_depth >= declarations[x].scope_depth)
 									{
 										nvd.scope_id = declarations[x].scope_id;
+									}
+								}
+
+								// Look for global variables from declaration.c
+								if (nvd.scope_id == "")
+								{
+									for (size_t x = 0; x < declarations.size(); x++)
+									{
+										if (string::npos != declarations[x].filename.find("declaration.c") &&
+											nvd.var_name == declarations[x].var_name &&
+											declarations[x].scope_depth == 0)
+										{
+											nvd.scope_id = declarations[x].scope_id;
+											break;
+										}
 									}
 								}
 								
