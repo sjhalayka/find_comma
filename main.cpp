@@ -644,7 +644,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 									}
 									else if (nvd.filename == declarations[x].filename &&
 										nvd.var_name == declarations[x].var_name &&
-										nvd.scope_depth <= declarations[x].scope_depth)
+										nvd.scope_depth >= declarations[x].scope_depth)
 									{
 										nvd.scope_id = declarations[x].scope_id;
 									}
@@ -1389,8 +1389,8 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 								else
 								{
 									//v.scope_id = "TEST";
-									scope_ids.push_back(generateRandomString(8));
-									v.scope_id = scope_ids[scope_ids.size() - 1];
+									local_scope_ids.push_back(generateRandomString(8));
+									v.scope_id = local_scope_ids[local_scope_ids.size() - 1];
 								}
 
 								declarations.push_back(v);
