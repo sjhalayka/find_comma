@@ -10,6 +10,14 @@
 using namespace std;
 
 
+
+// TODO: make sure random char string is not already in the scope ids
+
+
+
+const size_t num_chars_in_random_strings = 8;
+
+
 // returns count of non-overlapping occurrences of 'sub' in 'str'
 int countSubstring(const std::string& str, const std::string& sub)
 {
@@ -74,7 +82,11 @@ vector<string> std_strtok(const string& s, const string& regex_s)
 	return tokens;
 }
 
-string generateRandomString(size_t length)
+
+vector<string> past_used_random_strings;
+
+
+string generateUniqueRandomString(size_t length)
 {
 	//const char* charmap = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	//const size_t charmapLength = strlen(charmap);
@@ -83,17 +95,30 @@ string generateRandomString(size_t length)
 	//result.reserve(length);
 	//generate_n(back_inserter(result), length, generator);
 
-
 	string result = "";
 
-	for (size_t l = 0; l < length; l++)
+	while (1)
 	{
-		static const char* const charmap = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		static const size_t charmapLength = strlen(charmap);
+		for (size_t l = 0; l < length; l++)
+		{
+			static const char* const charmap = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			static const size_t charmapLength = strlen(charmap);
 
-		result += charmap[rand() % charmapLength];
+			result += charmap[rand() % charmapLength];
+		}
+
+		vector<string>::const_iterator ci = find(past_used_random_strings.begin(), past_used_random_strings.end(), result);
+
+		if (ci != past_used_random_strings.end())
+		{
+			// collision
+		}
+		else
+		{
+			past_used_random_strings.push_back(result);
+			break;
+		}
 	}
-
 
 	return result;
 }
@@ -530,7 +555,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 				scope_depth -= closing_brace_count;
 
 				for (long long signed int j = 0; j < open_brace_count; j++)
-					scope_ids.push_back(generateRandomString(8));
+					scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
 
 				for (long long signed int j = 0; j < closing_brace_count; j++)
 					scope_ids.pop_back();
@@ -649,11 +674,6 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 										nvd.scope_id = declarations[x].scope_id;
 									}
 								}
-
-								
-
-								
-
 								
 								non_declarations.push_back(nvd);
 							}
@@ -1372,7 +1392,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 								local_scope_depth -= closing_brace_count;
 
 								for (long long signed int j = 0; j < open_brace_count; j++)
-									local_scope_ids.push_back(generateRandomString(8));
+									local_scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
 
 								for (long long signed int j = 0; j < closing_brace_count; j++)
 									local_scope_ids.pop_back();
@@ -1389,7 +1409,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 								else
 								{
 									//v.scope_id = "TEST";
-									local_scope_ids.push_back(generateRandomString(8));
+									local_scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
 									v.scope_id = local_scope_ids[local_scope_ids.size() - 1];
 								}
 
@@ -1418,7 +1438,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 				scope_depth -= closing_brace_count;
 
 				for (long long signed int j = 0; j < open_brace_count; j++)
-					scope_ids.push_back(generateRandomString(8));
+					scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
 
 				for (long long signed int j = 0; j < closing_brace_count; j++)
 					scope_ids.pop_back();
