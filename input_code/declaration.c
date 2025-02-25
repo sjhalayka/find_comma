@@ -1,12 +1,15 @@
 int x;
+int y;
 
-int** y; /* lala */ char* c;
+int **y; /* lala */
+char *c;
+
 
 y = 0;
 
-float** i;
+float **i;
 
 i = 0;
 
-
-i = malloc();
+ i = malloc();
+free(i);

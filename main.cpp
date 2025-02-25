@@ -346,8 +346,8 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 		for (size_t j = 0; j < declarations.size(); j++)
 		{
-			//if (declarations[j].filename == filenames[i])
-			var_names.push_back(declarations[j].var_name);
+			if (declarations[j].filename == filenames[i])
+				var_names.push_back(declarations[j].var_name);
 		}
 
 
@@ -666,13 +666,9 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 								
 								non_declarations.push_back(nvd);
 							}
-
-							///cout << token << endl;
 						}
 					}
 				}
-
-
 			}
 		}
 
@@ -713,8 +709,6 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 		if (infile.fail())
 			continue;
-
-
 
 		string line;
 		vector<string> prev_lines_vector;
