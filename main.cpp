@@ -1391,7 +1391,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 									v.scope_id = local_scope_ids[local_scope_ids.size() - 1];
 								else
 								{
-									//v.scope_id = "TEST";
+									local_scope_depth++;
 									local_scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
 									v.scope_id = local_scope_ids[local_scope_ids.size() - 1];
 								}
