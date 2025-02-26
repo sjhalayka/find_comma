@@ -1766,11 +1766,6 @@ int main(void)
 
 	for (map<non_declaration_usage_data, size_t>::const_iterator ci = variable_use_counts.begin(); ci != variable_use_counts.end(); ci++)
 	{
-		//vector<string> tokens = std_strtok(s, "[;]\\s*");
-
-		//if (tokens.size() != 3)
-		//	continue;
-
 		string usage_file_name = ci->first.filename;
 		string usage_scope_id = ci->first.scope_id;
 		string var_name = ci->first.var_name;
@@ -1786,11 +1781,11 @@ int main(void)
 			}
 		}
 
-		cout << "usage filename: " << usage_file_name << endl;
-		cout << "usage scope id: " << usage_scope_id << endl;
-		cout << "usage var name: " << var_name << endl;
-		cout << "declared filename: " << declared_file_name << endl;
-		cout << endl;
+		//cout << "usage filename: " << usage_file_name << endl;
+		//cout << "usage scope id: " << usage_scope_id << endl;
+		//cout << "usage var name: " << var_name << endl;
+		//cout << "declared filename: " << declared_file_name << endl;
+		//cout << endl;
 
 
 //		if (ci->second != 0)
