@@ -7,6 +7,8 @@ int func2(void)
 {
     char* p;
 
+    g = 10;
+
     p = 0;
     p = 1;
     p = 2;
@@ -33,6 +35,20 @@ int main(void)
     
        double** p;
         p = 10;
+
+        {
+            double** t;
+            t = 10;
+
+        }
+
+
+        {
+            double*** t;
+            t += 5;
+            t++;
+        }
+
     
     for (int f = 0; f < 10; f++)
     {
