@@ -112,6 +112,41 @@ vector<string> std_strtok(const string& s, const string& regex_s)
 
 
 
+
+
+
+
+
+class non_declaration_usage_data
+{
+public:
+	string filename = "";
+	string scope_id = ""; 
+	string var_name = "";
+
+	bool operator<(const non_declaration_usage_data& rhs) const
+	{
+		if (filename < rhs.filename)
+			return true;
+		else if (filename > rhs.filename)
+			return false;
+
+		if (scope_id < rhs.scope_id)
+			return true;
+		else if (scope_id > rhs.scope_id)
+			return false;
+
+		if (var_name < rhs.var_name)
+			return true;
+		else if (var_name > rhs.var_name)
+			return false;
+
+		return false;
+	}
+};
+
+
+
 class variable_declaration
 {
 public:
@@ -124,7 +159,7 @@ public:
 	long long signed int scope_depth = 0;
 	string scope_id = "";
 
-	bool operator<(const variable_declaration& rhs)
+	bool operator<(const variable_declaration& rhs) const
 	{
 		//if (filename < rhs.filename)
 		//	return true;
@@ -173,7 +208,7 @@ public:
 	string scope_id = "";
 	long long signed int scope_depth = 0;
 
-	bool operator<(const non_variable_declaration& rhs)
+	bool operator<(const non_variable_declaration& rhs) const
 	{
 		if (filename < rhs.filename)
 			return true;
@@ -1694,9 +1729,9 @@ int main(void)
 
 	//sort(non_declarations.begin(), non_declarations.end());
 
-	map<string, size_t> variable_use_counts;
-	map<string, size_t> malloc_counts;
-	map<string, size_t> free_counts;
+	map<non_declaration_usage_data, size_t> variable_use_counts;
+	map<non_declaration_usage_data, size_t> malloc_counts;
+	map<non_declaration_usage_data, size_t> free_counts;
 
 	for (size_t i = 0; i < non_declarations.size(); i++)
 	{
@@ -1704,16 +1739,21 @@ int main(void)
 		const size_t malloc_location = non_declarations[i].declaration.find("malloc");
 		const size_t free_location = non_declarations[i].declaration.find("free");
 
+		non_declaration_usage_data ndud;
+		ndud.filename = non_declarations[i].filename;
+		ndud.scope_id = non_declarations[i].scope_id;
+		ndud.var_name = non_declarations[i].var_name;
+
 		const string s = non_declarations[i].filename + ';' + non_declarations[i].scope_id + ';' + non_declarations[i].var_name;
 
 		if (var_name_location != string::npos)
-			variable_use_counts[s]++;
+			variable_use_counts[ndud]++;
 
 		if(malloc_location != string::npos)
-			malloc_counts[s]++;
+			malloc_counts[ndud]++;
 
 		if (free_location != string::npos)
-			free_counts[s]++;
+			free_counts[ndud]++;
 	}
 
 //	cout << "NONDECLARATIONS" << endl;
@@ -1726,18 +1766,16 @@ int main(void)
 
 	cout << "References" << endl << endl;
 
-	for (map<string, size_t>::const_iterator ci = variable_use_counts.begin(); ci != variable_use_counts.end(); ci++)
+	for (map<non_declaration_usage_data, size_t>::const_iterator ci = variable_use_counts.begin(); ci != variable_use_counts.end(); ci++)
 	{
-		string s = ci->first;
+		//vector<string> tokens = std_strtok(s, "[;]\\s*");
 
-		vector<string> tokens = std_strtok(s, "[;]\\s*");
+		//if (tokens.size() != 3)
+		//	continue;
 
-		if (tokens.size() != 3)
-			continue;
-
-		string usage_file_name = tokens[0];
-		string usage_scope_id = tokens[1];
-		string var_name = tokens[2];
+		string usage_file_name = ci->first.filename;
+		string usage_scope_id = ci->first.scope_id;
+		string var_name = ci->first.var_name;
 		string declared_file_name = "";
 
 		for (size_t j = 0; j < pointer_only_declarations.size(); j++)
@@ -1750,6 +1788,13 @@ int main(void)
 			}
 		}
 
+		cout << "usage filename: " << usage_file_name << endl;
+		cout << "usage scope id: " << usage_scope_id << endl;
+		cout << "usage var name: " << var_name << endl;
+		cout << "declared filename: " << declared_file_name << endl;
+		cout << endl;
+
+
 //		if (ci->second != 0)
 		{
 			size_t m = malloc_counts[ci->first];
@@ -1759,7 +1804,7 @@ int main(void)
 				//if (/*(m == 0 && f != 0) ||*/ (m != 0 && f == 0))
 				//if (m != f && !(m == 0 && f == 1))
 			{
-				cout << ci->first << endl;// " " << ci->second << endl;
+				cout << usage_file_name + "::" + usage_scope_id + "::" + var_name << endl;// " " << ci->second << endl;
 				cout << "malloc() calls " << m << endl;
 				cout << "free() calls " << f << endl;
 				cout << "total references " << variable_use_counts[ci->first] << endl;
@@ -1769,7 +1814,7 @@ int main(void)
 			}
 			else
 			{
-				cout << "No malloc() or free() found for " << ci->first << endl;
+				cout << "No malloc() or free() found for " << usage_file_name + "::" + usage_scope_id + "::" + var_name << endl;
 				cout << "total references " << variable_use_counts[ci->first] << endl;
 				cout << endl << endl;
 			}
@@ -1782,28 +1827,6 @@ int main(void)
 
 		//		cout << endl;
 	}
-
-	//cout << endl;
-
-	//cout << "malloc() calls" << endl;
-
-	//for (map<string, size_t>::const_iterator ci = malloc_counts.begin(); ci != malloc_counts.end(); ci++)
-	//{
-	//	if (ci->second != 0)
-	//		cout << ci->first << " " << ci->second << endl;
-	//}
-
-	//cout << endl;
-
-	//cout << "free() calls" << endl;
-
-	//for (map<string, size_t>::const_iterator ci = free_counts.begin(); ci != free_counts.end(); ci++)
-	//{
-	//	if (ci->second != 0)
-	//		cout << ci->first << " " << ci->second << endl;
-	//}
-
-	//cout << endl;
 
 	return 0;
 }
