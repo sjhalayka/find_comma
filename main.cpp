@@ -1744,8 +1744,6 @@ int main(void)
 		ndud.scope_id = non_declarations[i].scope_id;
 		ndud.var_name = non_declarations[i].var_name;
 
-		const string s = non_declarations[i].filename + ';' + non_declarations[i].scope_id + ';' + non_declarations[i].var_name;
-
 		if (var_name_location != string::npos)
 			variable_use_counts[ndud]++;
 
