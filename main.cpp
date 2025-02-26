@@ -115,6 +115,40 @@ vector<string> std_strtok(const string& s, const string& regex_s)
 
 
 
+class variable_data
+{
+public:
+	string usage_file_name = "";
+	string scope_id = "";
+	string var_name = "";
+	string declared_file_name = "";
+
+	bool operator<(const variable_data& rhs) const
+	{
+		if (declared_file_name < rhs.declared_file_name)
+			return true;
+		else if (declared_file_name > rhs.declared_file_name)
+			return false;
+
+		if (scope_id < rhs.scope_id)
+			return true;
+		else if (scope_id > rhs.scope_id)
+			return false;
+
+		if (var_name < rhs.var_name)
+			return true;
+		else if (var_name > rhs.var_name)
+			return false;
+
+		if (usage_file_name < rhs.usage_file_name)
+			return true;
+		else if (usage_file_name > rhs.usage_file_name)
+			return false;
+
+		return false;
+	}
+
+};
 
 
 class non_declaration_usage_data
@@ -1757,12 +1791,24 @@ int main(void)
 //	cout << "NONDECLARATIONS" << endl;
 
 	cout << "Variables used: " << variable_use_counts.size() << endl;
+
+	for (map<non_declaration_usage_data, size_t>::const_iterator ci = variable_use_counts.begin(); ci != variable_use_counts.end(); ci++)
+	{
+		cout << ci->first.filename << endl;
+		cout << ci->first.scope_id << endl;
+		cout << ci->first.var_name << endl;
+	}
+
+
 	cout << endl;
 	 
 
 
 
 	cout << "References" << endl << endl;
+
+
+	vector<variable_data> vdvec;
 
 	for (map<non_declaration_usage_data, size_t>::const_iterator ci = variable_use_counts.begin(); ci != variable_use_counts.end(); ci++)
 	{
@@ -1787,6 +1833,13 @@ int main(void)
 		//cout << "declared filename: " << declared_file_name << endl;
 		//cout << endl;
 
+		variable_data vd;
+		vd.usage_file_name = usage_file_name;
+		vd.declared_file_name = declared_file_name;
+		vd.scope_id = usage_scope_id;
+		vd.var_name = var_name;
+
+		vdvec.push_back(vd);
 
 //		if (ci->second != 0)
 		{
@@ -1797,29 +1850,39 @@ int main(void)
 				//if (/*(m == 0 && f != 0) ||*/ (m != 0 && f == 0))
 				//if (m != f && !(m == 0 && f == 1))
 			{
-				cout << usage_file_name + "::" + usage_scope_id + "::" + var_name << endl;// " " << ci->second << endl;
-				cout << "malloc() calls " << m << endl;
-				cout << "free() calls " << f << endl;
-				cout << "total references " << variable_use_counts[ci->first] << endl;
-				cout << "total references minus malloc and free " << variable_use_counts[ci->first] - m - f << endl;
-				
-				cout << endl << endl;
+				//cout << usage_file_name + "::" + usage_scope_id + "::" + var_name << endl;// " " << ci->second << endl;
+				//cout << "malloc() calls " << m << endl;
+				//cout << "free() calls " << f << endl;
+				//cout << "total references " << variable_use_counts[ci->first] << endl;
+				//cout << "total references minus malloc and free " << variable_use_counts[ci->first] - m - f << endl;
+				//
+				//cout << endl << endl;
 			}
 			else
 			{
-				cout << "No malloc() or free() found for " << usage_file_name + "::" + usage_scope_id + "::" + var_name << endl;
-				cout << "total references " << variable_use_counts[ci->first] << endl;
-				cout << endl << endl;
+				//cout << "No malloc() or free() found for " << usage_file_name + "::" + usage_scope_id + "::" + var_name << endl;
+				//cout << "total references " << variable_use_counts[ci->first] << endl;
+				//cout << endl << endl;
 			}
 		}
-		//else
-		//{
-		//	cout << "Skipping unused variable " << ci->first << endl;
-		//	cout << endl << endl;
-		//}
-
-		//		cout << endl;
 	}
+
+
+	cout << "Sorting vdvec" << endl;
+
+	sort(vdvec.begin(), vdvec.end());
+
+	for (size_t i = 0; i < vdvec.size(); i++)
+	{
+		cout << vdvec[i].declared_file_name << endl;
+		cout << vdvec[i].scope_id << endl;
+		cout << vdvec[i].var_name << endl;
+		cout << vdvec[i].usage_file_name << endl;
+
+		cout << endl;
+
+	}
+
 
 	return 0;
 }
