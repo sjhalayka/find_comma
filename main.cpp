@@ -649,6 +649,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 								nvd.scope_id = "";
 								
+								// Look for variable in this nvd's file
 								for (size_t x = 0; x < declarations.size(); x++)
 								{
 									if (nvd.filename == declarations[x].filename &&
@@ -665,13 +666,18 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 									}
 								}
 
-								// Look for global variables from declaration.c
+								// We didn't find the variable in this nvd's file, so...
+								// Look for global variables from all the rest of the files.
+								// Don't look in this particular nvd's file because we already know that
+								// it doesn't contain the variable in question
 								if (nvd.scope_id == "")
 								{
 									for (size_t x = 0; x < declarations.size(); x++)
 									{
-										if (string::npos != declarations[x].filename.find("declaration.c") &&
-											nvd.var_name == declarations[x].var_name &&
+										if (nvd.filename == declarations[x].filename)
+											continue;
+
+										if (nvd.var_name == declarations[x].var_name &&
 											declarations[x].scope_depth == 0)
 										{
 											nvd.scope_id = declarations[x].scope_id;
