@@ -288,10 +288,10 @@ vector<string> get_filenames(const string path)
 
 
 
-		size_t str_pos = entry.path().string().find("declaration.c");
+		//size_t str_pos = entry.path().string().find("declaration.c");
 
-		if (str_pos != string::npos)
-			filenames.push_back(entry.path().string());
+		//if (str_pos != string::npos)
+		//	filenames.push_back(entry.path().string());
 
 		string s = entry.path().string();
 
@@ -305,20 +305,17 @@ vector<string> get_filenames(const string path)
 			(tokens[tokens.size() - 1] == "c" ||
 				tokens[tokens.size() - 1] == "cpp"))
 		{
-			size_t str_pos = s.find("declaration.c");
+			//size_t str_pos = s.find("declaration.c");
 
-			if (str_pos == string::npos)
-			{
+			//if (str_pos == string::npos)
+			//{
 				filenames.push_back(s);
-			}
-			else
-			{
-				//cout << "skipping declaration.c because we already included it above" << endl;
-			}
+			//}
+			//else
+			//{
+			//	//cout << "skipping declaration.c because we already included it above" << endl;
+			//}
 		}
-
-
-
 	}
 
 	return filenames;
