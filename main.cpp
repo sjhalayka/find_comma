@@ -1704,7 +1704,7 @@ int main(void)
 		const size_t malloc_location = non_declarations[i].declaration.find("malloc");
 		const size_t free_location = non_declarations[i].declaration.find("free");
 
-		const string s = non_declarations[i].filename + "::" + non_declarations[i].scope_id + "::" + non_declarations[i].var_name;
+		const string s = non_declarations[i].filename + ';' + non_declarations[i].scope_id + ';' + non_declarations[i].var_name;
 
 		if (var_name_location != string::npos)
 			variable_use_counts[s]++;
@@ -1728,7 +1728,29 @@ int main(void)
 
 	for (map<string, size_t>::const_iterator ci = variable_use_counts.begin(); ci != variable_use_counts.end(); ci++)
 	{
-		if (ci->second != 0)
+		string s = ci->first;
+
+		vector<string> tokens = std_strtok(s, "[;]\\s*");
+
+		if (tokens.size() != 3)
+			continue;
+
+		string usage_file_name = tokens[0];
+		string usage_scope_id = tokens[1];
+		string var_name = tokens[2];
+		string declared_file_name = "";
+
+		for (size_t j = 0; j < pointer_only_declarations.size(); j++)
+		{
+			if (pointer_only_declarations[j].scope_id == usage_scope_id &&
+				pointer_only_declarations[j].var_name == var_name)
+			{
+				declared_file_name = pointer_only_declarations[j].filename;
+				break;
+			}
+		}
+
+//		if (ci->second != 0)
 		{
 			size_t m = malloc_counts[ci->first];
 			size_t f = free_counts[ci->first];
@@ -1752,11 +1774,11 @@ int main(void)
 				cout << endl << endl;
 			}
 		}
-		else
-		{
-			cout << "Skipping unused variable " << ci->first << endl;
-			cout << endl << endl;
-		}
+		//else
+		//{
+		//	cout << "Skipping unused variable " << ci->first << endl;
+		//	cout << endl << endl;
+		//}
 
 		//		cout << endl;
 	}
