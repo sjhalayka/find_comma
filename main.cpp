@@ -591,19 +591,6 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 
 
-				long long signed int open_brace_count = ranges::count(prev_lines_vector[p], '{');
-				long long signed int closing_brace_count = ranges::count(prev_lines_vector[p], '}');
-
-				scope_depth += open_brace_count;
-				scope_depth -= closing_brace_count;
-
-				for (long long signed int j = 0; j < open_brace_count; j++)
-					scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
-
-				for (long long signed int j = 0; j < closing_brace_count; j++)
-					scope_ids.pop_back();
-
-
 
 				size_t prev_statements_location = 0;
 
@@ -677,7 +664,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 							string token = tokens[t];
 
 							const vector<string>::const_iterator ci = find(var_names.begin(), var_names.end(), token);
-
+							 
 							if (var_names.end() != ci)
 							{
 								size_t statement_line_pos = prev_lines_vector[p].find(statements[s]);
@@ -685,24 +672,32 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 								size_t line_pos = statement_line_pos + token_statement_line_pos;
 
+								long long signed int local_scope_depth = scope_depth;
+								//cout << "PREV LINES P " << prev_lines_vector[p] << endl;
+								vector<string> local_scope_ids = scope_ids;
+
+								//size_t s = std::min(line_pos, prev_lines_vector[p].size() - 1);
 
 
-								//long long signed int local_scope_depth = scope_depth;
-								////cout << "PREV LINES P " << prev_lines_vector[p] << endl;
-								//vector<string> local_scope_ids = scope_ids;
+								long long signed int open_brace_count = 0;// ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + s, '{');
+								long long signed int closing_brace_count = 0;// = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + s, '}');
 
-								//long long signed int open_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].end(), '{');
-								//long long signed int closing_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].end(), '}');
+								for (size_t x = 0; x < prev_lines_vector[p].size(); x++)
+								{
+									if (prev_lines_vector[p][x] == '{')
+										open_brace_count++;
+									else if (prev_lines_vector[p][x] == '}')
+										closing_brace_count++;
+								}
 
-								//local_scope_depth += open_brace_count;
-								//local_scope_depth -= closing_brace_count;
+								local_scope_depth += open_brace_count;
+								local_scope_depth -= closing_brace_count;
 
-								//for (long long signed int j = 0; j < open_brace_count; j++)
-								//	local_scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
+								for (long long signed int j = 0; j < open_brace_count; j++)
+									local_scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
 
-								//for (long long signed int j = 0; j < closing_brace_count; j++)
-								//	local_scope_ids.pop_back();
-
+								for (long long signed int j = 0; j < closing_brace_count; j++)
+									local_scope_ids.pop_back();
 
 
 								non_variable_declaration nvd;
@@ -711,9 +706,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 								nvd.filename = filenames[i];
 								nvd.line_number = line_num;
 								nvd.line_pos = line_pos;
-								nvd.scope_depth = scope_depth;
-
-								
+								nvd.scope_depth = local_scope_depth;
 
 								// Look for variable in this nvd's file
 								for (size_t x = 0; x < declarations.size(); x++)
@@ -746,20 +739,36 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 									}
 								}
 
-								//if (nvd.scope_id == "")
-								//{
-								//	//scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
-								//	nvd.scope_id = scope_ids[scope_ids.size() - 1];
-
-								//}
-
-
 								non_declarations.push_back(nvd);
-								//scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
 							}
 						}
 					}
 				}
+
+				//long long signed int open_brace_count = ranges::count(prev_lines_vector[p], '{');
+				//long long signed int closing_brace_count = ranges::count(prev_lines_vector[p], '}');
+
+
+				long long signed int open_brace_count = 0;// ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + s, '{');
+				long long signed int closing_brace_count = 0;// = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + s, '}');
+
+				for (size_t x = 0; x < prev_lines_vector[p].size(); x++)
+				{
+					if (prev_lines_vector[p][x] == '{')
+						open_brace_count++;
+					else if (prev_lines_vector[p][x] == '}')
+						closing_brace_count++;
+				}
+
+				scope_depth += open_brace_count;
+				scope_depth -= closing_brace_count;
+
+				for (long long signed int j = 0; j < open_brace_count; j++)
+					scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
+
+				for (long long signed int j = 0; j < closing_brace_count; j++)
+					scope_ids.pop_back();
+
 			}
 		}
 
@@ -1461,11 +1470,18 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 								prev_statements_location = line_pos + statements[s].size();
 
 								long long signed int local_scope_depth = scope_depth;
-								//cout << "PREV LINES P " << prev_lines_vector[p] << endl;
 								vector<string> local_scope_ids = scope_ids;
 
-								long long signed int open_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '{');
-								long long signed int closing_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + line_pos, '}');
+								long long signed int open_brace_count = 0;// ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + s, '{');
+								long long signed int closing_brace_count = 0;// = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + s, '}');
+
+								for (size_t x = 0; x < prev_lines_vector[p].size() && x <= line_pos; x++)
+								{
+									if (prev_lines_vector[p][x] == '{')
+										open_brace_count++;
+									else if (prev_lines_vector[p][x] == '}')
+										closing_brace_count++;
+								}
 
 								local_scope_depth += open_brace_count;
 								local_scope_depth -= closing_brace_count;
@@ -1477,7 +1493,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 									local_scope_ids.pop_back();
 
 								variable_declaration v;
-								v.declaration = statements[s] + ';';// type_oss.str();
+								v.declaration = statements[s] + ';';
 								v.filename = filenames[i];
 								v.line_number = line_num;
 								v.line_pos = line_pos;
@@ -1510,8 +1526,16 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 
 				//cout << "LINE " << prev_lines_vector[p] << endl;
 
-				long long signed int open_brace_count = ranges::count(prev_lines_vector[p], '{');
-				long long signed int closing_brace_count = ranges::count(prev_lines_vector[p], '}');
+				long long signed int open_brace_count = 0;
+				long long signed int closing_brace_count = 0;
+
+				for (size_t x = 0; x < prev_lines_vector[p].size(); x++)
+				{
+					if (prev_lines_vector[p][x] == '{')
+						open_brace_count++;
+					else if (prev_lines_vector[p][x] == '}')
+						closing_brace_count++;
+				}
 
 				scope_depth += open_brace_count;
 				scope_depth -= closing_brace_count;
