@@ -346,63 +346,72 @@ vector<string> get_filenames(const string &path)
 
 	//return filenames;
 
-
-
-	for (filesystem::directory_entry entry : filesystem::directory_iterator(path))
-	{
-		const string s = entry.path().string();
-
-		vector<string> tokens = std_strtok(s, "[.]\\s*");
-
-		if (tokens.size() == 0)
-			continue;
-
-		for (size_t i = 0; i < tokens.size(); i++)
-			for (size_t j = 0; j < tokens[i].size(); j++)
-				tokens[i][j] = tolower(tokens[i][j]);
-
-		if (tokens[tokens.size() - 1] == "c"/* ||
-			tokens[tokens.size() - 1] == "cpp"*/)
-		{
-			filenames.push_back(s);
-			//cout << s << endl;
-		}
-		else
-		{
-		//	cout << s << endl;
-		}
+	string s = path + "/filedata.c";
+	filenames.push_back(s);
 
 
 
-		//size_t str_pos = entry.path().string().find("declaration.c");
+	//for (filesystem::directory_entry entry : filesystem::directory_iterator(path))
+	//{
+	//	const string s = entry.path().string();
 
-		//if (str_pos != string::npos)
-		//	filenames.push_back(entry.path().string());
+	//	vector<string> tokens = std_strtok(s, "[.]\\s*");
 
-		//string s = entry.path().string();
+	//	if (tokens.size() == 0)
+	//		continue;
 
-		//vector<string> tokens = std_strtok(s, "[.]\\s*");
+	//	for (size_t i = 0; i < tokens.size(); i++)
+	//		for (size_t j = 0; j < tokens[i].size(); j++)
+	//			tokens[i][j] = tolower(tokens[i][j]);
 
-		//for (size_t i = 0; i < tokens.size(); i++)
-		//	for (size_t j = 0; j < tokens[i].size(); j++)
-		//		tokens[i][j] = tolower(tokens[i][j]);
+	//	if (tokens[tokens.size() - 1] == "c"/* ||
+	//		tokens[tokens.size() - 1] == "cpp"*/)
+	//	{
+	//		filenames.push_back(s);
+	//		//cout << s << endl;
+	//	}
+	//	else
+	//	{
+	//	//	cout << s << endl;
+	//	}
 
-		//if (tokens.size() > 0 &&
-		//	(tokens[tokens.size() - 1] == "c" ||
-		//		tokens[tokens.size() - 1] == "cpp"))
-		//{
-		//	//size_t str_pos = s.find("declaration.c");
 
-		//	//if (str_pos == string::npos)
-		//	//{
-		//		filenames.push_back(s);
-		//	//}
-		//	//else
-		//	//{
-		//	//	//cout << "skipping declaration.c because we already included it above" << endl;
-		//	//}
-		//}
-	}
+
+	//	//size_t str_pos = entry.path().string().find("declaration.c");
+
+	//	//if (str_pos != string::npos)
+	//	//	filenames.push_back(entry.path().string());
+
+	//	//string s = entry.path().string();
+
+	//	//vector<string> tokens = std_strtok(s, "[.]\\s*");
+
+	//	//for (size_t i = 0; i < tokens.size(); i++)
+	//	//	for (size_t j = 0; j < tokens[i].size(); j++)
+	//	//		tokens[i][j] = tolower(tokens[i][j]);
+
+	//	//if (tokens.size() > 0 &&
+	//	//	(tokens[tokens.size() - 1] == "c" ||
+	//	//		tokens[tokens.size() - 1] == "cpp"))
+	//	//{
+	//	//	//size_t str_pos = s.find("declaration.c");
+
+	//	//	//if (str_pos == string::npos)
+	//	//	//{
+	//	//		filenames.push_back(s);
+	//	//	//}
+	//	//	//else
+	//	//	//{
+	//	//	//	//cout << "skipping declaration.c because we already included it above" << endl;
+	//	//	//}
+	//	//}
+	//}
+
+
+
+
+
+
 
 	//cout << "done getting filenames " << endl;
 
@@ -513,6 +522,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 		long long signed int scope_depth = 0;
 		vector<string> scope_ids;
+		scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
 
 		ifstream infile(filenames[i]);
 
@@ -790,13 +800,11 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 								size_t line_pos = statement_line_pos + token_statement_line_pos;
 
-								//cout << "VAR_NAME " << *ci << endl;
-								//cout << "LINE_NUM " << line_num << endl;
+								//long long signed int local_scope_depth = scope_depth;
+								////cout << "PREV LINES P " << prev_lines_vector[p] << endl;
 
-								//if (line_pos == string::npos)
-								//	cout << "LINE_POS NPOS" << endl;
-								//else
-								//	cout << "LINE_POS " << line_pos << endl;
+
+
 
 								non_variable_declaration nvd;
 								nvd.var_name = *ci;
@@ -815,7 +823,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 										nvd.var_name == declarations[x].var_name &&
 										nvd.line_number < declarations[x].line_number)
 									{
-										break;
+										//continue;// break;
 									}
 									else if (nvd.filename == declarations[x].filename &&
 										nvd.var_name == declarations[x].var_name &&
@@ -844,7 +852,15 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 										}
 									}
 								}
-								
+								//
+								//if (nvd.scope_id == "")
+								//{
+								//	scope_depth++;
+								//	scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
+								//	nvd.scope_id = scope_ids[scope_ids.size() - 1];
+								//}
+
+
 								non_declarations.push_back(nvd);
 							}
 						}
