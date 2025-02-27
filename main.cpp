@@ -691,9 +691,9 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 
 
-								long long signed int local_scope_depth = scope_depth;
-								//cout << "PREV LINES P " << prev_lines_vector[p] << endl;
-								vector<string> local_scope_ids = scope_ids;
+								//long long signed int local_scope_depth = scope_depth;
+								////cout << "PREV LINES P " << prev_lines_vector[p] << endl;
+								//vector<string> local_scope_ids = scope_ids;
 
 								//long long signed int open_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].end(), '{');
 								//long long signed int closing_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].end(), '}');
@@ -701,11 +701,11 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 								//local_scope_depth += open_brace_count;
 								//local_scope_depth -= closing_brace_count;
 
-								for (long long signed int j = 0; j < open_brace_count; j++)
-									local_scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
+								//for (long long signed int j = 0; j < open_brace_count; j++)
+								//	local_scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
 
-								for (long long signed int j = 0; j < closing_brace_count; j++)
-									local_scope_ids.pop_back();
+								//for (long long signed int j = 0; j < closing_brace_count; j++)
+								//	local_scope_ids.pop_back();
 
 
 
@@ -715,7 +715,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 								nvd.filename = filenames[i];
 								nvd.line_number = line_num;
 								nvd.line_pos = line_pos;
-								nvd.scope_depth = local_scope_depth;
+								nvd.scope_depth = scope_depth;
 
 								
 
