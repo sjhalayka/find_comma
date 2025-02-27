@@ -196,10 +196,10 @@ public:
 
 	bool operator<(const variable_declaration& rhs) const
 	{
-		//if (filename < rhs.filename)
-		//	return true;
-		//else if (filename > rhs.filename)
-		//	return false;
+		if (filename < rhs.filename)
+			return true;
+		else if (filename > rhs.filename)
+			return false;
 
 		if (var_name < rhs.var_name)
 			return true;
@@ -211,15 +211,15 @@ public:
 		//else if (declaration > rhs.declaration)
 		//	return false;
 
-		//if (line_number < rhs.line_number)
-		//	return true;
-		//else if (line_number > rhs.line_number)
-		//	return false;
-
-		if (scope_depth < rhs.scope_depth)
+		if (line_number < rhs.line_number)
 			return true;
-		else if (scope_depth > rhs.scope_depth)
+		else if (line_number > rhs.line_number)
 			return false;
+
+		//if (scope_depth < rhs.scope_depth)
+		//	return true;
+		//else if (scope_depth > rhs.scope_depth)
+		//	return false;
 
 		//if (scope_id < rhs.scope_id)
 		//	return true;
@@ -276,75 +276,6 @@ vector<string> get_filenames(const string &path)
 {
 	vector<string> filenames;
 
-//	cout << "Getting filenames " << endl;
-
-//	filenames.push_back(path + "/declare.c");
-
-
-	//string s = path + "/defaults.c";
-	//filenames.push_back(s);
-
-	//s = path + "/param.c";
-	//filenames.push_back(s);
-
-	//s = path + "/stats.c";
-	//filenames.push_back(s);
-
-	//s = path + "/mt19937.c";
-	//filenames.push_back(s);
-
-	//s = path + "/dataops.c";
-	//filenames.push_back(s);
-
-	//s = path + "/savedata.c";
-	//filenames.push_back(s);
-
-	//s = path + "/filedata.c";
-	//filenames.push_back(s);
-
-	//s = path + "/consistent.c";
-	//filenames.push_back(s);
-
-	//s = path + "/setdl.c";
-	//filenames.push_back(s);
-
-	//s = path + "/required.c";
-	//filenames.push_back(s);
-
-	//s = path + "/declare.c";
-	//filenames.push_back(s);
-
-	//s = path + "/sort.c";
-	//filenames.push_back(s);
-
-	//s = path + "/combinea.c";
-	//filenames.push_back(s);
-
-	//s = path + "/oddsnends.c";
-	//filenames.push_back(s);
-
-	//s = path + "/readargs.c";
-	//filenames.push_back(s);
-
-	//s = path + "/filemain.c";
-	//filenames.push_back(s);
-
-	//s = path + "/parsefiles.c";
-	//filenames.push_back(s);
-
-	//s = path + "/append.c";
-	//filenames.push_back(s);
-
-	//s = path + "/norm.c";
-	//filenames.push_back(s);
-
-	//s = path + "/ldak.c";
-	//filenames.push_back(s);
-
-	//s = path + "/getnums.c";
-	//filenames.push_back(s);
-
-	//return filenames;
 
 	string s = path + "/filedata.c";
 	filenames.push_back(s);
@@ -364,8 +295,8 @@ vector<string> get_filenames(const string &path)
 	//		for (size_t j = 0; j < tokens[i].size(); j++)
 	//			tokens[i][j] = tolower(tokens[i][j]);
 
-	//	if (tokens[tokens.size() - 1] == "c"/* ||
-	//		tokens[tokens.size() - 1] == "cpp"*/)
+	//	if (tokens[tokens.size() - 1] == "c" ||
+	//		tokens[tokens.size() - 1] == "cpp")
 	//	{
 	//		filenames.push_back(s);
 	//		//cout << s << endl;
@@ -375,50 +306,6 @@ vector<string> get_filenames(const string &path)
 	//	//	cout << s << endl;
 	//	}
 
-
-
-	//	//size_t str_pos = entry.path().string().find("declaration.c");
-
-	//	//if (str_pos != string::npos)
-	//	//	filenames.push_back(entry.path().string());
-
-	//	//string s = entry.path().string();
-
-	//	//vector<string> tokens = std_strtok(s, "[.]\\s*");
-
-	//	//for (size_t i = 0; i < tokens.size(); i++)
-	//	//	for (size_t j = 0; j < tokens[i].size(); j++)
-	//	//		tokens[i][j] = tolower(tokens[i][j]);
-
-	//	//if (tokens.size() > 0 &&
-	//	//	(tokens[tokens.size() - 1] == "c" ||
-	//	//		tokens[tokens.size() - 1] == "cpp"))
-	//	//{
-	//	//	//size_t str_pos = s.find("declaration.c");
-
-	//	//	//if (str_pos == string::npos)
-	//	//	//{
-	//	//		filenames.push_back(s);
-	//	//	//}
-	//	//	//else
-	//	//	//{
-	//	//	//	//cout << "skipping declaration.c because we already included it above" << endl;
-	//	//	//}
-	//	//}
-	//}
-
-
-
-
-
-
-
-	//cout << "done getting filenames " << endl;
-
-	//cout << filenames.size() << endl;
-
-//	for (size_t i = 0; i < filenames.size(); i++)
-	//	cout << filenames[i] << endl;
 
 	return filenames;
 }
@@ -800,12 +687,6 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 								size_t line_pos = statement_line_pos + token_statement_line_pos;
 
-								//long long signed int local_scope_depth = scope_depth;
-								////cout << "PREV LINES P " << prev_lines_vector[p] << endl;
-
-
-
-
 								non_variable_declaration nvd;
 								nvd.var_name = *ci;
 								nvd.declaration = statements[s];
@@ -815,18 +696,13 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 								nvd.scope_depth = scope_depth;
 
 								nvd.scope_id = "";
-								
+
 								// Look for variable in this nvd's file
 								for (size_t x = 0; x < declarations.size(); x++)
 								{
 									if (nvd.filename == declarations[x].filename &&
 										nvd.var_name == declarations[x].var_name &&
-										nvd.line_number < declarations[x].line_number)
-									{
-										//continue;// break;
-									}
-									else if (nvd.filename == declarations[x].filename &&
-										nvd.var_name == declarations[x].var_name &&
+										nvd.line_number >= declarations[x].line_number &&
 										nvd.scope_depth >= declarations[x].scope_depth)
 									{
 										nvd.scope_id = declarations[x].scope_id;
@@ -841,9 +717,6 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 								{
 									for (size_t x = 0; x < declarations.size(); x++)
 									{
-										if (nvd.filename == declarations[x].filename)
-											continue;
-
 										if (nvd.var_name == declarations[x].var_name &&
 											declarations[x].scope_depth == 0)
 										{
@@ -852,14 +725,9 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 										}
 									}
 								}
-								//
-								//if (nvd.scope_id == "")
-								//{
-								//	scope_depth++;
-								//	scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
-								//	nvd.scope_id = scope_ids[scope_ids.size() - 1];
-								//}
 
+								if (nvd.scope_id == "")
+									cout << "ERROR" << endl;
 
 								non_declarations.push_back(nvd);
 							}
@@ -894,8 +762,6 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 	declarations.clear();
 
 	vector<string> types = get_variable_types();
-
-
 
 	vector<string> filenames = get_filenames(path);
 
