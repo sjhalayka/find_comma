@@ -6,6 +6,7 @@
 #include <fstream>
 #include <ranges>
 #include <map>
+#include <chrono>
 #include <set>
 using namespace std;
 
@@ -271,20 +272,105 @@ public:
 
 
 
-vector<string> get_filenames(const string path)
+vector<string> get_filenames(const string &path)
 {
 	vector<string> filenames;
 
-	for (const auto& entry : filesystem::directory_iterator(path))
+//	cout << "Getting filenames " << endl;
+
+//	filenames.push_back(path + "/declare.c");
+
+
+	//string s = path + "/defaults.c";
+	//filenames.push_back(s);
+
+	//s = path + "/param.c";
+	//filenames.push_back(s);
+
+	//s = path + "/stats.c";
+	//filenames.push_back(s);
+
+	//s = path + "/mt19937.c";
+	//filenames.push_back(s);
+
+	//s = path + "/dataops.c";
+	//filenames.push_back(s);
+
+	//s = path + "/savedata.c";
+	//filenames.push_back(s);
+
+	//s = path + "/filedata.c";
+	//filenames.push_back(s);
+
+	//s = path + "/consistent.c";
+	//filenames.push_back(s);
+
+	//s = path + "/setdl.c";
+	//filenames.push_back(s);
+
+	//s = path + "/required.c";
+	//filenames.push_back(s);
+
+	//s = path + "/declare.c";
+	//filenames.push_back(s);
+
+	//s = path + "/sort.c";
+	//filenames.push_back(s);
+
+	//s = path + "/combinea.c";
+	//filenames.push_back(s);
+
+	//s = path + "/oddsnends.c";
+	//filenames.push_back(s);
+
+	//s = path + "/readargs.c";
+	//filenames.push_back(s);
+
+	//s = path + "/filemain.c";
+	//filenames.push_back(s);
+
+	//s = path + "/parsefiles.c";
+	//filenames.push_back(s);
+
+	//s = path + "/append.c";
+	//filenames.push_back(s);
+
+	//s = path + "/norm.c";
+	//filenames.push_back(s);
+
+	//s = path + "/ldak.c";
+	//filenames.push_back(s);
+
+	//s = path + "/getnums.c";
+	//filenames.push_back(s);
+
+	//return filenames;
+
+
+
+	for (filesystem::directory_entry entry : filesystem::directory_iterator(path))
 	{
-		//size_t str_pos = entry.path().string().find("sort.c");
+		const string s = entry.path().string();
 
-		//if (str_pos != string::npos)
-		//	filenames.push_back(entry.path().string());
+		vector<string> tokens = std_strtok(s, "[.]\\s*");
 
+		if (tokens.size() == 0)
+			continue;
 
+		for (size_t i = 0; i < tokens.size(); i++)
+			for (size_t j = 0; j < tokens[i].size(); j++)
+				tokens[i][j] = tolower(tokens[i][j]);
 
-
+		if (tokens[tokens.size() - 1] == "c"/* ||
+			tokens[tokens.size() - 1] == "cpp"*/)
+		{
+			filenames.push_back(s);
+			//cout << s << endl;
+		}
+		else
+		{
+		//	cout << s << endl;
+		}
 
 
 
@@ -293,30 +379,37 @@ vector<string> get_filenames(const string path)
 		//if (str_pos != string::npos)
 		//	filenames.push_back(entry.path().string());
 
-		string s = entry.path().string();
+		//string s = entry.path().string();
 
-		vector<string> tokens = std_strtok(s, "[.]\\s*");
+		//vector<string> tokens = std_strtok(s, "[.]\\s*");
 
-		for (size_t i = 0; i < tokens.size(); i++)
-			for (size_t j = 0; j < tokens[i].size(); j++)
-				tokens[i][j] = tolower(tokens[i][j]);
+		//for (size_t i = 0; i < tokens.size(); i++)
+		//	for (size_t j = 0; j < tokens[i].size(); j++)
+		//		tokens[i][j] = tolower(tokens[i][j]);
 
-		if (tokens.size() > 0 &&
-			(tokens[tokens.size() - 1] == "c" ||
-				tokens[tokens.size() - 1] == "cpp"))
-		{
-			//size_t str_pos = s.find("declaration.c");
+		//if (tokens.size() > 0 &&
+		//	(tokens[tokens.size() - 1] == "c" ||
+		//		tokens[tokens.size() - 1] == "cpp"))
+		//{
+		//	//size_t str_pos = s.find("declaration.c");
 
-			//if (str_pos == string::npos)
-			//{
-				filenames.push_back(s);
-			//}
-			//else
-			//{
-			//	//cout << "skipping declaration.c because we already included it above" << endl;
-			//}
-		}
+		//	//if (str_pos == string::npos)
+		//	//{
+		//		filenames.push_back(s);
+		//	//}
+		//	//else
+		//	//{
+		//	//	//cout << "skipping declaration.c because we already included it above" << endl;
+		//	//}
+		//}
 	}
+
+	//cout << "done getting filenames " << endl;
+
+	//cout << filenames.size() << endl;
+
+//	for (size_t i = 0; i < filenames.size(); i++)
+	//	cout << filenames[i] << endl;
 
 	return filenames;
 }
@@ -432,7 +525,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 		vector<string> prev_lines_vector;
 
 		//cout << endl << endl << endl;
-		//cout << filenames[i] << endl << endl;
+		cout << filenames[i] << endl << endl;
 
 		string type = "";
 		bool inside_slashstar_comment = false;
@@ -785,7 +878,14 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 	declarations.clear();
 
 	vector<string> types = get_variable_types();
+
+
+
 	vector<string> filenames = get_filenames(path);
+
+	cout << filenames.size() << endl;
+
+
 
 	for (size_t i = 0; i < filenames.size(); i++)
 	{
@@ -802,7 +902,7 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 		vector<string> prev_lines_vector;
 
 		//cout << endl << endl << endl;
-		//cout << filenames[i] << endl << endl;
+		cout << filenames[i] << endl << endl;
 
 		string type = "";
 		bool inside_slashstar_comment = false;
@@ -1597,18 +1697,28 @@ int main(void)
 {
 	srand(0);
 	
-	//std::string path = "Y:/home/sjhalayka/ldak_min";
-	std::string path = "Y:/home/sjhalayka/input_code";
+	std::string path = "Y:/home/sjhalayka/ldak_min";
+	//std::string path = "Y:/home/sjhalayka/input_code";
 
 	vector<variable_declaration> declarations;
 
+
+
+
+
 	enumerate_variables(path, declarations);
+
+
 
 	if (declarations.size() == 0)
 	{
 		cout << "No declarations" << endl;
 		return -1;
 	}
+
+	cout << declarations.size() << endl;
+
+
 
 
 	vector<variable_declaration> pointer_only_declarations;
@@ -1690,6 +1800,8 @@ int main(void)
 	cout << "Pointer declaration count: " << pointer_only_declarations.size() << endl;
 	cout << endl;
 
+
+
 	if (pointer_only_declarations.size() == 0)
 	{
 		cout << "No pointer declarations" << endl;
@@ -1750,12 +1862,12 @@ int main(void)
 
 	enumerate_non_variables(path, pointer_only_declarations, non_declarations);
 
-	cout << "Non declarations" << endl;
+	//cout << "Non declarations" << endl;
 
-	for (size_t i = 0; i < non_declarations.size(); i++)
-		cout << non_declarations[i].declaration << endl;
+	//for (size_t i = 0; i < non_declarations.size(); i++)
+	//	cout << non_declarations[i].declaration << endl;
 
-	cout << endl;
+	//cout << endl;
 
 
 	//sort(non_declarations.begin(), non_declarations.end());
@@ -1789,15 +1901,15 @@ int main(void)
 
 	cout << "Variables used: " << variable_use_counts.size() << endl;
 
-	for (map<non_declaration_usage_data, size_t>::const_iterator ci = variable_use_counts.begin(); ci != variable_use_counts.end(); ci++)
-	{
-		cout << ci->first.filename << endl;
-		cout << ci->first.scope_id << endl;
-		cout << ci->first.var_name << endl;
-	}
+	//for (map<non_declaration_usage_data, size_t>::const_iterator ci = variable_use_counts.begin(); ci != variable_use_counts.end(); ci++)
+	//{
+	//	cout << ci->first.filename << endl;
+	//	cout << ci->first.scope_id << endl;
+	//	cout << ci->first.var_name << endl;
+	//}
 
 
-	cout << endl;
+	//cout << endl;
 	 
 
 
@@ -1865,19 +1977,34 @@ int main(void)
 	}
 
 
-//	cout << "Sorting vdvec" << endl;
 
 	sort(vdvec.begin(), vdvec.end());
 
+	map<string, vector<string>> declaration_usages;
+
 	for (size_t i = 0; i < vdvec.size(); i++)
 	{
-		cout << vdvec[i].declared_file_name << endl;
-		cout << vdvec[i].scope_id << endl;
-		cout << vdvec[i].var_name << endl;
-		cout << vdvec[i].usage_file_name << endl;
+		string s = vdvec[i].declared_file_name + "::" + vdvec[i].scope_id + "::" + vdvec[i].var_name;
+
+		declaration_usages[s].push_back(vdvec[i].usage_file_name);
+
+		//cout << vdvec[i].declared_file_name << endl;
+		//cout << vdvec[i].scope_id << endl;
+		//cout << vdvec[i].var_name << endl;
+		//cout << vdvec[i].usage_file_name << endl;
+
+		//cout << endl;
+
+	}
+
+	for (map<string, vector<string>>::const_iterator ci = declaration_usages.begin(); ci != declaration_usages.end(); ci++)
+	{
+		cout << ci->first << endl;
+
+		for (size_t j = 0; j < ci->second.size(); j++)
+			cout << ci->second[j] << endl;
 
 		cout << endl;
-
 	}
 
 
