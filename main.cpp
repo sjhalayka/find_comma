@@ -1802,7 +1802,7 @@ int main(void)
 
 
 
-	cout << "References" << endl << endl;
+	//cout << "References" << endl << endl;
 
 
 	vector<variable_data> vdvec;
@@ -1865,7 +1865,7 @@ int main(void)
 	}
 
 
-	cout << "Sorting vdvec" << endl;
+//	cout << "Sorting vdvec" << endl;
 
 	sort(vdvec.begin(), vdvec.end());
 
