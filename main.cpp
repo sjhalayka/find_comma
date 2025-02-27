@@ -196,15 +196,15 @@ public:
 
 	bool operator<(const variable_declaration& rhs) const
 	{
-		if (filename < rhs.filename)
-			return true;
-		else if (filename > rhs.filename)
-			return false;
+		//if (filename < rhs.filename)
+		//	return true;
+		//else if (filename > rhs.filename)
+		//	return false;
 
-		if (var_name < rhs.var_name)
-			return true;
-		else if (var_name > rhs.var_name)
-			return false;
+		//if (var_name < rhs.var_name)
+		//	return true;
+		//else if (var_name > rhs.var_name)
+		//	return false;
 
 		//if (declaration < rhs.declaration)
 		//	return true;
@@ -277,34 +277,35 @@ vector<string> get_filenames(const string& path)
 	vector<string> filenames;
 
 
-	string s = path + "/filedata.c";
-	filenames.push_back(s);
+	//string s = path + "/filedata.c";
+	//filenames.push_back(s);
 
 
 
-	//for (filesystem::directory_entry entry : filesystem::directory_iterator(path))
-	//{
-	//	const string s = entry.path().string();
+	for (filesystem::directory_entry entry : filesystem::directory_iterator(path))
+	{
+		const string s = entry.path().string();
 
-	//	vector<string> tokens = std_strtok(s, "[.]\\s*");
+		vector<string> tokens = std_strtok(s, "[.]\\s*");
 
-	//	if (tokens.size() == 0)
-	//		continue;
+		if (tokens.size() == 0)
+			continue;
 
-	//	for (size_t i = 0; i < tokens.size(); i++)
-	//		for (size_t j = 0; j < tokens[i].size(); j++)
-	//			tokens[i][j] = tolower(tokens[i][j]);
+		for (size_t i = 0; i < tokens.size(); i++)
+			for (size_t j = 0; j < tokens[i].size(); j++)
+				tokens[i][j] = tolower(tokens[i][j]);
 
-	//	if (tokens[tokens.size() - 1] == "c" ||
-	//		tokens[tokens.size() - 1] == "cpp")
-	//	{
-	//		filenames.push_back(s);
-	//		//cout << s << endl;
-	//	}
-	//	else
-	//	{
-	//	//	cout << s << endl;
-	//	}
+		if (tokens[tokens.size() - 1] == "c" ||
+			tokens[tokens.size() - 1] == "cpp")
+		{
+			filenames.push_back(s);
+			//cout << s << endl;
+		}
+		else
+		{
+			//	cout << s << endl;
+		}
+	}
 
 
 	return filenames;
@@ -388,8 +389,6 @@ vector<string> get_variable_types(void)
 
 void enumerate_non_variables(const string path, const vector<variable_declaration>& declarations, vector<non_variable_declaration>& non_declarations)
 {
-	//srand(456);
-
 	non_declarations.clear();
 
 	vector<string> types = get_variable_types();
@@ -409,6 +408,8 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 		long long signed int scope_depth = 0;
 		vector<string> scope_ids;
+		scope_ids.push_back(generateUniqueRandomString(16));
+
 
 		ifstream infile(filenames[i]);
 
@@ -688,16 +689,35 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 								size_t line_pos = statement_line_pos + token_statement_line_pos;
 
+
+
+								long long signed int local_scope_depth = scope_depth;
+								//cout << "PREV LINES P " << prev_lines_vector[p] << endl;
+								vector<string> local_scope_ids = scope_ids;
+
+								//long long signed int open_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].end(), '{');
+								//long long signed int closing_brace_count = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].end(), '}');
+
+								//local_scope_depth += open_brace_count;
+								//local_scope_depth -= closing_brace_count;
+
+								for (long long signed int j = 0; j < open_brace_count; j++)
+									local_scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
+
+								for (long long signed int j = 0; j < closing_brace_count; j++)
+									local_scope_ids.pop_back();
+
+
+
 								non_variable_declaration nvd;
 								nvd.var_name = *ci;
 								nvd.declaration = statements[s];
 								nvd.filename = filenames[i];
 								nvd.line_number = line_num;
 								nvd.line_pos = line_pos;
-								nvd.scope_depth = scope_depth;
+								nvd.scope_depth = local_scope_depth;
 
-								//scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
-								//nvd.scope_id = scope_ids[scope_ids.size() - 1];
+								
 
 								// Look for variable in this nvd's file
 								for (size_t x = 0; x < declarations.size(); x++)
@@ -708,32 +728,38 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 										nvd.scope_depth >= declarations[x].scope_depth)
 									{
 										nvd.scope_id = declarations[x].scope_id;
+										//break;
 									}
 								}
 
-								//// We didn't find the variable in this nvd's file, so...
-								//// Look for global variables from all the rest of the files.
-								//// Don't look in this particular nvd's file because we already know that
-								//// it doesn't contain the variable in question
+								// We didn't find the variable in this nvd's file, so...
+								// Look for global variables from all the rest of the files.
+								// Don't look in this particular nvd's file because we already know that
+								// it doesn't contain the variable in question
+								if (nvd.scope_id == "")
+								{
+									for (size_t x = 0; x < declarations.size(); x++)
+									{
+										if (nvd.var_name == declarations[x].var_name &&
+											declarations[x].scope_depth == 0)
+										{
+											nvd.scope_id = declarations[x].scope_id;
+											//scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
+											break;
+										}
+									}
+								}
+
 								//if (nvd.scope_id == "")
 								//{
-								//	for (size_t x = 0; x < declarations.size(); x++)
-								//	{
-								//		if (nvd.var_name == declarations[x].var_name &&
-								//			declarations[x].scope_depth == 0)
-								//		{
-								//			nvd.scope_id = declarations[x].scope_id;
-								//			scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
-								//			break;
-								//		}
-								//	}
+								//	//scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
+								//	nvd.scope_id = scope_ids[scope_ids.size() - 1];
+
 								//}
 
-								//if (nvd.scope_id == "")
-								//	cout << "ERROR" << endl;
 
 								non_declarations.push_back(nvd);
-								scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
+								//scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
 							}
 						}
 					}
@@ -1838,6 +1864,9 @@ int main(void)
 		vd.scope_id = usage_scope_id;
 		vd.var_name = var_name;
 
+		if (vd.scope_id == "")
+			continue;
+
 		vdvec.push_back(vd);
 
 		//		if (ci->second != 0)
@@ -1865,8 +1894,6 @@ int main(void)
 			}
 		}
 	}
-
-
 
 	sort(vdvec.begin(), vdvec.end());
 
