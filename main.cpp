@@ -156,7 +156,7 @@ class non_declaration_usage_data
 {
 public:
 	string filename = "";
-	string scope_id = ""; 
+	string scope_id = "";
 	string var_name = "";
 
 	bool operator<(const non_declaration_usage_data& rhs) const
@@ -272,7 +272,7 @@ public:
 
 
 
-vector<string> get_filenames(const string &path)
+vector<string> get_filenames(const string& path)
 {
 	vector<string> filenames;
 
@@ -402,14 +402,13 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 		for (size_t j = 0; j < declarations.size(); j++)
 		{
 			//if (declarations[j].filename == filenames[i])
-				var_names.push_back(declarations[j].var_name);
+			var_names.push_back(declarations[j].var_name);
 		}
 
 
 
 		long long signed int scope_depth = 0;
 		vector<string> scope_ids;
-		scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
 
 		ifstream infile(filenames[i]);
 
@@ -459,6 +458,8 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 			for (long signed int p = 0; p < prev_lines_vector.size(); p++)
 			{
+				
+
 				//cout << "PREV_LINES_VECTOR " << prev_lines_vector[p] << endl;
 
 
@@ -695,7 +696,8 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 								nvd.line_pos = line_pos;
 								nvd.scope_depth = scope_depth;
 
-								nvd.scope_id = "";
+								//scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
+								//nvd.scope_id = scope_ids[scope_ids.size() - 1];
 
 								// Look for variable in this nvd's file
 								for (size_t x = 0; x < declarations.size(); x++)
@@ -709,27 +711,29 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 									}
 								}
 
-								// We didn't find the variable in this nvd's file, so...
-								// Look for global variables from all the rest of the files.
-								// Don't look in this particular nvd's file because we already know that
-								// it doesn't contain the variable in question
-								if (nvd.scope_id == "")
-								{
-									for (size_t x = 0; x < declarations.size(); x++)
-									{
-										if (nvd.var_name == declarations[x].var_name &&
-											declarations[x].scope_depth == 0)
-										{
-											nvd.scope_id = declarations[x].scope_id;
-											break;
-										}
-									}
-								}
+								//// We didn't find the variable in this nvd's file, so...
+								//// Look for global variables from all the rest of the files.
+								//// Don't look in this particular nvd's file because we already know that
+								//// it doesn't contain the variable in question
+								//if (nvd.scope_id == "")
+								//{
+								//	for (size_t x = 0; x < declarations.size(); x++)
+								//	{
+								//		if (nvd.var_name == declarations[x].var_name &&
+								//			declarations[x].scope_depth == 0)
+								//		{
+								//			nvd.scope_id = declarations[x].scope_id;
+								//			scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
+								//			break;
+								//		}
+								//	}
+								//}
 
-								if (nvd.scope_id == "")
-									cout << "ERROR" << endl;
+								//if (nvd.scope_id == "")
+								//	cout << "ERROR" << endl;
 
 								non_declarations.push_back(nvd);
+								scope_ids.push_back(generateUniqueRandomString(num_chars_in_random_strings));
 							}
 						}
 					}
@@ -757,7 +761,7 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 void enumerate_variables(const string path, vector<variable_declaration>& declarations)
 {
-//	srand(123);
+	//	srand(123);
 
 	declarations.clear();
 
@@ -1578,7 +1582,7 @@ void get_type_and_name(string input, string& variable_type0, string& variable_na
 int main(void)
 {
 	srand(0);
-	
+
 	std::string path = "Y:/home/sjhalayka/ldak_min";
 	//std::string path = "Y:/home/sjhalayka/input_code";
 
@@ -1718,7 +1722,7 @@ int main(void)
 		}
 	}
 
-	 cout << endl;
+	cout << endl;
 
 
 	//map<string, size_t> type_map;
@@ -1772,14 +1776,14 @@ int main(void)
 		if (var_name_location != string::npos)
 			variable_use_counts[ndud]++;
 
-		if(malloc_location != string::npos)
+		if (malloc_location != string::npos)
 			malloc_counts[ndud]++;
 
 		if (free_location != string::npos)
 			free_counts[ndud]++;
 	}
 
-//	cout << "NONDECLARATIONS" << endl;
+	//	cout << "NONDECLARATIONS" << endl;
 
 	cout << "Variables used: " << variable_use_counts.size() << endl;
 
@@ -1792,7 +1796,7 @@ int main(void)
 
 
 	//cout << endl;
-	 
+
 
 
 
@@ -1818,6 +1822,10 @@ int main(void)
 			}
 		}
 
+		if (declared_file_name == "")
+			declared_file_name = usage_file_name;
+
+
 		//cout << "usage filename: " << usage_file_name << endl;
 		//cout << "usage scope id: " << usage_scope_id << endl;
 		//cout << "usage var name: " << var_name << endl;
@@ -1832,7 +1840,7 @@ int main(void)
 
 		vdvec.push_back(vd);
 
-//		if (ci->second != 0)
+		//		if (ci->second != 0)
 		{
 			size_t m = malloc_counts[ci->first];
 			size_t f = free_counts[ci->first];
