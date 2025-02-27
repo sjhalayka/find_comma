@@ -408,15 +408,11 @@ void enumerate_non_variables(const string path, const vector<variable_declaratio
 
 		long long signed int scope_depth = 0;
 		vector<string> scope_ids;
-		scope_ids.push_back(generateUniqueRandomString(16));
-
 
 		ifstream infile(filenames[i]);
 
 		if (infile.fail())
 			continue;
-
-
 
 		string line;
 		vector<string> prev_lines_vector;
@@ -1811,7 +1807,6 @@ int main(void)
 
 	//	cout << "NONDECLARATIONS" << endl;
 
-	cout << "Variables used: " << variable_use_counts.size() << endl;
 
 	//for (map<non_declaration_usage_data, size_t>::const_iterator ci = variable_use_counts.begin(); ci != variable_use_counts.end(); ci++)
 	//{
@@ -1848,22 +1843,14 @@ int main(void)
 			}
 		}
 
-		if (declared_file_name == "")
-			declared_file_name = usage_file_name;
-
-
-		//cout << "usage filename: " << usage_file_name << endl;
-		//cout << "usage scope id: " << usage_scope_id << endl;
-		//cout << "usage var name: " << var_name << endl;
-		//cout << "declared filename: " << declared_file_name << endl;
-		//cout << endl;
-
 		variable_data vd;
 		vd.usage_file_name = usage_file_name;
 		vd.declared_file_name = declared_file_name;
 		vd.scope_id = usage_scope_id;
 		vd.var_name = var_name;
 
+		// Was this a false alarm?
+		// I mean, was the usage referring to a function parameter?
 		if (vd.scope_id == "")
 			continue;
 
@@ -1897,6 +1884,9 @@ int main(void)
 
 	sort(vdvec.begin(), vdvec.end());
 
+;
+
+
 	map<string, vector<string>> declaration_usages;
 
 	for (size_t i = 0; i < vdvec.size(); i++)
@@ -1913,6 +1903,8 @@ int main(void)
 		//cout << endl;
 
 	}
+
+	cout << "Variables used: " << declaration_usages.size() << endl;
 
 	for (map<string, vector<string>>::const_iterator ci = declaration_usages.begin(); ci != declaration_usages.end(); ci++)
 	{
