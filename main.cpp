@@ -158,6 +158,8 @@ public:
 	string filename = "";
 	string scope_id = "";
 	string var_name = "";
+	size_t line_num = 0;
+	size_t line_pos = 0;
 
 	bool operator<(const non_declaration_usage_data& rhs) const
 	{
@@ -1629,8 +1631,8 @@ int main(void)
 {
 	srand(0);
 
-	std::string path = "Y:/home/sjhalayka/ldak_min";
-	//std::string path = "Y:/home/sjhalayka/input_code";
+	//std::string path = "Y:/home/sjhalayka/ldak_min";
+	std::string path = "Y:/home/sjhalayka/input_code";
 
 	vector<variable_declaration> declarations;
 
@@ -1818,6 +1820,8 @@ int main(void)
 		ndud.filename = non_declarations[i].filename;
 		ndud.scope_id = non_declarations[i].scope_id;
 		ndud.var_name = non_declarations[i].var_name;
+		ndud.line_num = non_declarations[i].line_number;
+		ndud.line_pos = non_declarations[i].line_pos;
 
 		if (var_name_location != string::npos)
 			variable_use_counts[ndud]++;
@@ -1829,20 +1833,31 @@ int main(void)
 			free_counts[ndud]++;
 	}
 
-	//	cout << "NONDECLARATIONS" << endl;
+	cout << "malloc calls " << endl;
 
+	for (map<non_declaration_usage_data, size_t>::const_iterator ci = malloc_counts.begin(); ci != malloc_counts.end(); ci++)
+	{
+		cout << ci->first.filename << endl;
+		cout << ci->first.scope_id << endl;
+		cout << ci->first.var_name << endl;
+		cout << ci->first.line_num << endl;
+		cout << ci->first.line_pos << endl;
+	}
 
-	//for (map<non_declaration_usage_data, size_t>::const_iterator ci = variable_use_counts.begin(); ci != variable_use_counts.end(); ci++)
-	//{
-	//	cout << ci->first.filename << endl;
-	//	cout << ci->first.scope_id << endl;
-	//	cout << ci->first.var_name << endl;
-	//}
+	cout << endl;
 
+	cout << "free calls " << endl;
 
-	//cout << endl;
+	for (map<non_declaration_usage_data, size_t>::const_iterator ci = free_counts.begin(); ci != free_counts.end(); ci++)
+	{
+		cout << ci->first.filename << endl;
+		cout << ci->first.scope_id << endl;
+		cout << ci->first.var_name << endl;
+		cout << ci->first.line_num << endl;
+		cout << ci->first.line_pos << endl;
+	}
 
-
+	cout << endl;
 
 
 	//cout << "References" << endl << endl;
