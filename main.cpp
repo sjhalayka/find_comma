@@ -1472,10 +1472,10 @@ void enumerate_variables(const string path, vector<variable_declaration>& declar
 								long long signed int local_scope_depth = scope_depth;
 								vector<string> local_scope_ids = scope_ids;
 
-								long long signed int open_brace_count = 0;// ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + s, '{');
-								long long signed int closing_brace_count = 0;// = ranges::count(prev_lines_vector[p].begin(), prev_lines_vector[p].begin() + s, '}');
+								long long signed int open_brace_count = 0;
+								long long signed int closing_brace_count = 0;
 
-								for (size_t x = 0; x < prev_lines_vector[p].size() && x <= line_pos; x++)
+								for (size_t x = 0; x < prev_lines_vector[p].size() && x < line_pos; x++)
 								{
 									if (prev_lines_vector[p][x] == '{')
 										open_brace_count++;
